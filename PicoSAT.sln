@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2005
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicoSAT", "PicoSAT\PicoSAT.csproj", "{6895FA26-7801-4A8B-A457-9F9CF1C7FAA4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{6EEF031C-5A3D-412E-A55F-0FB5F764CE0F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6895FA26-7801-4A8B-A457-9F9CF1C7FAA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6895FA26-7801-4A8B-A457-9F9CF1C7FAA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6895FA26-7801-4A8B-A457-9F9CF1C7FAA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6895FA26-7801-4A8B-A457-9F9CF1C7FAA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EEF031C-5A3D-412E-A55F-0FB5F764CE0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EEF031C-5A3D-412E-A55F-0FB5F764CE0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EEF031C-5A3D-412E-A55F-0FB5F764CE0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EEF031C-5A3D-412E-A55F-0FB5F764CE0F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6436B4DC-EF2E-431F-9D5D-6F63C4C49AB9}
+	EndGlobalSection
+EndGlobal
