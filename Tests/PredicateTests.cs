@@ -172,5 +172,111 @@ namespace Tests
                 }
             }
         }
+
+        [TestMethod]
+        public void TransitiveClosureTest()
+        {
+            // Compute the transitive closure of a 5-node graph using Floyd-Warshall
+            // This is a hard case for PicoSAT because it has 176 variables, 400 clauses,
+            // and exactly one solution.  So random guessing + hill climbing isn't a good idea.
+            var p = new Problem("transitive closure test") { MaxFlips = 50000, MaxTries = 1000 };
+            var vertices = new[] {"a", "b", "c", "d", "e"};
+            var edges = new[]
+            {
+                new[] {"a", "b"},
+                new[] {"a", "d"},
+                new[] {"b", "c"},
+                new[] {"d", "c"},
+            };
+            Proposition Adjacent(string v1, string v2) => edges.Any(e => (v1 == v2) || (e[0] == v1 && e[1] == v2) || (e[0] == v2 && e[1] == v1));
+            var floyd = Predicate<string, string, int>("d");
+            // Inlines either adjacent or floyd, depending on k
+            Proposition D(string v1, string v2, int k) => k == 0 ? Adjacent(v1, v2) : floyd(v1, v2, k);
+            for (int k = 1; k < vertices.Length; k++)
+            {
+                var vk = vertices[k];
+                foreach (var v1 in vertices)
+                {
+                    foreach (var v2 in vertices)
+                    {
+                        p.Assert(
+                            D(v1,v2,k) <= D(v1, v2, k-1),
+                            D(v1,v2,k) <= (D(v1, vk, k-1) & D(vk, v2, k-1))
+                        );
+                    }
+                }
+            }
+
+            Proposition Connected(string v1, string v2) => D(v1, v2, vertices.Length - 1);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+
+                // a, b, c, d should be a connected component, e should be unconnected to anything but e
+                foreach (var v1 in vertices)
+                {
+                    foreach (var v2 in vertices)
+                    {
+                        Assert.IsTrue(s[Connected(v1, v2)] == (v1 == v2) || (v1 != "e" && v2 != "e"));
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void InverseTransitiveClosureTest()
+        {
+            // Make a random 5-node undirected graph with designated connected components.
+            // Computes transitive closure of using Floyd-Warshall
+            var p = new Problem("transitive closure test") { MaxFlips = 50000, MaxTries = 1000 };
+            var vertices = new[] { "a", "b", "c", "d", "e" };
+            var adjacent = Predicate<string, string>("adjacent");
+            var floyd = Predicate<string, string, int>("d");
+            // Inlines either adjacent or floyd, depending on k
+            Proposition D(string v1, string v2, int k) => k == 0 ? adjacent(v1, v2) : floyd(v1, v2, k);
+            for (int k = 1; k < vertices.Length; k++)
+            {
+                var vk = vertices[k];
+                foreach (var v1 in vertices)
+                {
+                    foreach (var v2 in vertices)
+                    {
+                        p.Assert(
+                            D(v1, v2, k) <= D(v1, v2, k - 1),
+                            D(v1, v2, k) <= (D(v1, vk, k - 1) & D(vk, v2, k - 1))
+                        );
+                    }
+                }
+            }
+
+            Proposition Connected(string v1, string v2) => D(v1, v2, vertices.Length - 1);
+
+            // Now constrain its connectivity
+            foreach (var v1 in vertices)
+            {
+                foreach (var v2 in vertices)
+                {
+                    if (v1 == v2 || (v1 != "e" && v2 != "e"))
+                        p.Assert(Connected(v1, v2));
+                    else
+                        p.Assert(Not(Connected(v1, v2)));
+                }
+            }
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+
+                // a, b, c, d should be a connected component, e should be unconnected to anything but e
+                foreach (var v1 in vertices)
+                {
+                    foreach (var v2 in vertices)
+                    {
+                        Assert.IsTrue(s[Connected(v1, v2)] == (v1 == v2) || (v1 != "e" && v2 != "e"));
+                    }
+                }
+            }
+        }
     }
 }
