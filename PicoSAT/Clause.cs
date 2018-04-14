@@ -49,6 +49,11 @@ namespace PicoSAT
         }
 
         /// <summary>
+        /// True if this is a plain old boring disjunction
+        /// </summary>
+        public bool IsNormalDisjunction => minDisjunctsMinusOne == 0 && maxDisjunctsPlusOne == Disjuncts.Length+1;
+
+        /// <summary>
         /// Make a new clause (but doesn't add it to a Program)
         /// </summary>
         /// <param name="min">Minimum number of disjuncts that must be true to consider the clause satisfied</param>

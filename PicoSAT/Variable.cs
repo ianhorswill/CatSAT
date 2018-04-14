@@ -59,5 +59,8 @@ namespace PicoSAT
             IsConstant = true;
             ConstantValue = value;
         }
+
+        public bool IsAlwaysTrue => IsConstant && ConstantValue;
+        public bool IsAlwaysFalse => IsConstant && !ConstantValue;
     }
 }

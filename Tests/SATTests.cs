@@ -137,7 +137,7 @@ namespace Tests
             p.AddClause("x", Not("y"));  // x -> y
             p.AddClause(Not("x"), "y");  // y -> x
             // This should only have two models: both true or both false.
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 var m = p.Solve();
                 Assert.IsTrue(m.IsTrue("x") == m.IsTrue("y"));

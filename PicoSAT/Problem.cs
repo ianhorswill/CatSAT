@@ -199,41 +199,13 @@ namespace PicoSAT
         /// <returns>The Solution object mapping propositions to truth values.</returns>
         public Solution Solve(bool throwOnUnsolvable = true)
         {
-            if (Tight)
-                CheckTightness();
-            CompileRuleBodies();
+            FinishCodeGeneration();
             var m = new Solution(this, MaxFlips, MaxTries, RandomFlipProbability);
             if (m.Solve())
                 return m;
             if (throwOnUnsolvable)
                 throw new UnsatisfiableException(this);
             return null;
-        }
-
-        private void CheckTightness()
-        {
-            void Walk(Proposition p)
-            {
-                switch (p.State)
-                {
-                    case Proposition.WalkState.Complete:
-                        return;
-
-                    case Proposition.WalkState.Pending:
-                        throw new NonTightProblemException(p);
-
-                    case Proposition.WalkState.Unvisited:
-                        p.State = Proposition.WalkState.Pending;
-                        if (p.PositiveDependencies != null)
-                            foreach (var d in p.PositiveDependencies)
-                                Walk(d);
-                        p.State = Proposition.WalkState.Complete;
-                        return;
-                }
-            }
-
-            for (int i = 0; i < Variables.Count; i++)
-                Walk(Variables[i].Proposition);
         }
 
         #region Assertions
@@ -269,9 +241,14 @@ namespace PicoSAT
 
         private void MakeConstant(Proposition p, bool value)
         {
-            var v = Variables[p.Index];
+            MakeConstant(p.Index, value);
+        }
+
+        private void MakeConstant(int index, bool value)
+        {
+            var v = Variables[index];
             v.SetConstant(value);
-            Variables[p.Index] = v;
+            Variables[index] = v;
         }
 
         public void Assert(Implication i)
@@ -332,30 +309,63 @@ namespace PicoSAT
             return result;
         }
 
-        private void CompileRuleBodies()
+        private void FinishCodeGeneration()
         {
             if (compilationState == CompilationState.HaveRules)
             {
-                int startingVariableCount = Variables.Count;
+                if (Tight)
+                    CheckTightness();
+                CompileRuleBodies();
+            }
 
-                for (int i = 0; i < startingVariableCount; i++)
+            compilationState = CompilationState.Compiled;
+        }
+
+        private void CheckTightness()
+        {
+            void Walk(Proposition p)
+            {
+                switch (p.State)
                 {
-                    var v = Variables[i];
-                    var p = v.Proposition;
-                    var bodies = p.RuleBodies;
-                    if (bodies != null)
-                    {
-                        Debug.Assert(bodies.Count > 0);
-                        AssertCompletion(v.Proposition, bodies);
-                    }
+                    case Proposition.WalkState.Complete:
+                        return;
+
+                    case Proposition.WalkState.Pending:
+                        throw new NonTightProblemException(p);
+
+                    case Proposition.WalkState.Unvisited:
+                        p.State = Proposition.WalkState.Pending;
+                        if (p.PositiveDependencies != null)
+                            foreach (var d in p.PositiveDependencies)
+                                Walk(d);
+                        p.State = Proposition.WalkState.Complete;
+                        return;
                 }
+            }
+
+            for (int i = 0; i < Variables.Count; i++)
+                Walk(Variables[i].Proposition);
+        }
+
+        private void CompileRuleBodies()
+        {
+            int startingVariableCount = Variables.Count;
+
+            for (int i = 0; i < startingVariableCount; i++)
+            {
+                var v = Variables[i];
+                var p = v.Proposition;
+                var bodies = p.RuleBodies;
+                if (bodies != null)
+                {
+                    Debug.Assert(bodies.Count > 0);
+                    AssertCompletion(v.Proposition, bodies);
+                }
+            }
 
 #if !DEBUG
                 CleanPropositionInfo();
 #endif
-            }
-
-            compilationState = CompilationState.Compiled;
         }
 
 #if !DEBUG
@@ -440,8 +450,7 @@ namespace PicoSAT
                 AddClause(new Clause(1, 0, reverseClause));
             }
         }
-
-#endregion
+        #endregion
 
         #region Quantifiers
         public void Quantify(int min, int max, IEnumerable<Literal> enumerator)
@@ -484,9 +493,9 @@ namespace PicoSAT
         {
             Quantify(n, 0, enumerator);
         }
-#endregion
+        #endregion
 
-#region Mapping between Literals objects and Variables
+        #region Mapping between Literals objects and Variables
         private readonly Dictionary<object, Proposition> propositionTable = new Dictionary<object, Proposition>();
 
         public Proposition GetProposition(object key)
@@ -522,6 +531,111 @@ namespace PicoSAT
         {
             return Variables[clause.Disjuncts[position]].Proposition;
         }
-#endregion
+        #endregion
+
+        #region Optimization (unit resolution)
+        /// <summary>
+        /// Do a simple constant-folding pass over the program.
+        /// This is technically called unit resolution, but it basically means constant folding
+        /// </summary>
+        public void Optimize()
+        {
+            FinishCodeGeneration();
+
+            // This is inefficient, but I'm not going to optimize this loop until I know it's worthwhile
+            bool changed;
+            var toBeOptimized = new List<Clause>(Clauses);
+            do
+            {
+                changed = false;
+                foreach (var c in toBeOptimized.ToArray())
+                    switch (UnitPropagate(c))
+                    {
+                        case OptimizationState.Contradiction:
+                            // Compile-time false
+                            throw new UnsatisfiableException(this);
+
+                        case OptimizationState.Optimized:
+                            // Just optimized it away
+                            changed = true;
+                            toBeOptimized.Remove(c);
+                            break;
+
+                        case OptimizationState.Ignore:
+                            // Compile-time true; don't need to look at it any more
+                            toBeOptimized.Remove(c);
+                            break;
+                    }
+            } while (changed);
+        }
+
+        enum OptimizationState { InPlay, Ignore, Optimized, Contradiction }
+
+        OptimizationState UnitPropagate(Clause c)
+        {
+            if (!c.IsNormalDisjunction)
+                // Unit resolution is invalid for this clause
+                return OptimizationState.Ignore;
+
+            // Check if clause has exactly one disjunct that isn't verifiably false at compile time
+            short inferred = 0;
+            foreach (var i in c.Disjuncts)
+            {
+                if (i > 0)
+                {
+                    // It's a positive literal
+                    var v = Variables[i];
+                    if (v.IsConstant)
+                    {
+                        if (v.ConstantValue)
+                            // It's a positive literal and it's true, so no optimization possible
+                            return OptimizationState.Ignore;
+                        // Otherwise, v is always false, so this disjunct is always false
+                        // Move on to the next disjunct
+                    }
+                    else
+                    {
+                        if (inferred != 0)
+                            // We already found a non-constant disjunct, so this is the second one
+                            // and so we can't do anything with this clause
+                            return OptimizationState.InPlay;
+                        inferred = i;
+                    }
+                }
+                else
+                {
+                    // It's a negative literal
+                    var v = Variables[-i];
+                    if (v.IsConstant)
+                    {
+                        if (!v.ConstantValue)
+                            // It's a negative literal and it's false so no optimization possible
+                            return OptimizationState.Ignore;
+                        // Otherwise, v is always false, so this disjunct is always false
+                        // Move on to the next disjunct
+                    }
+                    else
+                    {
+                        if (inferred != 0)
+                            // We already found a non-constant disjunct, so this is the second one
+                            // and so we can't do anything with this clause
+                            return OptimizationState.InPlay;
+                        inferred = i;
+                    }
+                }
+            }
+
+            // We got through all the disjuncts
+            if (inferred == 0)
+                // All disjuncts are compile-time false!
+                return OptimizationState.Contradiction;
+            if (inferred > 0)
+                MakeConstant(inferred, true);
+            else
+                MakeConstant(-inferred, false);
+            return OptimizationState.Optimized;
+        }
+
+        #endregion
     }
 }
