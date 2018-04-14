@@ -20,6 +20,7 @@ namespace PicoSAT
             Proposition = proposition;
             PositiveClauses = new List<ushort>();
             NegativeClauses = new List<ushort>();
+            IsConstant = ConstantValue = false;
         }
 
         /// <summary>
@@ -42,5 +43,21 @@ namespace PicoSAT
         /// Used to know what clauses to check if we flip this variable
         /// </summary>
         public readonly List<ushort> NegativeClauses;
+
+        /// <summary>
+        /// Whether the value of the variable is fixed.
+        /// </summary>
+        public bool IsConstant;
+
+        /// <summary>
+        /// Value of variable if it is a constant
+        /// </summary>
+        public bool ConstantValue;
+
+        public void SetConstant(bool value)
+        {
+            IsConstant = true;
+            ConstantValue = value;
+        }
     }
 }

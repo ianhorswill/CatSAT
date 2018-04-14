@@ -135,10 +135,8 @@ namespace Tests
             prog.Assert( p <= false );
             prog.Solve();  // Force it to expand rule to completion
 
-            // This should have compiled to just one clause asserting not p
-            Assert.AreEqual(1, prog.Clauses.Count);
-            Assert.AreEqual(1, prog.Clauses[0].Disjuncts.Length);
-            Assert.AreEqual(-1, prog.Clauses[0].Disjuncts[0]);
+            // This should not generate any clauses
+            Assert.AreEqual(0, prog.Clauses.Count);
         }
 
         [TestMethod]
@@ -152,12 +150,11 @@ namespace Tests
                 p <= false,
                 p <= q
             );
-            prog.Solve();  // Force it to expand rule to completion
+            var s = prog.Solve();  // Force it to expand rule to completion
 
-            // This should have compiled to just one clause asserting p unconditionally
-            Assert.AreEqual(1, prog.Clauses.Count);
-            Assert.AreEqual(1, prog.Clauses[0].Disjuncts.Length);
-            Assert.AreEqual(1, prog.Clauses[0].Disjuncts[0]);
+            // This should have compiled to zero clauses but p should still always be true
+            Assert.AreEqual(0, prog.Clauses.Count);
+            Assert.IsTrue(s[p]);
         }
 
         [TestMethod]

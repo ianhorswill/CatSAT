@@ -15,8 +15,6 @@ namespace PicoSAT
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + "}")]
     public class Solution
     {
-        // TODO: add loop detection and loop nogoods (big job)
-
         #region Solver parameters
         /// <summary>
         /// Number of flips of propositions we can try before we give up and start over.
@@ -327,6 +325,10 @@ namespace PicoSAT
         private void Flip(ushort pIndex)
         {
             var prop = Problem.Variables[pIndex];
+            if (prop.IsConstant)
+                // Can't flip it.
+                return;
+
             if (propositions[pIndex])
             {
                 // Flip true -> false
@@ -407,7 +409,9 @@ namespace PicoSAT
         {
             // Initialize propositions[]
             for (var i = 0; i < propositions.Length; i++)
-                propositions[i] = Random.Next() % 2 == 0;
+            {
+                propositions[i] = Problem.Variables[i].IsConstant?Problem.Variables[i].ConstantValue:Random.Next() % 2 == 0;
+            }
 
             unsatisfiedClauses.Clear();
 

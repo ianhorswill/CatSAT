@@ -251,8 +251,29 @@ namespace PicoSAT
                 return;
             if (Equals(l, Proposition.False))
                 throw new InvalidOperationException("Attempt to Assert the false proposition.");
-            AddClause(new Clause(1, 0, new[] {l.SignedIndex}));
+            //AddClause(new Clause(1, 0, new[] {l.SignedIndex}));
+            switch (l)
+            {
+                case Proposition p:
+                    MakeConstant(p, true);
+                    break;
+
+                case Negation n:
+                    MakeConstant(n.Proposition, false);
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Unknown literal type: {l.GetType().Name}");
+            }
         }
+
+        private void MakeConstant(Proposition p, bool value)
+        {
+            var v = Variables[p.Index];
+            v.SetConstant(value);
+            Variables[p.Index] = v;
+        }
+
         public void Assert(Implication i)
         {
             var h = i.Head;
