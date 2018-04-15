@@ -177,8 +177,7 @@ namespace Tests
         public void TransitiveClosureTest()
         {
             // Compute the transitive closure of a 5-node graph using Floyd-Warshall
-            // This is a hard case for PicoSAT because it has 176 variables, 400 clauses,
-            // and exactly one solution.  So random guessing + hill climbing isn't a good idea.
+            // This *should* get constant-folded away
             var p = new Problem("transitive closure test");
             var vertices = new[] {"a", "b", "c", "d", "e"};
             var edges = new[]

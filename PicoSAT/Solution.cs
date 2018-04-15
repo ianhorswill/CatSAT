@@ -210,6 +210,8 @@ namespace PicoSAT
             {
                 MakeRandomAssignment();
 
+                // TODO: maintain a list of non-constant variables so we never even try to flip constants
+
                 for (var f = MaxFlips; unsatisfiedClauses.Count > 0 && f > 0; f--)
                 {
                     if (Random.InRange(100) < RandomFlipProbability)
