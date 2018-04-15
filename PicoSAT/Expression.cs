@@ -245,7 +245,7 @@ namespace PicoSAT
         {
             get { yield return this; }
         }
-
+        
         /// <summary>
         /// Mark this proposition as depending on another proposition.
         /// </summary>

@@ -526,10 +526,33 @@ namespace PicoSAT
             return p;
         }
 
-
         internal Proposition KeyOf(Clause clause, ushort position)
         {
             return Variables[clause.Disjuncts[position]].Proposition;
+        }
+
+        /// <summary>
+        /// True if proposition is known to be true in all models
+        /// </summary>
+        public bool IsAlwaysTrue(Proposition p)
+        {
+            return Variables[p.Index].IsAlwaysTrue;
+        }
+
+        /// <summary>
+        /// True if proposition is known to be false in all models
+        /// </summary>
+        public bool IsAlwaysFalse(Proposition p)
+        {
+            return Variables[p.Index].IsAlwaysFalse;
+        }
+
+        /// <summary>
+        /// True if proposition is known to have the same value in all models
+        /// </summary>
+        public bool IsConstant(Proposition p)
+        {
+            return Variables[p.Index].IsConstant;
         }
         #endregion
 

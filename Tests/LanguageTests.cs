@@ -204,5 +204,46 @@ namespace Tests
                 Assert.IsFalse(m.IsTrue(r));
             }
         }
+
+        [TestMethod]
+        public void OptimizationTest()
+        {
+            var prog = new Problem();
+            var p = (Proposition)"p";
+            var q = (Proposition)"q";
+            var r = (Proposition)"r";
+            var s = (Proposition) "s";
+            prog.Assert(
+                p <= q,
+                p <= r,
+                Not(p)
+            );
+            prog.Optimize();
+            Assert.IsTrue(prog.IsAlwaysFalse(p));
+            Assert.IsTrue(prog.IsAlwaysFalse(q));
+            Assert.IsTrue(prog.IsAlwaysFalse(r));
+            Assert.IsFalse(prog.IsConstant(s));
+        }
+
+        [TestMethod, ExpectedException(typeof(UnsatisfiableException))]
+        public void ContradictionTest()
+        {
+            var prog = new Problem();
+            var p = (Proposition)"p";
+            var q = (Proposition)"q";
+            var r = (Proposition)"r";
+            var s = (Proposition)"s";
+            prog.Assert(
+                p <= q,
+                p <= r,
+                Not(p),
+                q
+            );
+            prog.Optimize();
+            Assert.IsTrue(prog.IsAlwaysFalse(p));
+            Assert.IsTrue(prog.IsAlwaysFalse(q));
+            Assert.IsTrue(prog.IsAlwaysFalse(r));
+            Assert.IsFalse(prog.IsConstant(s));
+        }
     }
 }
