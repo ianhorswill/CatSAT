@@ -17,7 +17,7 @@ namespace PicoSAT
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
         public static Func<T1, Proposition> Predicate<T1>(string name)
         {
-            return arg1 => Proposition.MakeProposition(new PredicateCall(name, arg1));
+            return arg1 => Proposition.MakeProposition(new Call(name, arg1));
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace PicoSAT
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
         public static Func<T1, T2, Proposition> Predicate<T1, T2>(string name)
         {
-            return (arg1, arg2) => Proposition.MakeProposition(new PredicateCall(name, arg1, arg2));
+            return (arg1, arg2) => Proposition.MakeProposition(new Call(name, arg1, arg2));
         }
 
         /// <summary>
@@ -44,8 +44,8 @@ namespace PicoSAT
             return (arg1, arg2) =>
             {
                 if (arg1.CompareTo(arg2) > 0)
-                    return Proposition.MakeProposition(new PredicateCall(name, arg2, arg1));
-                return Proposition.MakeProposition(new PredicateCall(name, arg1, arg2));
+                    return Proposition.MakeProposition(new Call(name, arg2, arg1));
+                return Proposition.MakeProposition(new Call(name, arg1, arg2));
             };
         }
 
@@ -62,11 +62,11 @@ namespace PicoSAT
             {
                 var diff = arg1.CompareTo(arg2);
                 if (diff > 0)
-                    return Proposition.MakeProposition(new PredicateCall(name, arg2, arg1));
+                    return Proposition.MakeProposition(new Call(name, arg2, arg1));
                 if (diff == 0)
                     return Proposition.True;
                 // diff < 0
-                return Proposition.MakeProposition(new PredicateCall(name, arg1, arg2));
+                return Proposition.MakeProposition(new Call(name, arg1, arg2));
             };
         }
 
@@ -80,7 +80,7 @@ namespace PicoSAT
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
         public static Func<T1, T2, T3, Proposition> Predicate<T1, T2, T3>(string name)
         {
-            return (arg1, arg2, arg3) => Proposition.MakeProposition(new PredicateCall(name, arg1, arg2, arg3));
+            return (arg1, arg2, arg3) => Proposition.MakeProposition(new Call(name, arg1, arg2, arg3));
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace PicoSAT
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
         public static Func<T1, T2, T3, T4, Proposition> Predicate<T1, T2, T3, T4>(string name)
         {
-            return (arg1, arg2, arg3, arg4) => Proposition.MakeProposition(new PredicateCall(name, arg1, arg2, arg3, arg4));
+            return (arg1, arg2, arg3, arg4) => Proposition.MakeProposition(new Call(name, arg1, arg2, arg3, arg4));
         }
 
         /// <summary>
@@ -109,7 +109,52 @@ namespace PicoSAT
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
         public static Func<T1, T2, T3, T4, T5, Proposition> Predicate<T1, T2, T3, T4, T5>(string name)
         {
-            return (arg1, arg2, arg3, arg4, arg5) => Proposition.MakeProposition(new PredicateCall(name, arg1, arg2, arg3, arg4, arg5));
+            return (arg1, arg2, arg3, arg4, arg5) => Proposition.MakeProposition(new Call(name, arg1, arg2, arg3, arg4, arg5));
+        }
+
+        /// <summary>
+        /// Make a unary function in the sense of a term generator
+        /// </summary>
+        /// <param name="name">Name of the function</param>
+        public static Func<T1, Call> Function<T1>(string name)
+        {
+            return (arg1) => new Call(name, arg1);
+        }
+
+        /// <summary>
+        /// Make a binary function in the sense of a term generator
+        /// </summary>
+        /// <param name="name">Name of the function</param>
+        public static Func<T1, T2, Call> Function<T1, T2>(string name)
+        {
+            return (arg1, arg2) => new Call(name, arg1, arg2);
+        }
+
+        /// <summary>
+        /// Make a 3-argument function in the sense of a term generator
+        /// </summary>
+        /// <param name="name">Name of the function</param>
+        public static Func<T1, T2, T3, Call> Function<T1, T2, T3>(string name)
+        {
+            return (arg1, arg2, arg3) => new Call(name, arg1, arg2, arg3);
+        }
+
+        /// <summary>
+        /// Make a 4-argument function in the sense of a term generator
+        /// </summary>
+        /// <param name="name">Name of the function</param>
+        public static Func<T1, T2, T3, T4, Call> Function<T1, T2, T3, T4>(string name)
+        {
+            return (arg1, arg2, arg3, arg4) => new Call(name, arg1, arg2, arg3, arg4);
+        }
+
+        /// <summary>
+        /// Make a 5-argument function in the sense of a term generator
+        /// </summary>
+        /// <param name="name">Name of the function</param>
+        public static Func<T1, T2, T3, T4, T5, Call> Function<T1, T2, T3, T4, T5>(string name)
+        {
+            return (arg1, arg2, arg3, arg4, arg5) => new Call(name, arg1, arg2, arg3, arg4, arg5);
         }
 
         /// <summary>
@@ -122,16 +167,16 @@ namespace PicoSAT
         }
 
         /// <summary>
-        /// Represents a call to a predicate with specific arguments.
+        /// Represents a call to a predicate or function with specific arguments.
         /// This gets used as the name of the Proposition that the predicate returns when you call it.
         /// </summary>
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + "}")]
-        internal class PredicateCall
+        public sealed class Call
         {
             private readonly string name;
             private readonly object[] args;
 
-            public PredicateCall(string name, params object[] args)
+            public Call(string name, params object[] args)
             {
                 this.name = name;
                 this.args = args;
@@ -147,7 +192,7 @@ namespace PicoSAT
 
             public override bool Equals(object obj)
             {
-                if (obj is PredicateCall c)
+                if (obj is Call c)
                 {
                     if (name != c.name)
                         return false;

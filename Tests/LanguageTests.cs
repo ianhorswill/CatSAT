@@ -85,23 +85,23 @@ namespace Tests
         }
 
         [TestMethod]
-        public void PredicateCallEqualTest()
+        public void CallEqualTest()
         {
-            Assert.AreEqual(new PredicateCall("foo", 1, 2), new PredicateCall("foo", 1, 2));
+            Assert.AreEqual(new Call("foo", 1, 2), new Call("foo", 1, 2));
         }
 
         [TestMethod]
-        public void PredicateCallHashTest()
+        public void CallHashTest()
         {
-            Assert.AreEqual(new PredicateCall("foo", 1, 2).GetHashCode(), new PredicateCall("foo", 1, 2).GetHashCode());
+            Assert.AreEqual(new Call("foo", 1, 2).GetHashCode(), new Call("foo", 1, 2).GetHashCode());
         }
 
         [TestMethod]
-        public void PredicateCallNotEqualTest()
+        public void CallNotEqualTest()
         {
-            Assert.AreNotEqual(new PredicateCall("foo", 1, 2), new PredicateCall("bar", 1, 2));
-            Assert.AreNotEqual(new PredicateCall("foo", 1, 2), new PredicateCall("foo", 0, 2));
-            Assert.AreNotEqual(new PredicateCall("foo", 1, 2), new PredicateCall("foo", 1, 0));
+            Assert.AreNotEqual(new Call("foo", 1, 2), new Call("bar", 1, 2));
+            Assert.AreNotEqual(new Call("foo", 1, 2), new Call("foo", 0, 2));
+            Assert.AreNotEqual(new Call("foo", 1, 2), new Call("foo", 1, 0));
         }
 
         [TestMethod]
