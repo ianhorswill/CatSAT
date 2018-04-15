@@ -236,8 +236,7 @@ namespace PicoSAT
         /// <param name="e"></param>
         internal void AddRuleBody(Expression e)
         {
-            if (RuleBodies == null)
-                RuleBodies = new List<Expression>();
+            RequireHaveSupport();
             RuleBodies.Add(e);
         }
 
@@ -254,6 +253,16 @@ namespace PicoSAT
             if (PositiveDependencies == null)
                 PositiveDependencies = new List<Proposition>();
             PositiveDependencies.Add(d);
+        }
+
+        /// <summary>
+        /// Force supported model semantics for this proposition.
+        /// If no rules are provided for it, it will always be false.
+        /// </summary>
+        public void RequireHaveSupport()
+        {
+            if (RuleBodies == null)
+                RuleBodies = new List<Expression>();
         }
     }
 

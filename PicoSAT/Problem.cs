@@ -111,6 +111,11 @@ namespace PicoSAT
         public bool Tight = true;
 
         /// <summary>
+        /// Number of timesteps in history, if fluents are used.
+        /// </summary>
+        public int TimeHorizon=-1;
+        
+        /// <summary>
         /// The Variables in the Problem.
         /// There is one Variable for each Proposition.  And the Solution assigns a truth value to that 
         /// variable.

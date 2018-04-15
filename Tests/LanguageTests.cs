@@ -250,14 +250,13 @@ namespace Tests
         [TestMethod]
         public void NullaryFluentTest()
         {
-            Fluents.TimeHorizon = 10;
-            var p = new Problem("Fluent test");
-            var f = Fluent("f");
+            var p = new Problem("Fluent test") { TimeHorizon = 10 };
+            var f = Fluent("f", requireActivationSupport: false, requireDeactivationSupport: false);
 
             for (int i = 0; i < 100; i++)
             {
                 var s = p.Solve();
-                for (int t = 1; t < TimeHorizon; t++)
+                for (int t = 1; t < p.TimeHorizon; t++)
                 {
                     var before = f(t - 1);
                     var after = f(t);
@@ -281,15 +280,14 @@ namespace Tests
         public void UnaryFluentTest()
         {
             var domain = new[] {"a", "b", "c"};
-            Fluents.TimeHorizon = 10;
-            var p = new Problem("Fluent test");
-            var f = Fluent("f", domain);
+            var p = new Problem("Fluent test") { TimeHorizon = 10 };
+            var f = Fluent("f", domain, requireActivationSupport: false, requireDeactivationSupport: false);
 
             foreach (var d in domain)
             for (int i = 0; i < 100; i++)
             {
                 var s = p.Solve();
-                for (int t = 1; t < TimeHorizon; t++)
+                for (int t = 1; t < p.TimeHorizon; t++)
                 {
                     var before = f(d, t - 1);
                     var after = f(d, t);
@@ -313,16 +311,15 @@ namespace Tests
         public void BinaryFluentTest()
         {
             var domain = new[] { "a", "b", "c" };
-            Fluents.TimeHorizon = 10;
-            var p = new Problem("Fluent test");
-            var f = Fluent("f", domain, domain);
+            var p = new Problem("Fluent test") { TimeHorizon = 10 };
+            var f = Fluent("f", domain, domain, requireActivationSupport: false, requireDeactivationSupport: false);
 
             foreach (var d1 in domain)
                 foreach (var d2 in domain)
                 for (int i = 0; i < 100; i++)
                 {
                     var s = p.Solve();
-                    for (int t = 1; t < TimeHorizon; t++)
+                    for (int t = 1; t < p.TimeHorizon; t++)
                     {
                         var before = f(d1, d2, t - 1);
                         var after = f(d1, d2, t);
