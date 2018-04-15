@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Clause.cs" />
     <Compile Include="Expression.cs" />
+    <Compile Include="Fluents.cs" />
     <Compile Include="Solution.cs" />
     <Compile Include="Language.cs" />
     <Compile Include="NonTightProblemException.cs" />

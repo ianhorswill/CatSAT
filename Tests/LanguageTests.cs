@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PicoSAT;
 using static PicoSAT.Language;
+using static PicoSAT.Fluents;
 
 namespace Tests
 {
@@ -244,6 +245,101 @@ namespace Tests
             Assert.IsTrue(prog.IsAlwaysFalse(q));
             Assert.IsTrue(prog.IsAlwaysFalse(r));
             Assert.IsFalse(prog.IsConstant(s));
+        }
+
+        [TestMethod]
+        public void NullaryFluentTest()
+        {
+            Fluents.TimeHorizon = 10;
+            var p = new Problem("Fluent test");
+            var f = Fluent("f");
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                for (int t = 1; t < TimeHorizon; t++)
+                {
+                    var before = f(t - 1);
+                    var after = f(t);
+                    var activate = Activate(before);
+                    var deactivate = Deactivate(before);
+                    if (s[after])
+                    {
+                        Assert.IsTrue(s[before] || s[activate]);
+                        Assert.IsFalse(s[deactivate]);
+                    }
+                    else
+                    {
+                        Assert.IsTrue(!s[before] || s[deactivate]);
+                        Assert.IsFalse(s[activate]);
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void UnaryFluentTest()
+        {
+            var domain = new[] {"a", "b", "c"};
+            Fluents.TimeHorizon = 10;
+            var p = new Problem("Fluent test");
+            var f = Fluent("f", domain);
+
+            foreach (var d in domain)
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                for (int t = 1; t < TimeHorizon; t++)
+                {
+                    var before = f(d, t - 1);
+                    var after = f(d, t);
+                    var activate = Activate(before);
+                    var deactivate = Deactivate(before);
+                    if (s[after])
+                    {
+                        Assert.IsTrue(s[before] || s[activate]);
+                        Assert.IsFalse(s[deactivate]);
+                    }
+                    else
+                    {
+                        Assert.IsTrue(!s[before] || s[deactivate]);
+                        Assert.IsFalse(s[activate]);
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void BinaryFluentTest()
+        {
+            var domain = new[] { "a", "b", "c" };
+            Fluents.TimeHorizon = 10;
+            var p = new Problem("Fluent test");
+            var f = Fluent("f", domain, domain);
+
+            foreach (var d1 in domain)
+                foreach (var d2 in domain)
+                for (int i = 0; i < 100; i++)
+                {
+                    var s = p.Solve();
+                    for (int t = 1; t < TimeHorizon; t++)
+                    {
+                        var before = f(d1, d2, t - 1);
+                        var after = f(d1, d2, t);
+                        var activate = Activate(before);
+                        var deactivate = Deactivate(before);
+                        if (s[after])
+                        {
+                            Assert.IsTrue(s[before] || s[activate]);
+                            Assert.IsFalse(s[deactivate]);
+                        }
+                        else
+                        {
+                            Assert.IsTrue(!s[before] || s[deactivate]);
+                            Assert.IsFalse(s[activate]);
+                        }
+                    }
+                }
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace PicoSAT
 {
@@ -8,6 +7,7 @@ namespace PicoSAT
     /// </summary>
     internal static class Random
     {
+#if SIMPLERANDOM
         private static uint seed = (uint) Environment.TickCount;
 
         /// <summary>
@@ -19,6 +19,18 @@ namespace PicoSAT
             seed = seed * 1664525 + 1013904223;
             return seed;
         }
+#else
+        private static System.Random rand = new System.Random();
+
+        /// <summary>
+        /// Return a random integer
+        /// </summary>
+        /// <returns></returns>
+        public static uint Next()
+        {
+            return (uint)rand.Next();
+        }
+#endif
 
         /// <summary>
         /// Return a random integer in [0, max)
@@ -50,7 +62,7 @@ namespace PicoSAT
         /// </summary>
         public static T RandomElement<T>(this List<T> list)
         {
-            return list[(int)InRange((uint) list.Count)];
+            return list[(int)InRange((uint)list.Count)];
         }
 
         /// <summary>
@@ -61,6 +73,7 @@ namespace PicoSAT
         {
             return array[Next() % array.Length];
         }
+
 
         public static uint Prime()
         {

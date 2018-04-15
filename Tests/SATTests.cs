@@ -149,6 +149,42 @@ namespace Tests
             Assert.IsTrue(positiveSolutionCount > 0, "Didn't generate any positive solutions!");
             Assert.IsTrue(negativeSolutionCount > 0, "Didn't generate any negative solutions!");
         }
+
+        [TestMethod]
+        public void ManualFluentTest()
+        {
+            var p = new Problem("Fluent test");
+            var after = (Proposition) "after";
+            var before = (Proposition) "before";
+            var activate= (Proposition) "activate";
+            var deactivate = (Proposition)"deactivate";
+
+            // activate => after
+            p.AddClause(after, Not(activate));
+            // deactivate => not after
+            p.AddClause(Not(after), Not(deactivate));
+            // before => after | deactivate
+            p.AddClause(Not(before), after, deactivate);
+            // not before => not after | activate
+            p.AddClause(before, Not(after), activate);
+            // Can't simultaneously activate and deactivate
+            p.AddClause(0, 1, activate, deactivate);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                if (s[after])
+                {
+                    Assert.IsTrue(s[before] || s[activate]);
+                    Assert.IsFalse(s[deactivate]);
+                }
+                else
+                {
+                    Assert.IsTrue(!s[before] || s[deactivate]);
+                    Assert.IsFalse(s[activate]);
+                }
+            }
+        }
     }
 }
 
