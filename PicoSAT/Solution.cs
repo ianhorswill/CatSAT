@@ -351,7 +351,7 @@ namespace PicoSAT
         private void Flip(ushort pIndex)
         {
             var prop = Problem.Variables[pIndex];
-            if (prop.IsConstant)
+            if (prop.IsPredetermined)
                 // Can't flip it.
                 return;
 
@@ -436,7 +436,7 @@ namespace PicoSAT
             // Initialize propositions[]
             for (var i = 0; i < propositions.Length; i++)
             {
-                propositions[i] = Problem.Variables[i].IsConstant?Problem.Variables[i].ConstantValue:Random.Next() % 2 == 0;
+                propositions[i] = Problem.Variables[i].IsPredetermined?Problem.Variables[i].PredeterminedValue:Random.Next() % 2 == 0;
             }
 
             unsatisfiedClauses.Clear();

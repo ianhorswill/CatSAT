@@ -166,8 +166,9 @@ namespace PicoSAT
         public readonly object Name;
         /// <summary>
         /// Position in the Problem's Variables[] array of the Variable that tracks the truth value of
-        /// this Proposition.  The actual truth value in a given Solution is stored at this index in the
-        /// Solution's propositions[] array.
+        /// this Proposition, or zero, if this is one of the constants True or False.
+        /// The actual truth value in a given Solution is stored at this index in the Solution's 
+        /// propositions[] array.
         /// </summary>
         internal readonly ushort Index;
         /// <summary>
@@ -182,7 +183,10 @@ namespace PicoSAT
         internal List<Proposition> PositiveDependencies;
 
         /// <summary>
-        /// True if this proposition has a fixed truth value.
+        /// True if this proposition object is one of the constants true or false.
+        /// This is different from propositions that are real parts of a Problem, but that
+        /// have had their values predetermined by axioms, optimization, or the user explicitly
+        /// setting their values.
         /// </summary>
         public bool IsConstant => Index == 0;
 

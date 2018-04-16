@@ -44,7 +44,8 @@ namespace PicoSAT
             Proposition = proposition;
             PositiveClauses = new List<ushort>();
             NegativeClauses = new List<ushort>();
-            IsConstant = ConstantValue = false;
+            PredeterminedValue = false;
+            DeterminionState = DeterminationState.Floating;
         }
 
         /// <summary>
@@ -69,22 +70,52 @@ namespace PicoSAT
         public readonly List<ushort> NegativeClauses;
 
         /// <summary>
-        /// Whether the value of the variable is fixed.
+        /// Tracks whether the variable's value is pre-determined, and why
         /// </summary>
-        public bool IsConstant;
-
-        /// <summary>
-        /// Value of variable if it is a constant
-        /// </summary>
-        public bool ConstantValue;
-
-        public void SetConstant(bool value)
+        public enum DeterminationState : byte
         {
-            IsConstant = true;
-            ConstantValue = value;
+            /// <summary>
+            /// The solver is free to choose this as it likes
+            /// </summary>
+            Floating,
+            /// <summary>
+            /// The optimizer determined this from other set or fixed variables
+            /// </summary>
+            Inferred,
+            /// <summary>
+            /// The variable's value was forced by the user, but they could change their mind
+            /// </summary>
+            Set,
+            /// <summary>
+            /// The variable's value was immutably set by an Assertion.
+            /// </summary>
+            Fixed
         }
 
-        public bool IsAlwaysTrue => IsConstant && ConstantValue;
-        public bool IsAlwaysFalse => IsConstant && !ConstantValue;
+        /// <summary>
+        /// Whether the variable's value is predetermined.
+        /// If floating, then the solver is allowed to choose its value freely.
+        /// If any other value, the solver has to use the value in PredeterminedValue.
+        /// </summary>
+        public DeterminationState DeterminionState;
+
+        /// <summary>
+        /// Whether the value of the variable is fixed.
+        /// </summary>
+        public bool IsPredetermined => DeterminionState != DeterminationState.Floating;
+        
+        /// <summary>
+        /// Value of variable if it is predetermined
+        /// </summary>
+        public bool PredeterminedValue;
+
+        //public void SetConstant(bool value)
+        //{
+        //    IsDetermined = true;
+        //    ConstantValue = value;
+        //}
+
+        public bool IsAlwaysTrue => IsPredetermined && PredeterminedValue;
+        public bool IsAlwaysFalse => IsPredetermined && !PredeterminedValue;
     }
 }

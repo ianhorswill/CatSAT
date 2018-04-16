@@ -238,7 +238,6 @@ namespace PicoSAT
         }
 
         #region Assertions
-
         public void Assert(params Assertable[] assertions)
         {
             foreach (var a in assertions)
@@ -256,11 +255,11 @@ namespace PicoSAT
             switch (l)
             {
                 case Proposition p:
-                    MakeConstant(p, true);
+                    SetPredeterminedValue(p, true, Variable.DeterminationState.Fixed);
                     break;
 
                 case Negation n:
-                    MakeConstant(n.Proposition, false);
+                    SetPredeterminedValue(n.Proposition, false, Variable.DeterminationState.Fixed);
                     break;
 
                 default:
@@ -268,15 +267,16 @@ namespace PicoSAT
             }
         }
 
-        private void MakeConstant(Proposition p, bool value)
+        private void SetPredeterminedValue(Proposition p, bool value, Variable.DeterminationState s)
         {
-            MakeConstant(p.Index, value);
+            SetPredeterminedValue(p.Index, value, s);
         }
 
-        private void MakeConstant(int index, bool value)
+        private void SetPredeterminedValue(int index, bool value, Variable.DeterminationState s)
         {
             var v = Variables[index];
-            v.SetConstant(value);
+            v.DeterminionState = s;
+            v.PredeterminedValue = value;
             Variables[index] = v;
         }
 
@@ -581,7 +581,7 @@ namespace PicoSAT
         /// </summary>
         public bool IsConstant(Proposition p)
         {
-            return Variables[p.Index].IsConstant;
+            return Variables[p.Index].IsPredetermined;
         }
         #endregion
 
@@ -593,6 +593,7 @@ namespace PicoSAT
         public void Optimize()
         {
             FinishCodeGeneration();
+            ResetInferredPropositions();
 
             // This is inefficient, but I'm not going to optimize this loop until I know it's worthwhile
             bool changed;
@@ -637,9 +638,9 @@ namespace PicoSAT
                 {
                     // It's a positive literal
                     var v = Variables[i];
-                    if (v.IsConstant)
+                    if (v.IsPredetermined)
                     {
-                        if (v.ConstantValue)
+                        if (v.PredeterminedValue)
                             // It's a positive literal and it's true, so no optimization possible
                             return OptimizationState.Ignore;
                         // Otherwise, v is always false, so this disjunct is always false
@@ -658,9 +659,9 @@ namespace PicoSAT
                 {
                     // It's a negative literal
                     var v = Variables[-i];
-                    if (v.IsConstant)
+                    if (v.IsPredetermined)
                     {
-                        if (!v.ConstantValue)
+                        if (!v.PredeterminedValue)
                             // It's a negative literal and it's false so no optimization possible
                             return OptimizationState.Ignore;
                         // Otherwise, v is always false, so this disjunct is always false
@@ -682,10 +683,67 @@ namespace PicoSAT
                 // All disjuncts are compile-time false!
                 return OptimizationState.Contradiction;
             if (inferred > 0)
-                MakeConstant(inferred, true);
+                SetPredeterminedValue(inferred, true, Variable.DeterminationState.Inferred);
             else
-                MakeConstant(-inferred, false);
+                SetPredeterminedValue(-inferred, false, Variable.DeterminationState.Inferred);
             return OptimizationState.Optimized;
+        }
+#endregion
+
+        #region Manipulation of predetermined values of variables
+        /// <summary>
+        /// Set the truth value of the proposition across all models, or get the predetermined value.
+        /// </summary>
+        /// <param name="p">Proposition to check</param>
+        /// <returns>Predetermined value</returns>
+        public bool this[Proposition p]
+        {
+            get
+            {
+                if (!Variables[p.Index].IsPredetermined)
+                    throw new InvalidOperationException($"{p} does not have a predetermined value; Call Solve() on the problem, and then check for the proposition's value in the solution.");
+                return Variables[p.Index].PredeterminedValue;
+            }
+            set
+            {
+                if (Variables[p.Index].DeterminionState == Variable.DeterminationState.Fixed
+                    && Variables[p.Index].PredeterminedValue != value)
+                    throw new InvalidOperationException($"{p}'s value is fixed by an Assertion in the problem.  It cannot be changed.");
+                SetPredeterminedValue(p, value, Variable.DeterminationState.Set);
+            }
+        }
+        
+        /// <summary>
+        /// Find all the propositions that were previously determined through optimization and set
+        /// them back to floating status.
+        /// </summary>
+        private void ResetInferredPropositions()
+        {
+            for (int i = 0; i < Variables.Count; i++)
+            {
+                if (Variables[i].DeterminionState == Variable.DeterminationState.Inferred)
+                {
+                    var v = Variables[i];
+                    v.DeterminionState = Variable.DeterminationState.Floating;
+                    Variables[i] = v;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Reset all propositions that had previously been set by the user to floating status.
+        /// </summary>
+        public void ResetPropositions()
+        {
+            for (int i = 0; i < Variables.Count; i++)
+            {
+                if (Variables[i].DeterminionState == Variable.DeterminationState.Set)
+                {
+                    var v = Variables[i];
+                    v.DeterminionState = Variable.DeterminationState.Floating;
+                    Variables[i] = v;
+                }
+            }
         }
 
         #endregion
