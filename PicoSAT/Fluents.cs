@@ -43,17 +43,27 @@ namespace PicoSAT
         /// All timepoints in the time horizon of the current problem, except the last one
         /// </summary>
         public static IEnumerable<int> ActionTimePoints => Enumerable.Range(0, TimeHorizon-1);
-        public static readonly Func<Proposition, Proposition> Activate = Predicate<Proposition>("activate");
-        public static readonly Func<Proposition, Proposition> Deactivate = Predicate<Proposition>("deactivate");
 
-        public static Func<int, Proposition> Fluent(string name, 
+        //delegate FluentInstantiation FluentT(int time);
+        //delegate Proposition FluentT<T1>(T1 arg1, int time);
+        //delegate Proposition FluentT<T1, T2>(T1 arg1, T2 arg2, int time);
+        //delegate Proposition FluentT<T1, T2, T3>(T1 arg1, T2 arg2, T3 arg3, int time);
+
+        public class FluentInstantiation : Proposition
+        {
+        }
+
+        public static readonly Func<FluentInstantiation, Proposition> Activate = Predicate<FluentInstantiation>("activate");
+        public static readonly Func<FluentInstantiation, Proposition> Deactivate = Predicate<FluentInstantiation>("deactivate");
+
+        public static Func<int, FluentInstantiation> Fluent(string name, 
             Problem problem = null, bool requireActivationSupport = true, bool requireDeactivationSupport = true)
         {
             if (problem == null) problem = Problem.Current;
 
             ValidateTimeHorizaon(problem);
 
-            var f = Predicate<int>(name);
+            var f = PredicateOfType<int, FluentInstantiation>(name);
             for (int i = 1; i < problem.TimeHorizon; i++)
             {
                 var before = f(i - 1);
@@ -63,12 +73,12 @@ namespace PicoSAT
             return f;
         }
 
-        public static Func<T, int, Proposition> Fluent<T>(string name, ICollection<T> domain,
+        public static Func<T, int, FluentInstantiation> Fluent<T>(string name, ICollection<T> domain,
             Problem problem = null, bool requireActivationSupport = true, bool requireDeactivationSupport = true)
         {
             if (problem == null) problem = Problem.Current;
             ValidateTimeHorizaon(problem);
-            var f = Predicate<T, int>(name);
+            var f = PredicateOfType<T, int, FluentInstantiation>(name);
             foreach (var d in domain)
             {
                 for (int i = 1; i < problem.TimeHorizon; i++)
@@ -82,14 +92,14 @@ namespace PicoSAT
             return f;
         }
 
-        public static Func<T1, T2, int, Proposition> Fluent<T1, T2>(string name, ICollection<T1> domain1, ICollection<T2> domain2,
+        public static Func<T1, T2, int, FluentInstantiation> Fluent<T1, T2>(string name, ICollection<T1> domain1, ICollection<T2> domain2,
             Problem problem = null, bool requireActivationSupport = true, bool requireDeactivationSupport = true)
         {
             if (problem == null) problem = Problem.Current;
 
             ValidateTimeHorizaon(problem);
 
-            var f = Predicate<T1, T2, int>(name);
+            var f = PredicateOfType<T1, T2, int, FluentInstantiation>(name);
             foreach (var d1 in domain1)
                 foreach (var d2 in domain2)
             {
@@ -105,7 +115,7 @@ namespace PicoSAT
         }
 
         private static void AddFluentClauses(Problem problem, bool requireActivationSupport, bool requireDeactivationSupport,
-            Proposition before, Proposition after)
+            FluentInstantiation before, FluentInstantiation after)
         {
             var activate = Activate(before);
             if (requireActivationSupport)

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PicoSAT;
 using static PicoSAT.Language;
 using static PicoSAT.Fluents;
+using static PicoSAT.Actions;
 
 namespace Tests
 {
@@ -115,29 +115,17 @@ namespace Tests
 
             // ACTION
             // kill(a,b,t) means a kills b at time t
-            var kill = Predicate<string, string, int>("kill");
+            var kill = Action("kill", cast, cast);
+
+            Precondition(kill, (a, b, t) => alive(b, t));
+            Precondition(kill, (a, b, t) => alive(a, t));
+            Deletes(kill, (a, b, t) => alive(b, t));
 
             // AXIOMS
+            // No suicide
             foreach (var t in ActionTimePoints)
-            {
-                foreach (var a in cast)
-                {
-                    // Disallow suicide
-                    p.Assert(Not(kill(a, a, t)));
-
-                    foreach (var b in cast)
-                    {
-                        if (a != b)
-                            p.Assert(
-                                // Preconditions: can't kill unless both parties are alive
-                                (Expression)kill(a, b, t) >= alive(b, t),
-                                (Expression)kill(a, b, t) >= alive(a, t),
-                                // Postcondition
-                                Deactivate(alive(b, t)) <= kill(a, b, t)
-                            );
-                    }
-                }
-            }
+            foreach (var a in cast)
+                p.Assert(Not(kill(a, a, t)));
 
             // INITIAL CONDITIONS
             // Everyone is initially alive

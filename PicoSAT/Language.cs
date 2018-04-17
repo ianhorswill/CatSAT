@@ -23,8 +23,6 @@
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 using System;
-using System.Diagnostics;
-using System.Text;
 
 namespace PicoSAT
 {
@@ -54,6 +52,34 @@ namespace PicoSAT
         public static Func<T1, T2, Proposition> Predicate<T1, T2>(string name)
         {
             return (arg1, arg2) => Proposition.MakeProposition(new Call(name, arg1, arg2));
+        }
+
+        /// <summary>
+        /// Make a unary predicate
+        /// </summary>
+        /// <typeparam name="T1">Argument type</typeparam>
+        /// <typeparam name="TProp">Type of proposition to return</typeparam>
+        /// <param name="name">Name of the predicate</param>
+        /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
+        public static Func<T1, TProp> PredicateOfType<T1,TProp>(string name) where TProp : Proposition, new()
+        {
+            var problem = Problem.Current;
+            return arg1 => problem.GetPropositionOfType<TProp>(new Call(name, arg1));
+        }
+
+        /// <summary>
+        /// Make a binary predicate
+        /// </summary>
+        /// <typeparam name="T1">Type for argument 1</typeparam>
+        /// <typeparam name="T2">Type for argument 2</typeparam>
+        /// <typeparam name="TProp">Type of proposition to return</typeparam>
+        /// <param name="name">Name of the predicate</param>
+        /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
+        public static Func<T1, T2, TProp> PredicateOfType<T1, T2, TProp>(string name)
+            where TProp: Proposition, new()
+        {
+            var problem = Problem.Current;
+            return (arg1, arg2) => problem.GetPropositionOfType<TProp>(new Call(name, arg1, arg2));
         }
 
         /// <summary>
@@ -108,6 +134,22 @@ namespace PicoSAT
         }
 
         /// <summary>
+        /// Make a binary predicate
+        /// </summary>
+        /// <typeparam name="T1">Type for argument 1</typeparam>
+        /// <typeparam name="T2">Type for argument 2</typeparam>
+        /// <typeparam name="T3">Type for argument 3</typeparam>
+        /// <typeparam name="TProp">Type of proposition to return</typeparam>
+        /// <param name="name">Name of the predicate</param>
+        /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
+        public static Func<T1, T2, T3, TProp> PredicateOfType<T1, T2, T3, TProp>(string name)
+            where TProp : Proposition, new()
+        {
+            var problem = Problem.Current;
+            return (arg1, arg2, arg3) => problem.GetPropositionOfType<TProp>(new Call(name, arg1, arg2, arg3));
+        }
+
+        /// <summary>
         /// Make a quaternary predicate
         /// </summary>
         /// <typeparam name="T1">Type for argument 1</typeparam>
@@ -119,6 +161,23 @@ namespace PicoSAT
         public static Func<T1, T2, T3, T4, Proposition> Predicate<T1, T2, T3, T4>(string name)
         {
             return (arg1, arg2, arg3, arg4) => Proposition.MakeProposition(new Call(name, arg1, arg2, arg3, arg4));
+        }
+
+        /// <summary>
+        /// Make a binary predicate
+        /// </summary>
+        /// <typeparam name="T1">Type for argument 1</typeparam>
+        /// <typeparam name="T2">Type for argument 2</typeparam>
+        /// <typeparam name="T3">Type for argument 3</typeparam>
+        /// <typeparam name="T4">Type for argument 4</typeparam>
+        /// <typeparam name="TProp">Type of proposition to return</typeparam>
+        /// <param name="name">Name of the predicate</param>
+        /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
+        public static Func<T1, T2, T3, T4, TProp> PredicateOfType<T1, T2, T3, T4, TProp>(string name)
+            where TProp : Proposition, new()
+        {
+            var problem = Problem.Current;
+            return (arg1, arg2, arg3, arg4) => problem.GetPropositionOfType<TProp>(new Call(name, arg1, arg2, arg3, arg4));
         }
 
         /// <summary>
@@ -134,6 +193,24 @@ namespace PicoSAT
         public static Func<T1, T2, T3, T4, T5, Proposition> Predicate<T1, T2, T3, T4, T5>(string name)
         {
             return (arg1, arg2, arg3, arg4, arg5) => Proposition.MakeProposition(new Call(name, arg1, arg2, arg3, arg4, arg5));
+        }
+
+        /// <summary>
+        /// Make a binary predicate
+        /// </summary>
+        /// <typeparam name="T1">Type for argument 1</typeparam>
+        /// <typeparam name="T2">Type for argument 2</typeparam>
+        /// <typeparam name="T3">Type for argument 3</typeparam>
+        /// <typeparam name="T4">Type for argument 4</typeparam>
+        /// <typeparam name="T5">Type for argument 5</typeparam>
+        /// <typeparam name="TProp">Type of proposition to return</typeparam>
+        /// <param name="name">Name of the predicate</param>
+        /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
+        public static Func<T1, T2, T3, T4, T5, TProp> PredicateOfType<T1, T2, T3, T4, T5, TProp>(string name)
+            where TProp : Proposition, new()
+        {
+            var problem = Problem.Current;
+            return (arg1, arg2, arg3, arg4, arg5) => problem.GetPropositionOfType<TProp>(new Call(name, arg1, arg2, arg3, arg4, arg5));
         }
 
         /// <summary>

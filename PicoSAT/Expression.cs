@@ -163,14 +163,14 @@ namespace PicoSAT
         /// Arbitrary object that functions as the name of this proposition.
         /// Distinct Propositions should have distinct Names.
         /// </summary>
-        public readonly object Name;
+        public object Name { get; internal set; }
         /// <summary>
         /// Position in the Problem's Variables[] array of the Variable that tracks the truth value of
         /// this Proposition, or zero, if this is one of the constants True or False.
         /// The actual truth value in a given Solution is stored at this index in the Solution's 
         /// propositions[] array.
         /// </summary>
-        internal readonly ushort Index;
+        internal ushort Index;
         /// <summary>
         /// Bodies of any rules for which this proposition is the head.
         /// These get converted at solution time into clauses by Problem.CompileRuleBodies().
@@ -195,6 +195,8 @@ namespace PicoSAT
             Name = name;
             Index = index;
         }
+
+        protected Proposition() { }
 
         /// <summary>
         /// Return the n'th argument of the predicate for which this proposition is a ground instance.

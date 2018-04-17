@@ -541,6 +541,19 @@ namespace PicoSAT
             return p;
         }
 
+        public T GetPropositionOfType<T>(object key) where T: Proposition, new()
+        {
+            // It's already in the table
+            if (propositionTable.TryGetValue(key, out Proposition old))
+                return (T)old;
+
+            // It's a new proposition
+            var p = new T() { Name = key, Index = (ushort)Variables.Count };
+            Variables.Add(new Variable(p));
+            propositionTable[key] = p;
+            return p;
+        }
+
         private readonly Dictionary<Proposition, Negation> negationTable = new Dictionary<Proposition, Negation>();
 
         public Negation Negation(Proposition key)
