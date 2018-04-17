@@ -24,12 +24,25 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static PicoSAT.Language;
 
 namespace PicoSAT
 {
     public static class Fluents
     {
+        /// <summary>
+        /// Time horizon of the current problem.
+        /// </summary>
+        public static int TimeHorizon => Problem.Current.TimeHorizon;
+        /// <summary>
+        /// Timepoints in the time horizon of the current problem
+        /// </summary>
+        public static IEnumerable<int> TimePoints => Enumerable.Range(0, TimeHorizon);
+        /// <summary>
+        /// All timepoints in the time horizon of the current problem, except the last one
+        /// </summary>
+        public static IEnumerable<int> ActionTimePoints => Enumerable.Range(0, TimeHorizon-1);
         public static readonly Func<Proposition, Proposition> Activate = Predicate<Proposition>("activate");
         public static readonly Func<Proposition, Proposition> Deactivate = Predicate<Proposition>("deactivate");
 

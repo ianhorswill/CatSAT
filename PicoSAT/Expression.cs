@@ -196,6 +196,18 @@ namespace PicoSAT
             Index = index;
         }
 
+        /// <summary>
+        /// Return the n'th argument of the predicate for which this proposition is a ground instance.
+        /// </summary>
+        /// <param name="n">Argument number</param>
+        /// <returns>Argument to the predicate</returns>
+        public object Arg(int n)
+        {
+            if (!(Name is Call c))
+                throw new InvalidOperationException($"The proposition {Name} does not contain any arguments");
+            return c.Args[n];
+        }
+
         public override string ToString()
         {
             return Name.ToString();

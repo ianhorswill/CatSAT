@@ -219,15 +219,11 @@ namespace Tests
             {
                 var vk = vertices[k];
                 foreach (var v1 in vertices)
-                {
-                    foreach (var v2 in vertices)
-                    {
-                        p.Assert(
-                            D(v1,v2,k) <= D(v1, v2, k-1),
-                            D(v1,v2,k) <= (D(v1, vk, k-1) & D(vk, v2, k-1))
-                        );
-                    }
-                }
+                foreach (var v2 in vertices)
+                    p.Assert(
+                        D(v1, v2, k) <= D(v1, v2, k - 1),
+                        D(v1, v2, k) <= (D(v1, vk, k - 1) & D(vk, v2, k - 1))
+                    );
             }
 
             Proposition Connected(string v1, string v2) => D(v1, v2, vertices.Length - 1);
@@ -240,12 +236,8 @@ namespace Tests
 
                 // a, b, c, d should be a connected component, e should be unconnected to anything but e
                 foreach (var v1 in vertices)
-                {
-                    foreach (var v2 in vertices)
-                    {
-                        Assert.IsTrue(s[Connected(v1, v2)] == (v1 == v2) || (v1 != "e" && v2 != "e"));
-                    }
-                }
+                foreach (var v2 in vertices)
+                    Assert.IsTrue(s[Connected(v1, v2)] == (v1 == v2) || (v1 != "e" && v2 != "e"));
             }
         }
 
@@ -264,30 +256,22 @@ namespace Tests
             {
                 var vk = vertices[k];
                 foreach (var v1 in vertices)
-                {
-                    foreach (var v2 in vertices)
-                    {
-                        p.Assert(
-                            D(v1, v2, k) <= D(v1, v2, k - 1),
-                            D(v1, v2, k) <= (D(v1, vk, k - 1) & D(vk, v2, k - 1))
-                        );
-                    }
-                }
+                foreach (var v2 in vertices)
+                    p.Assert(
+                        D(v1, v2, k) <= D(v1, v2, k - 1),
+                        D(v1, v2, k) <= (D(v1, vk, k - 1) & D(vk, v2, k - 1))
+                    );
             }
 
             Proposition Connected(string v1, string v2) => D(v1, v2, vertices.Length - 1);
 
             // Now constrain its connectivity
             foreach (var v1 in vertices)
-            {
-                foreach (var v2 in vertices)
-                {
-                    if (v1 == v2 || (v1 != "e" && v2 != "e"))
-                        p.Assert(Connected(v1, v2));
-                    else
-                        p.Assert(Not(Connected(v1, v2)));
-                }
-            }
+            foreach (var v2 in vertices)
+                if (v1 == v2 || (v1 != "e" && v2 != "e"))
+                    p.Assert(Connected(v1, v2));
+                else
+                    p.Assert(Not(Connected(v1, v2)));
 
             p.Optimize();
 
@@ -297,12 +281,8 @@ namespace Tests
 
                 // a, b, c, d should be a connected component, e should be unconnected to anything but e
                 foreach (var v1 in vertices)
-                {
-                    foreach (var v2 in vertices)
-                    {
-                        Assert.IsTrue(s[Connected(v1, v2)] == (v1 == v2) || (v1 != "e" && v2 != "e"));
-                    }
-                }
+                foreach (var v2 in vertices)
+                    Assert.IsTrue(s[Connected(v1, v2)] == (v1 == v2) || (v1 != "e" && v2 != "e"));
             }
         }
     }

@@ -386,10 +386,7 @@ namespace PicoSAT
                 var p = v.Proposition;
                 var bodies = p.RuleBodies;
                 if (bodies != null)
-                {
-                    Debug.Assert(bodies.Count > 0);
                     AssertCompletion(v.Proposition, bodies);
-                }
             }
 
 #if !DEBUG
@@ -688,7 +685,7 @@ namespace PicoSAT
                 SetPredeterminedValue(-inferred, false, Variable.DeterminationState.Inferred);
             return OptimizationState.Optimized;
         }
-#endregion
+        #endregion
 
         #region Manipulation of predetermined values of variables
         /// <summary>
@@ -745,7 +742,6 @@ namespace PicoSAT
                 }
             }
         }
-
         #endregion
     }
 }

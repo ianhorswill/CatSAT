@@ -109,12 +109,6 @@ namespace PicoSAT
         /// </summary>
         public bool PredeterminedValue;
 
-        //public void SetConstant(bool value)
-        //{
-        //    IsDetermined = true;
-        //    ConstantValue = value;
-        //}
-
         public bool IsAlwaysTrue => IsPredetermined && PredeterminedValue;
         public bool IsAlwaysFalse => IsPredetermined && !PredeterminedValue;
     }
