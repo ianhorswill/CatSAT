@@ -93,6 +93,8 @@ namespace PicoSAT
         internal Clause(ushort min, ushort max, short[] disjuncts)
         {
             Disjuncts = disjuncts.Distinct().ToArray();
+            if ((min != 1 || max != 0) && disjuncts.Length != Disjuncts.Length)
+                throw new ArgumentException("Nonstandard clause has non-unique disjuncts");
             minDisjunctsMinusOne = (short)(min-1);
             maxDisjunctsPlusOne = (ushort)(max == 0 ? disjuncts.Length+1 : max+1);
         }

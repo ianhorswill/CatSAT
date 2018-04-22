@@ -514,7 +514,7 @@ namespace PicoSAT
         #region Quantifiers
         public void Quantify(int min, int max, IEnumerable<Literal> enumerator)
         {
-            Quantify(min, max, enumerator.Select(l => l.SignedIndex).ToArray());
+            Quantify(min, max, enumerator.Select(l => l.SignedIndex).Distinct().ToArray());
         }
 
         public void Quantify(int min, int max, short[] disjuncts)
