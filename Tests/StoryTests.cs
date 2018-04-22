@@ -68,7 +68,7 @@ namespace Tests
                     foreach (var t in ActionTimePoints)
                         p.Assert(Deactivate(hates(agent, patient, t)) <= Activate(loves(agent, patient, t)),
                             Deactivate(loves(agent, patient, t)) <= Activate(hates(agent, patient, t)));
-
+            
             // ACTIONS
             // kill(a,b,t) means a kills b at time t
             var kill = Action("kill", cast, cast);
@@ -87,7 +87,7 @@ namespace Tests
             Adds(fallFor, (f, l, t) => loves(f, l, t));
 
             // marry(a, b, t)
-            var marry = Action("marry", cast, cast);
+            var marry = SymmetricAction("marry", cast);
             Precondition(marry, (a, b, t) => loves(a, b, t));
             Precondition(marry, (a, b, t) => loves(b, a, t));
             Precondition(marry, (a, b, t) => a != b);
@@ -98,6 +98,13 @@ namespace Tests
             Adds(marry, (a, b, t) => marriedTo(a, b, t));
             Adds(marry, (a, b, t) => married(a, t));
             Adds(marry, (a, b, t) => married(b, t));
+
+            // You can't marry or fall in love with yourself
+            foreach (var t in ActionTimePoints)
+            foreach (var c in cast)
+            {
+                p.Assert(Not(marry(c, c, t)), Not(fallFor(c, c, t)));
+            }
 
             IEnumerable<ActionInstantiation> PossibleActions(int t)
             {

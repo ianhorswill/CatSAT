@@ -141,6 +141,19 @@ namespace PicoSAT
                 Problem.Current.Assert((Expression) action(d1, d2, t) >= precondition(d1, d2, t));
         }
 
+        public static void Precondition<T1>(Func<T1, T1, int, SymmetricActionInstantiation> action,
+            Func<T1, T1, int, Literal> precondition)
+        where T1:IComparable
+        {
+            foreach (var t in ActionTimePoints)
+            MapDomain<T1,bool>(action,
+                (d1, d2) =>
+                {
+                    Problem.Current.Assert((Expression) action(d1, d2, t) >= precondition(d1, d2, t));
+                    return false;
+                });
+        }
+
         public static void Adds(Func<int, ActionInstantiation> action, Func<int, FluentInstantiation> effect)
         {
             foreach (var t in ActionTimePoints)
@@ -168,6 +181,19 @@ namespace PicoSAT
                 Problem.Current.Assert(Activate(effect(d1, d2, t)) <= action(d1, d2, t));
         }
 
+        public static void Adds<T1>(Func<T1, T1, int, SymmetricActionInstantiation> action,
+            Func<T1, T1, int, FluentInstantiation> effect)
+            where T1 : IComparable
+        {
+            foreach (var t in ActionTimePoints)
+                MapDomain<T1, bool>(action,
+                    (d1, d2) =>
+                    {
+                        Problem.Current.Assert(Activate(effect(d1, d2, t)) <= action(d1, d2, t));
+                        return false;
+                    });
+        }
+
         public static void Deletes(Func<int, ActionInstantiation> action, Func<int, FluentInstantiation> effect)
         {
             foreach (var t in ActionTimePoints)
@@ -193,6 +219,19 @@ namespace PicoSAT
             foreach (var d2 in domain2)
             foreach (var t in ActionTimePoints)
                 Problem.Current.Assert(Deactivate(effect(d1, d2, t)) <= action(d1, d2, t));
+        }
+
+        public static void Deletes<T1>(Func<T1, T1, int, SymmetricActionInstantiation> action,
+            Func<T1, T1, int, FluentInstantiation> effect)
+            where T1 : IComparable
+        {
+            foreach (var t in ActionTimePoints)
+                MapDomain<T1, bool>(action,
+                    (d1, d2) =>
+                    {
+                        Problem.Current.Assert(Deactivate(effect(d1, d2, t)) <= action(d1, d2, t));
+                        return false;
+                    });
         }
     }
 }
