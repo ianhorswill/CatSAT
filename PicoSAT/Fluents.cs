@@ -114,6 +114,29 @@ namespace PicoSAT
             return f;
         }
 
+        public static Func<T, T, int, FluentInstantiation> SymmetricFluent<T>(string name, ICollection<T> domain1,
+            Problem problem = null, bool requireActivationSupport = true, bool requireDeactivationSupport = true)
+        where T : IComparable
+        {
+            if (problem == null) problem = Problem.Current;
+
+            ValidateTimeHorizaon(problem);
+
+            var f = SymmetricPredicateOfType<T, int, FluentInstantiation>(name);
+            foreach (var d1 in domain1)
+            foreach (var d2 in domain1)
+            {
+                for (int i = 1; i < problem.TimeHorizon; i++)
+                {
+                    var before = f(d1, d2, i - 1);
+                    var after = f(d1, d2, i);
+                    AddFluentClauses(problem, requireActivationSupport, requireDeactivationSupport, before, after);
+                }
+            }
+
+            return f;
+        }
+
         private static void AddFluentClauses(Problem problem, bool requireActivationSupport, bool requireDeactivationSupport,
             FluentInstantiation before, FluentInstantiation after)
         {

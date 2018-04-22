@@ -249,7 +249,7 @@ namespace Tests
             Assert.IsFalse(prog.IsConstant(s));
         }
 
-        [TestMethod, ExpectedException(typeof(UnsatisfiableException))]
+        [TestMethod, ExpectedException(typeof(ContradictionException))]
         public void ContradictionTest()
         {
             var prog = new Problem();
@@ -264,10 +264,7 @@ namespace Tests
                 q
             );
             prog.Optimize();
-            Assert.IsTrue(prog.IsAlwaysFalse(p));
-            Assert.IsTrue(prog.IsAlwaysFalse(q));
-            Assert.IsTrue(prog.IsAlwaysFalse(r));
-            Assert.IsFalse(prog.IsConstant(s));
+            Assert.Fail();
         }
     }
 }

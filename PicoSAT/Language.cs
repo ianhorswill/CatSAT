@@ -100,6 +100,49 @@ namespace PicoSAT
         }
 
         /// <summary>
+        /// Make a symmetric predicate
+        /// This will enforce that predicate(a, b) == predicate(b, a)
+        /// </summary>
+        /// <typeparam name="T">Argument type</typeparam>
+        /// <typeparam name="TProp">Type of Proposition to create</typeparam>
+        /// <param name="name">Name of the predicate</param>
+        /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
+        public static Func<T, T, TProp> SymmetricPredicateOfType<T, TProp>(string name) 
+            where T : IComparable
+            where TProp : Proposition, new()
+        {
+            var problem = Problem.Current;
+            return (arg1, arg2) =>
+            {
+                if (arg1.CompareTo(arg2) > 0)
+                    return problem.GetPropositionOfType<TProp>(new Call(name, arg2, arg1));
+                return problem.GetPropositionOfType<TProp>(new Call(name, arg1, arg2));
+            };
+        }
+
+        /// <summary>
+        /// Make a symmetric predicate with an extra argument at the end (used for symmetric fluents)
+        /// This will enforce that predicate(a, b, c) == predicate(b, a, c)
+        /// </summary>
+        /// <typeparam name="T1">Argument type</typeparam>
+        /// <typeparam name="TProp">Type of Proposition to create</typeparam>
+        /// <typeparam name="T2">Type of the last argument</typeparam>
+        /// <param name="name">Name of the predicate</param>
+        /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
+        public static Func<T1, T1, T2, TProp> SymmetricPredicateOfType<T1, T2, TProp>(string name)
+            where T1 : IComparable
+            where TProp : Proposition, new()
+        {
+            var problem = Problem.Current;
+            return (arg1, arg2, arg3) =>
+            {
+                if (arg1.CompareTo(arg2) > 0)
+                    return problem.GetPropositionOfType<TProp>(new Call(name, arg2, arg1, arg3));
+                return problem.GetPropositionOfType<TProp>(new Call(name, arg1, arg2, arg3));
+            };
+        }
+
+        /// <summary>
         /// Make a symmetric, reflexive predicate
         /// This will enforce that predicate(a, b) == predicate(b, a)
         /// </summary>

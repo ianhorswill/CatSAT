@@ -196,26 +196,31 @@ namespace PicoSAT
             return Quantify(lits.Length, lits.Length, lits);
         }
 
+        // ReSharper disable once UnusedMember.Global
         public bool Exists(IEnumerable<Literal> literals)
         {
             return literals.Any(IsTrue);
         }
 
+        // ReSharper disable once UnusedMethodReturnValue.Global
         public bool Unique(IEnumerable<Literal> literals)
         {
             return Quantify(1, 1, literals);
         }
 
+        // ReSharper disable once UnusedMethodReturnValue.Global
         public bool Exactly(int n, IEnumerable<Literal> literals)
         {
             return Quantify(n, n, literals);
         }
 
+        // ReSharper disable once UnusedMethodReturnValue.Global
         public bool AtMost(int n, IEnumerable<Literal> literals)
         {
             return Quantify(0, n, literals);
         }
 
+        // ReSharper disable once UnusedMember.Global
         public bool AtLeast(int n, IEnumerable<Literal> literals)
         {
             return Quantify(n, 0, literals);
@@ -234,14 +239,12 @@ namespace PicoSAT
             {
                 MakeRandomAssignment();
 
-                // TODO: maintain a list of non-constant variables so we never even try to flip constants
-
                 for (var f = MaxFlips; unsatisfiedClauses.Count > 0 && f > 0; f--)
                 {
                     if (Random.InRange(100) < RandomFlipProbability)
                         // Flip a completely random variable
                         // This is to pull us out of local minima
-                        Flip((ushort)(Random.InRange((uint)propositions.Length)));
+                        Flip(Problem.FloatingVariables.RandomElement());
                     else
                     {
                         // Hill climb: pick an unsatisfied clause at random and flip one of its variables

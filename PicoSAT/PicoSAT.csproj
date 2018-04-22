@@ -48,7 +48,8 @@
     <Compile Include="Solution.cs" />
     <Compile Include="Language.cs" />
     <Compile Include="NonTightProblemException.cs" />
-    <Compile Include="UnsatisfiableException.cs" />
+    <Compile Include="ContradictionException.cs" />
+    <Compile Include="TimeoutException.cs" />
     <Compile Include="Variable.cs" />
     <Compile Include="Random.cs" />
     <Compile Include="Problem.cs" />

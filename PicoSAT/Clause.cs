@@ -22,6 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
+using System;
 using System.Diagnostics;
 using System.Text;
 
@@ -51,6 +52,11 @@ namespace PicoSAT
         /// For a normal clause, there is no limit, so this gets set to Disjuncts.Count+1.
         /// </summary>
         private readonly ushort maxDisjunctsPlusOne;
+
+        /// <summary>
+        /// Position in the Problem's Clauses list.
+        /// </summary>
+        internal ushort Index;
 
         internal string DebugName
         {
@@ -128,6 +134,23 @@ namespace PicoSAT
         public bool OneTooFewDisjuncts(ushort satisfiedDisjuncts)
         {
             return satisfiedDisjuncts == minDisjunctsMinusOne;
+        }
+
+        public string Decompile(Problem problem)
+        {
+            var b = new StringBuilder();
+            var firstOne = true;
+            foreach (var d in Disjuncts)
+            {
+                if (firstOne)
+                    firstOne = false;
+                else
+                    b.Append(" | ");
+                if (d < 0)
+                    b.Append('!');
+                b.Append(problem.Variables[Math.Abs(d)].Proposition.Name);
+            }
+            return b.ToString();
         }
     }
 }

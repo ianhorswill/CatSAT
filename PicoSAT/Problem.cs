@@ -72,6 +72,15 @@ namespace PicoSAT
             Compiled = 2
         }
 
+        public string Stats
+        {
+            get
+            {
+                return
+                    $"{Variables.Count} variables, {Variables.Count(v => v.DeterminionState == Variable.DeterminationState.Floating)} floating, {Clauses.Count} clauses";
+            }
+        }
+
         /// <summary>
         /// Tracks whether we've already compiled the rules for this program.
         /// </summary>
@@ -112,6 +121,7 @@ namespace PicoSAT
         /// <summary>
         /// Name of the Problem, for debugging purposes.
         /// </summary>
+        // ReSharper disable once NotAccessedField.Global
         public readonly string Name;
 
         /// <summary>
@@ -127,11 +137,13 @@ namespace PicoSAT
         /// <summary>
         /// Probability of just doing a random flip rather than specifically one from an unsatisfied clause
         /// </summary>
+        // ReSharper disable once FieldCanBeMadeReadOnly.Global
         public int RandomFlipProbability = 10;
 
         /// <summary>
         /// Require the program to be tight, i.e. not allow circular reasoning chains.
         /// </summary>
+        // ReSharper disable once FieldCanBeMadeReadOnly.Global
         public bool Tight = true;
 
         /// <summary>
@@ -151,9 +163,12 @@ namespace PicoSAT
         /// </summary>
         internal readonly List<Clause> Clauses = new List<Clause>();
 
+        internal readonly List<ushort> FloatingVariables = new List<ushort>();
+
         /// <summary>
         /// All the Propositions used in the Problem.
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public IEnumerable<Proposition> Propositions
         {
             get
@@ -191,6 +206,7 @@ namespace PicoSAT
         /// </summary>
         private void AddClause(Clause clause)
         {
+            clause.Index = (ushort)Clauses.Count;
             Clauses.Add(clause);
 
             // Add the clause to the appropriate clause list for all the propositions that appear in the clause
@@ -226,14 +242,17 @@ namespace PicoSAT
         /// </summary>
         /// <param name="throwOnUnsolvable">If true, will throw UnsatisfiableException when no solution is found.</param>
         /// <returns>The Solution object mapping propositions to truth values.</returns>
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Global
         public Solution Solve(bool throwOnUnsolvable = true)
         {
             FinishCodeGeneration();
+            if (FloatingVariables.Count == 0)
+                RecomputeFloatingVariables();
             var m = new Solution(this, MaxFlips, MaxTries, RandomFlipProbability);
             if (m.Solve())
                 return m;
             if (throwOnUnsolvable)
-                throw new UnsatisfiableException(this);
+                throw new TimeoutException(this);
             return null;
         }
 
@@ -285,10 +304,10 @@ namespace PicoSAT
             var h = i.Head;
             if (h is Proposition p && p.IsConstant)
             {
-                if ((bool)p)
-                    // true <= X is always true
-                    return;
-                throw new InvalidOperationException("Consequent of implication cannot be the constant False.");
+                if (!(bool)p)
+                    AddClause(CompileNegatedConjunction(i.Body));
+                // Otherwise h is always true, so don't bother adding a clause
+                return;
             }
             AddClause(CompileImplication(i));
         }
@@ -334,6 +353,19 @@ namespace PicoSAT
             var result = new short[body.Size + 1];
             result[0] = head.SignedIndex;
             body.WriteNegatedSignedIndicesTo(result, 1);
+
+            return result;
+        }
+
+        private Clause CompileNegatedConjunction(Expression body)
+        {
+            return new Clause(1, 0, DisjunctsFromBody(body));
+        }
+
+        private short[] DisjunctsFromBody(Expression body)
+        {
+            var result = new short[body.Size];
+            body.WriteNegatedSignedIndicesTo(result, 0);
 
             return result;
         }
@@ -489,12 +521,14 @@ namespace PicoSAT
             AddClause(new Clause((ushort)min, (ushort)max, disjuncts));
         }
 
+        // ReSharper disable once UnusedMember.Global
         public void All(IEnumerable<Literal> enumerator)
         {
             var disjuncts = enumerator.Select(l => l.SignedIndex).ToArray();
             Quantify(disjuncts.Length, disjuncts.Length, disjuncts);
         }
 
+        // ReSharper disable once UnusedMember.Global
         public void Exists(IEnumerable<Literal> enumerator)
         {
             Quantify(1, 0, enumerator);
@@ -515,6 +549,7 @@ namespace PicoSAT
             Quantify(0, n, enumerator);
         }
 
+        // ReSharper disable once UnusedMember.Global
         public void AtLeast(int n, IEnumerable<Literal> enumerator)
         {
             Quantify(n, 0, enumerator);
@@ -573,6 +608,7 @@ namespace PicoSAT
         /// <summary>
         /// True if proposition is known to be true in all models
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public bool IsAlwaysTrue(Proposition p)
         {
             return Variables[p.Index].IsAlwaysTrue;
@@ -595,7 +631,153 @@ namespace PicoSAT
         }
         #endregion
 
-        #region Optimization (unit resolution)
+#region Optimization (unit resolution)
+
+#if NewOptimizer
+        public void Optimize()
+        {
+            FinishCodeGeneration();
+            ResetInferredPropositions();
+
+            // The number of literals in clause whose values aren't yet known.
+            // Or -1 if this clause now compile-time true.
+            var counts = new short[Clauses.Count];
+
+            short UndeterminedDisjunctCount(Clause c)
+            {
+                if (counts[c.Index] != 0)
+                    return counts[c.Index];
+                var count = CountUndeterminedDisjuncts(c);
+                counts[c.Index] = count;
+                return count;
+            }
+
+            var walkQueue = new Queue<Clause>();
+
+            void Walk(Clause c)
+            {
+                var d = UndeterminedDisjunctCount(c);
+                if (d == 1)
+                {
+                    // All the disjuncts but one are known to be false, so the last must be true.
+                    var v = UndeterminedDisjunctOf(c);
+                    if (v > 0)
+                    {
+                        // Positive literal, so it must be true
+                        SetPredeterminedValue(v, true, Variable.DeterminationState.Inferred);
+                        foreach (var dependent in Variables[v].PositiveClauses)
+                            // Dependent is now forced to true
+                            counts[dependent] = -1;
+
+                        foreach (var dependent in Variables[v].NegativeClauses)
+                        {
+                            // Dependent now has one less undetermined literal
+                            if (counts[dependent] == 0)
+                                // Never got initialized
+                                // Note we don't have to decrement because the call below sees that v is not predetermined.
+                                counts[dependent] = UndeterminedDisjunctCount(Clauses[dependent]);
+                            else
+                                counts[dependent]--;
+                            if (counts[dependent] == 0)
+                                throw new UnsatisfiableException(this);
+
+                            if (counts[dependent] == 1)
+                                walkQueue.Enqueue(Clauses[dependent]);
+                        }
+                    }
+                    else
+                    {
+                        // Negative literal, so it must be false
+                        SetPredeterminedValue(-v, false, Variable.DeterminationState.Inferred);
+                        foreach (var dependent in Variables[-v].NegativeClauses)
+                            // Dependent is now forced to true
+                            counts[dependent] = -1;
+
+                        foreach (var dependent in Variables[-v].PositiveClauses)
+                        {
+                            // Dependent now has one less undetermined literal
+                            if (counts[dependent] == 0)
+                                // Never got initialized
+                                // Note we don't have to decrement because the call below sees that v is not predetermined.
+                                counts[dependent] = UndeterminedDisjunctCount(Clauses[dependent]);
+                            else
+                                counts[dependent]--;
+                            if (counts[dependent] == 0)
+                                throw new UnsatisfiableException(this);
+                            if (counts[dependent] == 1)
+                                walkQueue.Enqueue(Clauses[dependent]);
+                        }
+                    }
+
+                    // Take this clause out of commission
+                    counts[c.Index] = -1;
+                }
+            }
+            
+            foreach (var c in Clauses)
+                Walk(c);
+            while (walkQueue.Count > 0)
+                Walk(walkQueue.Dequeue());
+        }
+
+        /// <summary>
+        /// Find the first (and presumably only) undetermined disjunct of the clause.
+        /// </summary>
+        /// <param name="c">The clause</param>
+        /// <returns>Signed index of the disjunct</returns>
+        short UndeterminedDisjunctOf(Clause c)
+        {
+            foreach (var d in c.Disjuncts)
+            {
+                if (!Variables[Math.Abs(d)].IsPredetermined)
+                    return d;
+            }
+            throw new InvalidOperationException("Internal error - UndeterminedDisjunctOf called on clause with no undertermined disjuncts");
+        }
+
+        short CountUndeterminedDisjuncts(Clause c)
+        {
+            short count = 0;
+            foreach (var d in c.Disjuncts)
+            {
+                if (d > 0)
+                {
+                    // Positive literal
+                    var v = Variables[d];
+                    if (v.IsPredetermined)
+                    {
+                        if (v.IsAlwaysTrue)
+                        {
+                            // This clause is always pre-satisfied
+                            return -1;
+                        }
+                    }
+                    else
+                        count++;
+                }
+                else
+                {
+                    // Positive literal
+                    var v = Variables[-d];
+                    if (v.IsPredetermined)
+                    {
+                        if (v.IsAlwaysFalse)
+                        {
+                            // This clause is always pre-satisfied
+                            return -1;
+                        }
+                    }
+                    else
+                        count++;
+                }
+            }
+
+            if (count == 0)
+                throw new UnsatisfiableException(this);
+
+            return count;
+        }
+#else
         /// <summary>
         /// Do a simple constant-folding pass over the program.
         /// This is technically called unit resolution, but it basically means constant folding
@@ -616,7 +798,7 @@ namespace PicoSAT
                     {
                         case OptimizationState.Contradiction:
                             // Compile-time false
-                            throw new UnsatisfiableException(this);
+                            throw new ContradictionException(this, c);
 
                         case OptimizationState.Optimized:
                             // Just optimized it away
@@ -698,7 +880,8 @@ namespace PicoSAT
                 SetPredeterminedValue(-inferred, false, Variable.DeterminationState.Inferred);
             return OptimizationState.Optimized;
         }
-        #endregion
+#endif
+#endregion
 
         #region Manipulation of predetermined values of variables
         /// <summary>
@@ -706,6 +889,7 @@ namespace PicoSAT
         /// </summary>
         /// <param name="p">Proposition to check</param>
         /// <returns>Predetermined value</returns>
+        // ReSharper disable once UnusedMember.Global
         public bool this[Proposition p]
         {
             get
@@ -738,6 +922,16 @@ namespace PicoSAT
                     Variables[i] = v;
                 }
             }
+
+            RecomputeFloatingVariables();
+        }
+
+        private void RecomputeFloatingVariables()
+        {
+            FloatingVariables.Clear();
+            for (ushort i = 0; i < Variables.Count; i++)
+                if (Variables[i].DeterminionState == Variable.DeterminationState.Floating)
+                    FloatingVariables.Add(i);
         }
 
         /// <summary>
@@ -755,6 +949,6 @@ namespace PicoSAT
                 }
             }
         }
-        #endregion
+#endregion
     }
 }

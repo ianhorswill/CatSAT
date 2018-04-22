@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="UnsatisfiableException.cs" company="Ian Horswill">
+// <copyright file="TimeoutException.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,13 +27,13 @@ using System;
 namespace PicoSAT
 {
     /// <summary>
-    /// Signifies the Problem has no solution.
+    /// Signifies the solver game up.
     /// </summary>
-    public class UnsatisfiableException : Exception
+    public class TimeoutException : Exception
     {
         public readonly Problem Problem;
 
-        public UnsatisfiableException(Problem problem) : base($"Program is unsatisfiable: {problem}")
+        public TimeoutException(Problem problem) : base($"Could not find a solution: {problem}")
         {
             Problem = problem;
         }

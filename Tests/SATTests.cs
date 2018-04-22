@@ -141,15 +141,16 @@ namespace Tests
             }
         }
 
-        [TestMethod]
-        public void UnssatisfiableTest()
+        [TestMethod, ExpectedException(typeof(TimeoutException))]
+        public void UnsatisfiableTest()
         {
             var p = new Problem();
             p.AddClause(2, 2, "w", "x", "y", "z");
             p.AddClause(1, 1, "x", "y");
             p.AddClause("w");
             p.AddClause("z");
-            Assert.AreEqual(null, p.Solve(false));
+            p.Solve();
+            Assert.Fail();
         }
 
         [TestMethod]
