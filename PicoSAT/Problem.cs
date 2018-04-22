@@ -1,4 +1,5 @@
-﻿#region Copyright
+﻿//#define NewOptimizer
+#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Problem.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
@@ -632,7 +633,7 @@ namespace PicoSAT
         #endregion
 
 #region Optimization (unit resolution)
-
+        
 #if NewOptimizer
         public void Optimize()
         {
@@ -647,6 +648,9 @@ namespace PicoSAT
             {
                 if (counts[c.Index] != 0)
                     return counts[c.Index];
+                if (!c.IsNormalDisjunction)
+                    // Ignore this clause
+                    return counts[c.Index] = -1;
                 var count = CountUndeterminedDisjuncts(c);
                 counts[c.Index] = count;
                 return count;
@@ -679,7 +683,7 @@ namespace PicoSAT
                             else
                                 counts[dependent]--;
                             if (counts[dependent] == 0)
-                                throw new UnsatisfiableException(this);
+                                throw new ContradictionException(this, Clauses[dependent]);
 
                             if (counts[dependent] == 1)
                                 walkQueue.Enqueue(Clauses[dependent]);
@@ -703,7 +707,7 @@ namespace PicoSAT
                             else
                                 counts[dependent]--;
                             if (counts[dependent] == 0)
-                                throw new UnsatisfiableException(this);
+                                throw new ContradictionException(this, Clauses[dependent]);
                             if (counts[dependent] == 1)
                                 walkQueue.Enqueue(Clauses[dependent]);
                         }
@@ -773,7 +777,7 @@ namespace PicoSAT
             }
 
             if (count == 0)
-                throw new UnsatisfiableException(this);
+                throw new ContradictionException(this, c);
 
             return count;
         }

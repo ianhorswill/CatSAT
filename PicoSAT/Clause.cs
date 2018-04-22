@@ -24,6 +24,7 @@
 #endregion
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace PicoSAT
@@ -91,7 +92,7 @@ namespace PicoSAT
         /// <param name="disjuncts">The disjuncts, encoded as signed proposition indices</param>
         internal Clause(ushort min, ushort max, short[] disjuncts)
         {
-            Disjuncts = disjuncts;
+            Disjuncts = disjuncts.Distinct().ToArray();
             minDisjunctsMinusOne = (short)(min-1);
             maxDisjunctsPlusOne = (ushort)(max == 0 ? disjuncts.Length+1 : max+1);
         }
