@@ -171,6 +171,12 @@ namespace PicoSAT
         /// propositions[] array.
         /// </summary>
         internal ushort Index;
+
+        /// <summary>
+        /// This is an internal, compiler-generated proposition.  So don't print it when we print a model.
+        /// </summary>
+        internal bool IsInternal;
+
         /// <summary>
         /// Bodies of any rules for which this proposition is the head.
         /// These get converted at solution time into clauses by Problem.CompileRuleBodies().
@@ -181,7 +187,7 @@ namespace PicoSAT
         /// A depends on B if B helps justify A.
         /// </summary>
         internal List<Proposition> PositiveDependencies;
-
+        
         /// <summary>
         /// True if this proposition object is one of the constants true or false.
         /// This is different from propositions that are real parts of a Problem, but that

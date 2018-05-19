@@ -1,4 +1,4 @@
-﻿//#define NewOptimizer
+﻿#define NewOptimizer
 #region Copyright
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Problem.cs" company="Ian Horswill">
@@ -488,7 +488,7 @@ namespace PicoSAT
                         justifications[i] = (short) -disjuncts[1];
                     else
                     {
-                        var justificationProp = GetProposition(body).SignedIndex;
+                        var justificationProp = GetInternalProposition(body).SignedIndex;
                         justifications[i] = justificationProp;
 
                         // Now compile the backward implication: if the head is true, all the body literals have to be true.
@@ -560,6 +560,11 @@ namespace PicoSAT
         #region Mapping between Literals objects and Variables
         private readonly Dictionary<object, Proposition> propositionTable = new Dictionary<object, Proposition>();
 
+        /// <summary>
+        /// Get a proposition within this Problem, with the specified key
+        /// </summary>
+        /// <param name="key">Arbitrary object that acts as a name for this proposition.</param>
+        /// <returns></returns>
         public Proposition GetProposition(object key)
         {
             // It's a constant
@@ -574,6 +579,16 @@ namespace PicoSAT
             p = new Proposition(key, (ushort) Variables.Count);
             Variables.Add(new Variable(p));
             propositionTable[key] = p;
+            return p;
+        }
+
+        /// <summary>
+        /// Gets a proposition and marks it internal
+        /// </summary>
+        internal Proposition GetInternalProposition(object key)
+        {
+            var p = GetProposition(key);
+            p.IsInternal = true;
             return p;
         }
 

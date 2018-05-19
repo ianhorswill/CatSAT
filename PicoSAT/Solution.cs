@@ -36,7 +36,7 @@ namespace PicoSAT
     /// Note: for packaging reasons, this is also where the actual solver code lives,
     /// rather than in Program.
     /// </summary>
-    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + "}")]
+    [DebuggerDisplay("{" + nameof(Model) + "}")]
     public class Solution
     {
         #region Solver parameters
@@ -87,7 +87,7 @@ namespace PicoSAT
             trueDisjunctCount = new ushort[problem.Clauses.Count];
         }
 
-        private string DebuggerDisplay
+        public string Model
         {
             // ReSharper disable once UnusedMember.Local
             get
@@ -97,7 +97,7 @@ namespace PicoSAT
                 b.Append("<");
                 for (int i = 1; i < propositions.Length; i++)
                 {
-                    if (propositions[i])
+                    if (propositions[i] && !Problem.Variables[i].Proposition.IsInternal)
                     {
                         if (firstOne)
                             firstOne = false;
