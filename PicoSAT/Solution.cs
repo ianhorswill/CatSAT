@@ -23,6 +23,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 #define RANDOMIZE
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -241,6 +242,20 @@ namespace PicoSAT
 
                 for (var f = MaxFlips; unsatisfiedClauses.Count > 0 && f > 0; f--)
                 {
+                    // Hill climb: pick an unsatisfied clause at random and flip one of its variables
+#if KnuthWalkSAT
+                    // This is the version of WalkSAT that appears in Knuth, but it doesn't match
+                    // the version reported elsewhere, and it seems to be considerably slower.
+                    var targetClause = Problem.Clauses[unsatisfiedClauses.RandomElement()];
+                    var flipChoice = BestVariableToFlip(targetClause.Disjuncts);
+                    if (flipChoice.Cost > 0 && Random.InRange(100) < 50)
+                        // Flip a completely random variable
+                        // This is to pull us out of local minima
+                        Flip(Problem.FloatingVariables.RandomElement());
+                    else
+                        Flip(flipChoice.Variable);
+#else
+                    // This runs considerably faster than Knuth WalkSAT on my tests
                     if (Random.InRange(100) < RandomFlipProbability)
                         // Flip a completely random variable
                         // This is to pull us out of local minima
@@ -249,8 +264,9 @@ namespace PicoSAT
                     {
                         // Hill climb: pick an unsatisfied clause at random and flip one of its variables
                         var targetClause = Problem.Clauses[unsatisfiedClauses.RandomElement()];
-                        Flip(LeastBadLiteralToFlip(targetClause.Disjuncts));
+                        Flip(BestVariableToFlip(targetClause.Disjuncts));
                     }
+#endif
                 }
 
                 if (unsatisfiedClauses.Count == 0)
@@ -261,14 +277,32 @@ namespace PicoSAT
             return false;
         }
 
+#if KnuthWalkSAT
+        private struct FlipChoice
+        {
+            public ushort Variable;
+            public ushort Cost;
+
+            public FlipChoice(ushort variable, ushort cost)
+            {
+                Variable = variable;
+                Cost = cost;
+            }
+        }
+#endif
+
         /// <summary>
         /// Find the proposition from the specified clause that will do the least damage to the clauses that are already satisfied.
         /// </summary>
         /// <param name="disjuncts">Signed indices of the disjucts of the clause</param>
         /// <returns>Index of the prop to flip</returns>
-        private ushort LeastBadLiteralToFlip(short[] disjuncts)
+#if KnuthWalkSAT
+        private FlipChoice BestVariableToFlip(short[] disjuncts)
+#else
+        private ushort BestVariableToFlip(short[] disjuncts)
+#endif
         {
-            var bestCount = int.MaxValue;
+            var bestCount = ushort.MaxValue;
             var best = 0;
 #if RANDOMIZE
             // Walk disjuncts in a reasonably random order
@@ -286,7 +320,11 @@ namespace PicoSAT
                 var threatCount = ThreatenedClauseCount((ushort)Math.Abs(value));
                 if (threatCount == 0)
                     // Fast path = can't do better than this
+#if KnuthWalkSAT
+                    return new FlipChoice((ushort) Math.Abs(value), 0);
+#else
                     return (ushort) Math.Abs(value);
+#endif
                 if (threatCount < bestCount)
                 {
                     best = value;
@@ -294,7 +332,11 @@ namespace PicoSAT
                 }
             }
 
+#if KnuthWalkSAT
+            return new FlipChoice((ushort)Math.Abs(best), bestCount);
+#else
             return (ushort)Math.Abs(best);
+#endif
         }
 
         /// <summary>
@@ -302,9 +344,9 @@ namespace PicoSAT
         /// </summary>
         /// <param name="pIndex">Index of the proposition</param>
         /// <returns></returns>
-        int ThreatenedClauseCount(ushort pIndex)
+        ushort ThreatenedClauseCount(ushort pIndex)
         {
-            var threatCount = 0;
+            ushort threatCount = 0;
             var prop = Problem.Variables[pIndex];
 
             if (propositions[pIndex])
