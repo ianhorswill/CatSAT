@@ -280,10 +280,10 @@ namespace PicoSAT
 #if KnuthWalkSAT
         private struct FlipChoice
         {
-            public ushort Variable;
-            public ushort Cost;
+            public readonly ushort Variable;
+            public readonly int Cost;
 
-            public FlipChoice(ushort variable, ushort cost)
+            public FlipChoice(ushort variable, int cost)
             {
                 Variable = variable;
                 Cost = cost;
@@ -302,7 +302,7 @@ namespace PicoSAT
         private ushort BestVariableToFlip(short[] disjuncts)
 #endif
         {
-            var bestCount = ushort.MaxValue;
+            var bestCount = int.MaxValue;
             var best = 0;
 #if RANDOMIZE
             // Walk disjuncts in a reasonably random order
@@ -317,9 +317,12 @@ namespace PicoSAT
                 foreach (var value in disjuncts)
             {
 #endif
-                var threatCount = ThreatenedClauseCount((ushort)Math.Abs(value));
-                if (threatCount == 0)
-                    // Fast path = can't do better than this
+                var threatCount = UnsatisfiedClauseDelta((ushort)Math.Abs(value));
+                if (threatCount <= 0)
+                    // Fast path - we've found an improvement; take it
+                    // Real WalkSAT would continue searching for the best possible choice, but this
+                    // gives better performance in my tests
+                    // TODO - see if a faster way of computing ThreatenedClauseCount would improve things.
 #if KnuthWalkSAT
                     return new FlipChoice((ushort) Math.Abs(value), 0);
 #else
@@ -340,51 +343,90 @@ namespace PicoSAT
         }
 
         /// <summary>
-        /// The number of currently satisfied clauses that would become unsatisfied if we flipped this proposition.
+        /// The increase in the number of unsatisfied clauses as a result of flipping the specified variable
         /// </summary>
-        /// <param name="pIndex">Index of the proposition</param>
-        /// <returns></returns>
-        ushort ThreatenedClauseCount(ushort pIndex)
+        /// <param name="pIndex">Index of the variable to consider flipping</param>
+        /// <returns>The signed increase in the number of unsatisfied clauses</returns>
+        int UnsatisfiedClauseDelta(ushort pIndex)
         {
-            ushort threatCount = 0;
+            int threatCount = 0;
             var prop = Problem.Variables[pIndex];
+            List<ushort> increasingClauses;
+            List<ushort> decreasingClauses;
 
             if (propositions[pIndex])
             {
-                // prop is currently true, so we would be flipping it to false
-
-                // For positive literals the satisfied disjunct count would decrease
-                foreach (var cIndex in prop.PositiveClauses)
-                {
-                    if (Problem.Clauses[cIndex].OneTooFewDisjuncts((ushort)(trueDisjunctCount[cIndex] - 1)))
-                        threatCount++;
-                }
-
-                // For negative literals, the satisfied disjunct count would increase
-                foreach (var cIndex in prop.NegativeClauses)
-                {
-                    if (Problem.Clauses[cIndex].OneTooManyDisjuncts((ushort)(trueDisjunctCount[cIndex] + 1)))
-                        threatCount++;
-                }
+                // prop true -> false
+                increasingClauses = prop.NegativeClauses;
+                decreasingClauses = prop.PositiveClauses;
             }
             else
             {
-                // prop is currently false, so we would be flipping it to true
-
-                // For positive literals the satisfied disjunct count would increase
-                foreach (var cIndex in prop.PositiveClauses)
-                {
-                    if (Problem.Clauses[cIndex].OneTooManyDisjuncts((ushort)(trueDisjunctCount[cIndex] + 1)))
-                        threatCount++;
-                }
-
-                // For negative literals, the satisfied disjunct count would decrease
-                foreach (var cIndex in prop.NegativeClauses)
-                {
-                    if (Problem.Clauses[cIndex].OneTooFewDisjuncts((ushort)(trueDisjunctCount[cIndex] - 1)))
-                        threatCount++;
-                }
+                // prop true -> false
+                increasingClauses = prop.PositiveClauses;
+                decreasingClauses = prop.NegativeClauses;
             }
+
+            foreach (var cIndex in increasingClauses)
+            {
+                // This clause is getting one more disjunct
+                var clause = Problem.Clauses[cIndex];
+                var count = trueDisjunctCount[cIndex];
+                if (clause.OneTooFewDisjuncts(count))
+                    threatCount--;
+                else if (clause.OneTooManyDisjuncts((ushort) (count + 1)))
+                    threatCount++;
+            }
+
+            foreach (var cIndex in decreasingClauses)
+            {
+                // This clause is getting one more disjunct
+                var clause = Problem.Clauses[cIndex];
+                var count = trueDisjunctCount[cIndex];
+                if (clause.OneTooFewDisjuncts((ushort)(count-1)))
+                    threatCount++;
+                else if (clause.OneTooManyDisjuncts(count))
+                    threatCount--;
+            }
+
+            
+
+            //if (propositions[pIndex])
+            //{
+            //    // prop is currently true, so we would be flipping it to false
+
+            //    // For positive literals the satisfied disjunct count would decrease
+            //    foreach (var cIndex in prop.PositiveClauses)
+            //    {
+            //        if (Problem.Clauses[cIndex].OneTooFewDisjuncts((ushort)(trueDisjunctCount[cIndex] - 1)))
+            //            threatCount++;
+            //    }
+
+            //    // For negative literals, the satisfied disjunct count would increase
+            //    foreach (var cIndex in prop.NegativeClauses)
+            //    {
+            //        if (Problem.Clauses[cIndex].OneTooManyDisjuncts((ushort)(trueDisjunctCount[cIndex] + 1)))
+            //            threatCount++;
+            //    }
+            //}
+            //else
+            //{
+            //    // prop is currently false, so we would be flipping it to true
+
+            //    // For positive literals the satisfied disjunct count would increase
+            //    foreach (var cIndex in prop.PositiveClauses)
+            //    {
+            //        if (Problem.Clauses[cIndex].OneTooManyDisjuncts((ushort)(trueDisjunctCount[cIndex] + 1)))
+            //            threatCount++;
+            //    }
+
+            //    // For negative literals, the satisfied disjunct count would decrease
+            //    foreach (var cIndex in prop.NegativeClauses)
+            //    {
+            //        if (Problem.Clauses[cIndex].OneTooFewDisjuncts((ushort)(trueDisjunctCount[cIndex] - 1)))
+            //            threatCount++;
+            //    }
+            //}
 
             return threatCount;
         }
