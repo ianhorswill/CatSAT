@@ -136,5 +136,63 @@ namespace Tests
                 Console.WriteLine();
             }
         }
+
+        [TestMethod]
+        public void StoryTellerDemoTest()
+        {
+            var p = new Problem("Storyteller demo rebuild");
+            var cast = new[] {"red", "green", "blue"}; // characters don't have names and gender doesn't matter
+            var rich = Predicate<string>("rich");
+            var caged = Predicate<string>("caged");
+            var hasSword = Predicate<string>("hasSword");
+            var evil = Predicate<string>("evil");
+            var kill = Predicate<string, string>("kill");
+            var loves = Predicate<string, string>("loves");
+            var dead = Predicate<string>("dead");
+            var tombstone = Predicate<string>("tombstone");
+            var someoneFree = (Proposition) "someoneFree";
+
+            // Panel 1 -> panel 2
+            foreach (var x in cast)
+            {
+                p.Assert(
+                    evil(x) == Not(rich(x)),
+                    (Expression)caged(x) >= rich(x),
+                    hasSword(x) == (rich(x) & Not(caged(x))),
+                    someoneFree <= (Expression)Not(caged(x)),
+                    Not(kill(x,x))
+                );
+                // You can't kill multiple people
+                p.AtMost(1, cast.Select(y => kill(x, y)));
+                foreach (var y in cast)
+                    p.Assert(
+                        (Expression)kill(x, y) >= hasSword(x),
+                        (Expression)kill(x,y) >= evil(y)
+                    );
+            }
+
+            // Panel 2 -> panel 3
+            foreach (var x in cast)
+            {
+                foreach (var y in cast)
+                {
+                    p.Assert(
+                        dead(y) <= kill(x, y),
+                        tombstone(x) <= (caged(x) & evil(y) & Not(dead(y))),
+                        tombstone(x) <= (Expression)Not(someoneFree),
+                        tombstone(x) <= dead(x)
+                    );
+                    foreach (var z in cast)
+                        p.Assert(loves(x, y) <= (caged(x) & kill(y, z)));
+                }
+            }
+
+            Console.WriteLine(p.Stats);
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+            }
+        }
     }
 }
