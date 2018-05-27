@@ -255,17 +255,17 @@ namespace PicoSAT
                     else
                         Flip(flipChoice.Variable);
 #else
+                    var targetClause = Problem.Clauses[unsatisfiedClauses.RandomElement()];
+                    ushort flipChoice;
                     // This runs considerably faster than Knuth WalkSAT on my tests
                     if (Random.InRange(100) < RandomFlipProbability)
                         // Flip a completely random variable
                         // This is to pull us out of local minima
-                        Flip(Problem.FloatingVariables.RandomElement());
+                        flipChoice = (ushort) Math.Abs(targetClause.Disjuncts.RandomElement());
                     else
-                    {
-                        // Hill climb: pick an unsatisfied clause at random and flip one of its variables
-                        var targetClause = Problem.Clauses[unsatisfiedClauses.RandomElement()];
-                        Flip(BestVariableToFlip(targetClause.Disjuncts));
-                    }
+                        // Hill climb: pick an unsatisfied clause at random and flip one of its variables;
+                        flipChoice = BestVariableToFlip(targetClause.Disjuncts);
+                    Flip(flipChoice);
 #endif
                 }
 
