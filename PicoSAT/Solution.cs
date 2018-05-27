@@ -45,15 +45,6 @@ namespace PicoSAT
         /// Number of flips of propositions we can try before we give up and start over.
         /// </summary>
         public readonly int MaxFlips;
-        /// <summary>
-        /// Number of times we can start over before we give up entirely.
-        /// </summary>
-        public readonly int MaxTries;
-
-        /// <summary>
-        /// Probability that the solver will flip a random variable rather than a variable from an unsatisfied clause.
-        /// </summary>
-        public readonly int RandomFlipProbability;
         #endregion
 
         #region Solver state
@@ -73,19 +64,23 @@ namespace PicoSAT
         private readonly ushort[] trueDisjunctCount;
 
         /// <summary>
+        /// Last flipped disjunct of a given clause
+        /// </summary>
+        private readonly ushort[] lastFlip;
+
+        /// <summary>
         /// Total number of unsatisfied clauses
         /// </summary>
         private readonly List<ushort> unsatisfiedClauses = new List<ushort>();
         #endregion
 
-        internal Solution(Problem problem, int maxFlips, int maxTries, int randomFlipProbability)
+        internal Solution(Problem problem, int maxFlips)
         {
             Problem = problem;
             MaxFlips = maxFlips;
-            MaxTries = maxTries;
-            RandomFlipProbability = randomFlipProbability;
             propositions = new bool[problem.Variables.Count];
             trueDisjunctCount = new ushort[problem.Clauses.Count];
+            lastFlip = new ushort[problem.Clauses.Count];
         }
 
         public string Model
@@ -229,6 +224,10 @@ namespace PicoSAT
         #endregion
         
         #region Solver
+
+        private const int Theta = 3;
+        private const float Phi = 0.2f;
+
         /// <summary>
         /// Try to find an assignment of truth values to propositions that satisfied the Program.
         /// Implements the WalkSAT algorithm
@@ -236,71 +235,55 @@ namespace PicoSAT
         /// <returns>True if a satisfying assignment was found.</returns>
         internal bool Solve()
         {
-            for (var t = MaxTries; t > 0; t--)
-            {
-                MakeRandomAssignment();
+            MakeRandomAssignment();
+            var flipsSinceImprovement = 0;
+            var wp = 0f;
 
-                for (var f = MaxFlips; unsatisfiedClauses.Count > 0 && f > 0; f--)
+
+            for (var f = MaxFlips; unsatisfiedClauses.Count > 0 && f > 0; f--)
+            {
+                // Hill climb: pick an unsatisfied clause at random and flip one of its variables
+                var targetClauseIndex = unsatisfiedClauses.RandomElement();
+                var targetClause = Problem.Clauses[targetClauseIndex];
+                ushort flipChoice;
+
+                if (Random.InRange(100) < 100 * wp)
+                    // Flip a completely random variable
+                    // This is to pull us out of local minima
+                    flipChoice = (ushort) Math.Abs(targetClause.Disjuncts.RandomElement());
+                else
+                    // Hill climb: pick an unsatisfied clause at random and flip one of its variables;
+                    flipChoice = BestVariableToFlip(targetClause.Disjuncts, lastFlip[targetClauseIndex]);
+                lastFlip[targetClauseIndex] = flipChoice;
+                var oldSatisfactionCount = unsatisfiedClauses.Count;
+                Flip(flipChoice);
+                if (unsatisfiedClauses.Count < oldSatisfactionCount)
                 {
-                    // Hill climb: pick an unsatisfied clause at random and flip one of its variables
-#if KnuthWalkSAT
-                    // This is the version of WalkSAT that appears in Knuth, but it doesn't match
-                    // the version reported elsewhere, and it seems to be considerably slower.
-                    var targetClause = Problem.Clauses[unsatisfiedClauses.RandomElement()];
-                    var flipChoice = BestVariableToFlip(targetClause.Disjuncts);
-                    if (flipChoice.Cost > 0 && Random.InRange(100) < 50)
-                        // Flip a completely random variable
-                        // This is to pull us out of local minima
-                        Flip(Problem.FloatingVariables.RandomElement());
-                    else
-                        Flip(flipChoice.Variable);
-#else
-                    var targetClause = Problem.Clauses[unsatisfiedClauses.RandomElement()];
-                    ushort flipChoice;
-                    // This runs considerably faster than Knuth WalkSAT on my tests
-                    if (Random.InRange(100) < RandomFlipProbability)
-                        // Flip a completely random variable
-                        // This is to pull us out of local minima
-                        flipChoice = (ushort) Math.Abs(targetClause.Disjuncts.RandomElement());
-                    else
-                        // Hill climb: pick an unsatisfied clause at random and flip one of its variables;
-                        flipChoice = BestVariableToFlip(targetClause.Disjuncts);
-                    Flip(flipChoice);
-#endif
+                    // Improvement
+                    flipsSinceImprovement = 0;
+                    wp = wp * (1 - Phi / 2);
                 }
-
-                if (unsatisfiedClauses.Count == 0)
-                    return true;
+                else
+                {
+                    flipsSinceImprovement++;
+                    if (flipsSinceImprovement > Problem.Clauses.Count / Theta)
+                    {
+                        wp = wp + (1 - wp) * Phi;
+                        flipsSinceImprovement = 0;
+                    }
+                }
             }
-            
-            // Give up
-            return false;
-        }
 
-#if KnuthWalkSAT
-        private struct FlipChoice
-        {
-            public readonly ushort Variable;
-            public readonly int Cost;
-
-            public FlipChoice(ushort variable, int cost)
-            {
-                Variable = variable;
-                Cost = cost;
-            }
+            return unsatisfiedClauses.Count == 0;
         }
-#endif
 
         /// <summary>
         /// Find the proposition from the specified clause that will do the least damage to the clauses that are already satisfied.
         /// </summary>
         /// <param name="disjuncts">Signed indices of the disjucts of the clause</param>
+        /// <param name="lastFlipOfThisClause">Variable that was last chosen for flipping in this clause.</param>
         /// <returns>Index of the prop to flip</returns>
-#if KnuthWalkSAT
-        private FlipChoice BestVariableToFlip(short[] disjuncts)
-#else
-        private ushort BestVariableToFlip(short[] disjuncts)
-#endif
+        private ushort BestVariableToFlip(short[] disjuncts, ushort lastFlipOfThisClause)
         {
             var bestCount = int.MaxValue;
             var best = 0;
@@ -317,29 +300,27 @@ namespace PicoSAT
                 foreach (var value in disjuncts)
             {
 #endif
-                var threatCount = UnsatisfiedClauseDelta((ushort)Math.Abs(value));
+                var selectedVar = (ushort)Math.Abs(value);
+                if (selectedVar == lastFlipOfThisClause)
+                    continue;
+                var threatCount = UnsatisfiedClauseDelta(selectedVar);
                 if (threatCount <= 0)
                     // Fast path - we've found an improvement; take it
                     // Real WalkSAT would continue searching for the best possible choice, but this
                     // gives better performance in my tests
                     // TODO - see if a faster way of computing ThreatenedClauseCount would improve things.
-#if KnuthWalkSAT
-                    return new FlipChoice((ushort) Math.Abs(value), 0);
-#else
-                    return (ushort) Math.Abs(value);
-#endif
+                    return selectedVar;
+
                 if (threatCount < bestCount)
                 {
-                    best = value;
+                    best = selectedVar;
                     bestCount = threatCount;
                 }
             }
 
-#if KnuthWalkSAT
-            return new FlipChoice((ushort)Math.Abs(best), bestCount);
-#else
-            return (ushort)Math.Abs(best);
-#endif
+            if (best == 0)
+                return (ushort)Math.Abs(disjuncts.RandomElement());
+            return (ushort)best;
         }
 
         /// <summary>

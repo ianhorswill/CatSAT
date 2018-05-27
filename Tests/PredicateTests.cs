@@ -80,7 +80,7 @@ namespace Tests
         {
             var n = 8;
 
-            var p = new Problem("N rooks hard") { MaxTries = 2000 };
+            var p = new Problem("N rooks hard") { MaxFlips = 2000000 };
             
 
             // rook(i, j) means there's a root at row i, column j

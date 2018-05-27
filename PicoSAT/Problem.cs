@@ -128,18 +128,7 @@ namespace PicoSAT
         /// <summary>
         /// Number of flips of propositions we can try before we give up and start over.
         /// </summary>
-        public int MaxFlips = 1000;
-
-        /// <summary>
-        /// Number of times we can start over before we give up entirely.
-        /// </summary>
-        public int MaxTries = 100;
-
-        /// <summary>
-        /// Probability of just doing a random flip rather than specifically one from an unsatisfied clause
-        /// </summary>
-        // ReSharper disable once FieldCanBeMadeReadOnly.Global
-        public int RandomFlipProbability = 10;
+        public int MaxFlips = 50000;
 
         /// <summary>
         /// Require the program to be tight, i.e. not allow circular reasoning chains.
@@ -249,7 +238,7 @@ namespace PicoSAT
             FinishCodeGeneration();
             if (FloatingVariables.Count == 0)
                 RecomputeFloatingVariables();
-            var m = new Solution(this, MaxFlips, MaxTries, RandomFlipProbability);
+            var m = new Solution(this, MaxFlips);
             if (m.Solve())
                 return m;
             if (throwOnUnsolvable)
