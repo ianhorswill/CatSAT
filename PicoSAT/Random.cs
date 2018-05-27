@@ -22,6 +22,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
+#define XORSHIFT
+
 using System.Collections.Generic;
 
 namespace PicoSAT
@@ -31,17 +33,18 @@ namespace PicoSAT
     /// </summary>
     internal static class Random
     {
-#if SIMPLERANDOM
-        private static uint seed = (uint) Environment.TickCount;
-
-        /// <summary>
-        /// Return a random integer
-        /// </summary>
-        /// <returns></returns>
+#if XORSHIFT
+        private static uint state = 234923840;
         public static uint Next()
         {
-            seed = seed * 1664525 + 1013904223;
-            return seed;
+            /* Algorithm "xor" from p. 4 of Marsaglia, "Xorshift RNGs" */
+            // Cribbed from Wikipedia
+            uint x = state;
+            x ^= x << 13;
+            x ^= x >> 17;
+            x ^= x << 5;
+            state = x;
+            return x;
         }
 #else
         private static System.Random rand = new System.Random();
@@ -56,10 +59,10 @@ namespace PicoSAT
         }
 #endif
 
-        /// <summary>
-        /// Return a random integer in [0, max)
-        /// </summary>
-        public static uint InRange(uint max)
+    /// <summary>
+    /// Return a random integer in [0, max)
+    /// </summary>
+    public static uint InRange(uint max)
         {
             return Next() % max;
         }
