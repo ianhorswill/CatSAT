@@ -35,10 +35,17 @@ namespace Tests
     [TestClass]
     public class FluentTests
     {
+        [TestInitialize]
+        public void StartLogging()
+        {
+            Problem.LogPerformanceDataToConsole = true;
+            Problem.LogFile = "../../../Test timings.csv";
+        }
+
         [TestMethod]
         public void NullaryFluentTest()
         {
-            var p = new Problem("Fluent test") { TimeHorizon = 10 };
+            var p = new Problem("Nullary fluent test") { TimeHorizon = 10 };
             var f = Fluent("f", requireActivationSupport: false, requireDeactivationSupport: false);
 
             for (int i = 0; i < 100; i++)
@@ -68,7 +75,7 @@ namespace Tests
         public void UnaryFluentTest()
         {
             var domain = new[] { "a", "b", "c" };
-            var p = new Problem("Fluent test") { TimeHorizon = 10 };
+            var p = new Problem("Unary fluent test") { TimeHorizon = 10 };
             var f = Fluent("f", domain, requireActivationSupport: false, requireDeactivationSupport: false);
 
             foreach (var d in domain)
@@ -99,7 +106,7 @@ namespace Tests
         public void BinaryFluentTest()
         {
             var domain = new[] { "a", "b", "c" };
-            var p = new Problem("Fluent test") { TimeHorizon = 10 };
+            var p = new Problem("Binary fluent test") { TimeHorizon = 10 };
             var f = Fluent("f", domain, domain, requireActivationSupport: false, requireDeactivationSupport: false);
 
             foreach (var d1 in domain)

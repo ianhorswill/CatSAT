@@ -33,7 +33,7 @@ namespace Tests
         [TestMethod]
         public void AddClauseTest()
         {
-            var p = new Problem();
+            var p = new Problem("Add clause test");
             var clause = p.AddClause("x", "y");
             Assert.AreEqual("x", p.KeyOf(clause, 0).Name);
             Assert.AreEqual("y", p.KeyOf(clause, 1));
@@ -42,7 +42,7 @@ namespace Tests
         [TestMethod]
         public void EmptyProgramTest()
         {
-            new Problem().Solve();
+            new Problem("Empty program test").Solve();
             Assert.IsTrue(true);
         }
     }

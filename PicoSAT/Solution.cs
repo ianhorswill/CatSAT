@@ -44,8 +44,21 @@ namespace PicoSAT
         /// <summary>
         /// Number of flips of propositions we can try before we give up and start over.
         /// </summary>
-        public readonly int MaxFlips;
+        public readonly int Timeout;
         #endregion
+
+        #region Performance statistics
+#if PerformanceStatistics
+        /// <summary>
+        /// Time taken to generate this solution
+        /// </summary>
+        public float SolveTimeMicroseconds { get; private set; }
+        /// <summary>
+        /// Number of flips required to generate this solution
+        /// </summary>
+        public int SolveFlips { get; private set; }
+#endif
+#endregion
 
         #region Solver state
         /// <summary>
@@ -74,10 +87,10 @@ namespace PicoSAT
         private readonly List<ushort> unsatisfiedClauses = new List<ushort>();
         #endregion
 
-        internal Solution(Problem problem, int maxFlips)
+        internal Solution(Problem problem, int timeout)
         {
             Problem = problem;
-            MaxFlips = maxFlips;
+            Timeout = timeout;
             propositions = new bool[problem.Variables.Count];
             trueDisjunctCount = new ushort[problem.Clauses.Count];
             lastFlip = new ushort[problem.Clauses.Count];
@@ -107,7 +120,19 @@ namespace PicoSAT
             }
         }
 
-        #region Checking truth values
+        public string PerformanceStatistics
+        {
+            get
+            {
+#if PerformanceStatistics
+                return $"{SolveTimeMicroseconds:#,##0.##}us {SolveFlips} flips, {SolveFlips/SolveTimeMicroseconds:0.##}MF/S";
+#else
+                return "PicoSat build does not have performance monitoring enabled.";
+#endif
+            }
+        }
+
+#region Checking truth values
         /// <summary>
         /// Test the truth of the specified literal within the model
         /// </summary>
@@ -167,9 +192,9 @@ namespace PicoSAT
                     throw new ArgumentException($"Internal error - invalid literal {l}");
             }
         }
-        #endregion
+#endregion
 
-        #region Quantifiers
+#region Quantifiers
         public bool Quantify(int min, int max, IEnumerable<Literal> literals)
         {
             var enumerable = literals as Literal[] ?? literals.ToArray();
@@ -221,10 +246,9 @@ namespace PicoSAT
         {
             return Quantify(n, 0, literals);
         }
-        #endregion
+#endregion
         
-        #region Solver
-
+#region Solver
         private const int Theta = 3;
         private const float Phi = 0.2f;
 
@@ -235,12 +259,17 @@ namespace PicoSAT
         /// <returns>True if a satisfying assignment was found.</returns>
         internal bool Solve()
         {
+#if PerformanceStatistics
+            Problem.Stopwatch.Reset();
+            Problem.Stopwatch.Start();
+#endif
+
             MakeRandomAssignment();
             var flipsSinceImprovement = 0;
             var wp = 0f;
 
-
-            for (var f = MaxFlips; unsatisfiedClauses.Count > 0 && f > 0; f--)
+            var remainingFlips = Timeout;
+            for (; unsatisfiedClauses.Count > 0 && remainingFlips > 0; remainingFlips--)
             {
                 // Hill climb: pick an unsatisfied clause at random and flip one of its variables
                 var targetClauseIndex = unsatisfiedClauses.RandomElement();
@@ -273,6 +302,11 @@ namespace PicoSAT
                     }
                 }
             }
+
+#if PerformanceStatistics
+            SolveTimeMicroseconds = Problem.Stopwatch.ElapsedTicks / (Stopwatch.Frequency * 0.000001f);
+            SolveFlips = Timeout - remainingFlips;
+#endif
 
             return unsatisfiedClauses.Count == 0;
         }

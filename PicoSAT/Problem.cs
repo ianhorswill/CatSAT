@@ -63,6 +63,10 @@ namespace PicoSAT
             Name = name;
             Current = this;
             Variables.Add(new Variable(new Proposition("I am not a valid proposition!  I am a placeholder!", 0)));
+#if PerformanceStatistics
+            Stopwatch.Reset();
+            Stopwatch.Start();
+#endif
         }
 
         #region Instance variables
@@ -73,6 +77,103 @@ namespace PicoSAT
             Compiled = 2
         }
 
+        /// <summary>
+        /// Tracks whether we've already compiled the rules for this program.
+        /// </summary>
+        private CompilationState compilationState = CompilationState.Uncompiled;
+
+#if PerformanceStatistics
+        internal readonly Stopwatch Stopwatch = new Stopwatch();
+
+        /// <summary>
+        /// Number of microseconds spent in Boolean Constriant Propagation
+        /// </summary>
+        public float OptimizationTime { get; private set; }
+        /// <summary>
+        /// Number of microsections spent computing the completions of rules
+        /// </summary>
+        public float CompilationTime { get; private set; }
+        /// <summary>
+        /// Number of microseconds spent building the problem object itself.
+        /// This is the time spent making propositions and predicates, calling Assert, etc.
+        /// It's measured as elapsed time from the calling of the constructor to the calling
+        /// of the FinishRuleCompilation() method.
+        /// </summary>
+        public float CreationTime { get; private set; }
+
+        public struct TimingData
+        {
+            public float Min;
+            public float Max;
+            private float sum;
+            private int count;
+
+            public float Average => count==0?0:sum / count;
+
+            public void AddReading(float reading)
+            {
+                if (count == 0)
+                {
+                    Min = float.MaxValue;
+                    Max = float.MinValue;
+                }
+                if (reading < Min)
+                    Min = reading;
+                if (reading > Max)
+                    Max = reading;
+                sum += reading;
+                count++;
+            }
+        }
+
+        // ReSharper disable once UnassignedField.Global
+        public TimingData SolveTimeMicroseconds;
+        // ReSharper disable once UnassignedField.Global
+        public TimingData SolveFlips;
+
+
+        /// <summary>
+        /// Always print performance data to the console.
+        /// </summary>
+        public static bool LogPerformanceDataToConsole;
+
+        private static string _logFile;
+        public static string LogFile
+        {
+            get => _logFile;
+            set
+            {
+                _logFile = value;
+                System.IO.File.WriteAllLines(_logFile, new [] {"Name,Create,Compile,Optimize,Clauses,Variables,Floating,SolveMin, SolveMax,SolveAvg,FlipsMin,FlipsMax,FlipsAvg"});
+            }
+        }
+
+        public void LogPerformanceData()
+        {
+            System.IO.File.AppendAllLines(LogFile, new []
+            {
+                $"'{Name}',{CreationTime},{CompilationTime},{OptimizationTime},{Clauses.Count},{Variables.Count},{Variables.Count(v => v.DeterminionState == Variable.DeterminationState.Floating)},{SolveTimeMicroseconds.Min},{SolveTimeMicroseconds.Max},{SolveTimeMicroseconds.Average},{SolveFlips.Min},{SolveFlips.Max},{SolveFlips.Average}"
+            });
+        }
+
+        ~Problem()
+        {
+            if (_logFile != null) LogPerformanceData();
+        }
+#endif
+
+        public string PerformanceStatistics
+        {
+            get
+            {
+#if PerformanceStatistics
+                return $"Creation: {CreationTime:#,##0}us, Compilation: {CompilationTime:#,##0.##}us, Optimization: {OptimizationTime:#,##0.##}us, C+O: {CompilationTime+OptimizationTime:0}us";
+#else
+                return "PicoSAT compiled without performance measurements";
+#endif
+            }
+        }
+
         public string Stats
         {
             get
@@ -81,12 +182,7 @@ namespace PicoSAT
                     $"{Variables.Count} variables, {Variables.Count(v => v.DeterminionState == Variable.DeterminationState.Floating)} floating, {Clauses.Count} clauses";
             }
         }
-
-        /// <summary>
-        /// Tracks whether we've already compiled the rules for this program.
-        /// </summary>
-        private CompilationState compilationState = CompilationState.Uncompiled;
-
+        
         private string DebuggerDisplay
         {
             // ReSharper disable once UnusedMember.Local
@@ -128,7 +224,7 @@ namespace PicoSAT
         /// <summary>
         /// Number of flips of propositions we can try before we give up and start over.
         /// </summary>
-        public int MaxFlips = 50000;
+        public int Timeout = 50000;
 
         /// <summary>
         /// Require the program to be tight, i.e. not allow circular reasoning chains.
@@ -167,9 +263,9 @@ namespace PicoSAT
                     yield return pair.Value;
             }
         }
-        #endregion
+#endregion
 
-        #region Clause management
+#region Clause management
         /// <summary>
         /// Forcibly add a clause to the Problem.
         /// </summary>
@@ -224,7 +320,7 @@ namespace PicoSAT
 
             return indices;
         }
-        #endregion
+#endregion
 
         /// <summary>
         /// Return a Solution to the Problem.
@@ -235,18 +331,33 @@ namespace PicoSAT
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Global
         public Solution Solve(bool throwOnUnsolvable = true)
         {
+#if PerformanceStatistics
+            var previousState = compilationState;
+#endif
             FinishCodeGeneration();
+#if PerformanceStatistics
+            if (LogPerformanceDataToConsole && previousState != CompilationState.Compiled)
+                Console.WriteLine(PerformanceStatistics);
+#endif
             if (FloatingVariables.Count == 0)
                 RecomputeFloatingVariables();
-            var m = new Solution(this, MaxFlips);
+            var m = new Solution(this, Timeout);
             if (m.Solve())
+            {
+#if PerformanceStatistics
+                SolveTimeMicroseconds.AddReading(m.SolveTimeMicroseconds);
+                SolveFlips.AddReading(m.SolveFlips);
+                if (LogPerformanceDataToConsole)
+                    Console.WriteLine(m.PerformanceStatistics);
+#endif
                 return m;
+            }
             if (throwOnUnsolvable)
                 throw new TimeoutException(this);
             return null;
         }
 
-        #region Assertions
+#region Assertions
         public void Assert(params Assertable[] assertions)
         {
             foreach (var a in assertions)
@@ -364,9 +475,17 @@ namespace PicoSAT
         {
             if (compilationState == CompilationState.HaveRules)
             {
+#if PerformanceStatistics
+                CreationTime = Stopwatch.ElapsedTicks / (0.000001f * Stopwatch.Frequency);
+                Stopwatch.Reset();
+                Stopwatch.Start();
+#endif
                 if (Tight)
                     CheckTightness();
                 CompileRuleBodies();
+#if PerformanceStatistics
+                CompilationTime = Stopwatch.ElapsedTicks / (0.000001f * Stopwatch.Frequency);
+#endif
             }
 
             compilationState = CompilationState.Compiled;
@@ -498,9 +617,9 @@ namespace PicoSAT
                 AddClause(new Clause(1, 0, reverseClause));
             }
         }
-        #endregion
+#endregion
 
-        #region Quantifiers
+#region Quantifiers
         public void Quantify(int min, int max, IEnumerable<Literal> enumerator)
         {
             Quantify(min, max, enumerator.Select(l => l.SignedIndex).Distinct().ToArray());
@@ -544,9 +663,9 @@ namespace PicoSAT
         {
             Quantify(n, 0, enumerator);
         }
-        #endregion
+#endregion
 
-        #region Mapping between Literals objects and Variables
+#region Mapping between Literals objects and Variables
         private readonly Dictionary<object, Proposition> propositionTable = new Dictionary<object, Proposition>();
 
         /// <summary>
@@ -634,7 +753,7 @@ namespace PicoSAT
         {
             return Variables[p.Index].IsPredetermined;
         }
-        #endregion
+#endregion
 
 #region Optimization (unit resolution)
         
@@ -642,6 +761,10 @@ namespace PicoSAT
         public void Optimize()
         {
             FinishCodeGeneration();
+#if PerformanceStatistics
+            Stopwatch.Reset();
+            Stopwatch.Start();
+#endif
             ResetInferredPropositions();
 
             // The number of literals in clause whose values aren't yet known.
@@ -726,6 +849,11 @@ namespace PicoSAT
                 Walk(c);
             while (walkQueue.Count > 0)
                 Walk(walkQueue.Dequeue());
+#if PerformanceStatistics
+            OptimizationTime = Stopwatch.ElapsedTicks / (0.000001f * Stopwatch.Frequency);
+            if (LogPerformanceDataToConsole)
+                Console.WriteLine(PerformanceStatistics);
+#endif
         }
 
         /// <summary>
@@ -891,7 +1019,7 @@ namespace PicoSAT
 #endif
 #endregion
 
-        #region Manipulation of predetermined values of variables
+#region Manipulation of predetermined values of variables
         /// <summary>
         /// Set the truth value of the proposition across all models, or get the predetermined value.
         /// </summary>

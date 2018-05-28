@@ -34,7 +34,7 @@ namespace Tests
         [TestMethod]
         public void PositiveSolveTest()
         {
-            var p = new Problem();
+            var p = new Problem("Positive solve test");
             p.AddClause("x", "y");
             p.AddClause("z");
             for (int i = 0; i < 100; i++)
@@ -48,7 +48,7 @@ namespace Tests
         [TestMethod]
         public void UniqueTest()
         {
-            var p = new Problem();
+            var p = new Problem("Unique test");
             p.AddClause(1, 1, "w", "x", "y", "z");
             for (int i = 0; i < 100; i++)
             {
@@ -66,7 +66,7 @@ namespace Tests
         [TestMethod]
         public void FixedCardinalityTest()
         {
-            var p = new Problem();
+            var p = new Problem("Fixed cardinality test");
             p.AddClause(2, 2, "w", "x", "y", "z");
             for (int i = 0; i < 100; i++)
             {
@@ -84,7 +84,7 @@ namespace Tests
         [TestMethod]
         public void BoundedCardinalityTest()
         {
-            var p = new Problem();
+            var p = new Problem("Bounded cardinality test");
             p.AddClause(1, 3, "w", "x", "y", "z");
             for (int i = 0; i < 100; i++)
             {
@@ -102,7 +102,7 @@ namespace Tests
         [TestMethod]
         public void MultipleCardinalityTest()
         {
-            var p = new Problem();
+            var p = new Problem("Multiple cardinality test");
             p.AddClause(2, 2, "w", "x", "y", "z");
             p.AddClause(1, 1, "x", "y");
             for (int i = 0; i < 100; i++)
@@ -122,7 +122,7 @@ namespace Tests
         [TestMethod]
         public void HeavilyConstrainedMultipleCardinalityTest()
         {
-            var p = new Problem();
+            var p = new Problem("Heavily constrained multiple cardinality test");
             p.AddClause(2, 2, "w", "x", "y", "z");
             p.AddClause(1, 1, "x", "y");
             p.AddClause("w");
@@ -144,7 +144,7 @@ namespace Tests
         [TestMethod, ExpectedException(typeof(TimeoutException))]
         public void UnsatisfiableTest()
         {
-            var p = new Problem();
+            var p = new Problem("Unsatisfiable test");
             p.AddClause(2, 2, "w", "x", "y", "z");
             p.AddClause(1, 1, "x", "y");
             p.AddClause("w");
@@ -156,7 +156,7 @@ namespace Tests
         [TestMethod]
         public void NegativeSolveTest()
         {
-            var p = new Problem();
+            var p = new Problem("Negative solve test");
             var positiveSolutionCount = 0;
             var negativeSolutionCount = 0;
             p.AddClause("x", Not("y"));  // x -> y
@@ -178,7 +178,7 @@ namespace Tests
         [TestMethod]
         public void ManualFluentTest()
         {
-            var p = new Problem("Fluent test");
+            var p = new Problem("Manual fluent test");
             var after = (Proposition) "after";
             var before = (Proposition) "before";
             var activate= (Proposition) "activate";

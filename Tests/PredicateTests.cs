@@ -33,6 +33,12 @@ namespace Tests
     [TestClass]
     public class PredicateTests
     {
+        [TestInitialize]
+        public void StartLogging()
+        {
+            Problem.LogPerformanceDataToConsole = true;
+        }
+
         [TestMethod]
         public void NRooksTest()
         {
@@ -80,7 +86,7 @@ namespace Tests
         {
             var n = 8;
 
-            var p = new Problem("N rooks hard") { MaxFlips = 2000000 };
+            var p = new Problem("N rooks hard") { Timeout = 2000000 };
             
 
             // rook(i, j) means there's a root at row i, column j
@@ -246,7 +252,7 @@ namespace Tests
         {
             // Make a random 5-node undirected graph with designated connected components.
             // Computes transitive closure of using Floyd-Warshall
-            var p = new Problem("transitive closure test");
+            var p = new Problem("inverse transitive closure test");
             var vertices = new[] { "a", "b", "c", "d", "e" };
             var adjacent = Predicate<string, string>("adjacent");
             var floyd = Predicate<string, string, int>("d");

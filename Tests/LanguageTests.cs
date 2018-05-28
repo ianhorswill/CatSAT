@@ -34,7 +34,7 @@ namespace Tests
         [TestMethod]
         public void ImplicationTest()
         {
-            var p = new Problem();
+            var p = new Problem("Implication test");
             var s = (Proposition)"s";
             var t = (Proposition)"t";
 
@@ -54,7 +54,7 @@ namespace Tests
         [TestMethod]
         public void BiconditionalTest()
         {
-            var p = new Problem();
+            var p = new Problem("Biconditional test");
             var s = (Proposition)"s";
             var t = (Proposition)"t";
             p.Assert(s == t);
@@ -68,7 +68,7 @@ namespace Tests
         [TestMethod]
         public void BiconditionalTest2()
         {
-            var p = new Problem();
+            var p = new Problem("Biconditional test 2");
             var s = (Proposition)"s";
             var t = (Proposition)"t";
             var u = (Proposition) "u";
@@ -83,7 +83,7 @@ namespace Tests
         [TestMethod]
         public void CompletionTest()
         {
-            var p = new Problem();
+            var p = new Problem("Completion test");
 
             var s = (Proposition)"s";
             var t = (Proposition)"t";
@@ -154,7 +154,7 @@ namespace Tests
         [TestMethod]
         public void FalseRuleTest()
         {
-            var prog = new Problem();
+            var prog = new Problem("False rule test");
             var p = (Proposition) "p";
             prog.Assert( p <= false );
             prog.Solve();  // Force it to expand rule to completion
@@ -166,7 +166,7 @@ namespace Tests
         [TestMethod]
         public void TrueRuleTest()
         {
-            var prog = new Problem();
+            var prog = new Problem("True rule test");
             var p = (Proposition)"p";
             var q = (Proposition)"q";
             prog.Assert(
@@ -184,7 +184,7 @@ namespace Tests
         [TestMethod]
         public void IgnoreFalseRuleTest()
         {
-            var prog = new Problem();
+            var prog = new Problem("Ignore false rule test");
             var p = (Proposition)"p";
             var q = (Proposition)"q";
             prog.Assert(
@@ -209,7 +209,7 @@ namespace Tests
         [TestMethod]
         public void ContrapositiveTest()
         {
-            var prog = new Problem();
+            var prog = new Problem("Contrapositive test");
             var p = (Proposition)"p";
             var q = (Proposition)"q";
             var r = (Proposition)"r";
@@ -232,7 +232,7 @@ namespace Tests
         [TestMethod]
         public void OptimizationTest()
         {
-            var prog = new Problem();
+            var prog = new Problem("Optimzer test");
             var p = (Proposition)"p";
             var q = (Proposition)"q";
             var r = (Proposition)"r";
@@ -252,7 +252,7 @@ namespace Tests
         [TestMethod, ExpectedException(typeof(ContradictionException))]
         public void ContradictionTest()
         {
-            var prog = new Problem();
+            var prog = new Problem("Contradiction test");
             var p = (Proposition)"p";
             var q = (Proposition)"q";
             var r = (Proposition)"r";

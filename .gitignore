@@ -58,3 +58,4 @@ packages/
 
 #Test files
 *.testsettings
+Test timings.csv

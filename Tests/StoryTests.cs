@@ -36,10 +36,16 @@ namespace Tests
     [TestClass]
     public class StoryTests
     {
+        [TestInitialize]
+        public void StartLogging()
+        {
+            Problem.LogPerformanceDataToConsole = true;
+        }
+
         [TestMethod]
         public void StoryTest()
         {
-            var p = new Problem("murder test") { TimeHorizon = 4, MaxFlips = 50000 };
+            var p = new Problem("murder test") { TimeHorizon = 4, Timeout = 50000 };
             var cast = new[] { "Fred", "Betty", "Frieda" };
 
             // FLUENTS
