@@ -617,9 +617,27 @@ namespace PicoSAT
                 AddClause(new Clause(1, 0, reverseClause));
             }
         }
-#endregion
+        #endregion
 
-#region Quantifiers
+        #region Quantifiers
+        /// <summary>
+        /// Declare that these can't simultaneously be true
+        /// </summary>
+        /// <param name="lits">outlawed literals</param>
+        public void Inconsistent(params Literal[] lits)
+        {
+            AddClause(new Clause(1, 0, lits.Select(l => (short)(-l.SignedIndex)).Distinct().ToArray()));
+        }
+
+        /// <summary>
+        /// Declare that these can't simultaneously be true
+        /// </summary>
+        /// <param name="lits">outlawed literals</param>
+        public void Inconsistent(IEnumerable<Literal> lits)
+        {
+            AddClause(new Clause(1, 0, lits.Select(l => (short)(-l.SignedIndex)).Distinct().ToArray()));
+        }
+
         public void Quantify(int min, int max, IEnumerable<Literal> enumerator)
         {
             Quantify(min, max, enumerator.Select(l => l.SignedIndex).Distinct().ToArray());
