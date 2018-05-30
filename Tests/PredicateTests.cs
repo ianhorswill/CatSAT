@@ -291,5 +291,26 @@ namespace Tests
                     Assert.IsTrue(s[Connected(v1, v2)] == (v1 == v2) || (v1 != "e" && v2 != "e"));
             }
         }
+
+        [TestMethod]
+        public void SudokuTest()
+        {
+            var p = new Problem("Sudoku");
+            var digits = new[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
+            var cell = Predicate<int, int, int>("cell");
+            foreach (var rank in digits)
+                foreach (var d in digits)
+                {
+                    p.Unique(digits.Select(row => cell(row, rank, d)));
+                    p.Unique(digits.Select(column => cell(rank, column, d)));
+                }
+            foreach (var row in digits)
+                foreach (var col in digits)
+                    p.Unique(digits.Select(d => cell(row, col, d)));
+
+            for (int i = 0; i < 100; i++)
+                p.Solve();
+
+        }
     }
 }
