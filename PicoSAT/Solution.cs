@@ -282,7 +282,7 @@ namespace PicoSAT
                     flipChoice = (ushort) Math.Abs(targetClause.Disjuncts.RandomElement());
                 else
                     // Hill climb: pick an unsatisfied clause at random and flip one of its variables;
-                    flipChoice = BestVariableToFlip(targetClause.Disjuncts, lastFlip[targetClauseIndex]);
+                    flipChoice = GreedyFlip(TooFewTrue(targetClauseIndex), targetClause.Disjuncts, lastFlip[targetClauseIndex]);
                 lastFlip[targetClauseIndex] = flipChoice;
                 var oldSatisfactionCount = unsatisfiedClauses.Count;
                 Flip(flipChoice);
@@ -311,13 +311,18 @@ namespace PicoSAT
             return unsatisfiedClauses.Count == 0;
         }
 
+        private bool TooFewTrue(ushort targetClauseIndex)
+        {
+            return trueDisjunctCount[targetClauseIndex] <= Problem.Clauses[targetClauseIndex].MinDisjunctsMinusOne;
+        }
+
         /// <summary>
         /// Find the proposition from the specified clause that will do the least damage to the clauses that are already satisfied.
         /// </summary>
         /// <param name="disjuncts">Signed indices of the disjucts of the clause</param>
         /// <param name="lastFlipOfThisClause">Variable that was last chosen for flipping in this clause.</param>
         /// <returns>Index of the prop to flip</returns>
-        private ushort BestVariableToFlip(short[] disjuncts, ushort lastFlipOfThisClause)
+        private ushort GreedyFlip(bool increaseTrueDisjuncts, short[] disjuncts, ushort lastFlipOfThisClause)
         {
             var bestCount = int.MaxValue;
             var best = 0;
@@ -335,6 +340,12 @@ namespace PicoSAT
             {
 #endif
                 var selectedVar = (ushort)Math.Abs(value);
+                var truth = propositions[selectedVar];
+                if (value < 0) truth = !truth;
+                if (truth == increaseTrueDisjuncts)
+                    // This is already the right polarity
+                    continue;
+
                 if (selectedVar == lastFlipOfThisClause)
                     continue;
                 var threatCount = UnsatisfiedClauseDelta(selectedVar);

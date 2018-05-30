@@ -46,13 +46,13 @@ namespace PicoSAT
         /// Minimum number of disjusts that must be true in order for the constraint
         /// to be satisfied, minus one.  For a normal clause, this is 0 (i.e. the real min number is 1)
         /// </summary>
-        private readonly short minDisjunctsMinusOne;
+        public readonly short MinDisjunctsMinusOne;
         /// <summary>
         /// Maximum number of disjucts that are allowed to be true in order for the
         /// constraint to be considered satisfied, plus one.
         /// For a normal clause, there is no limit, so this gets set to Disjuncts.Count+1.
         /// </summary>
-        private readonly ushort maxDisjunctsPlusOne;
+        public readonly ushort MaxDisjunctsPlusOne;
 
         /// <summary>
         /// Position in the Problem's Clauses list.
@@ -82,7 +82,7 @@ namespace PicoSAT
         /// <summary>
         /// True if this is a plain old boring disjunction
         /// </summary>
-        public bool IsNormalDisjunction => minDisjunctsMinusOne == 0 && maxDisjunctsPlusOne == Disjuncts.Length+1;
+        public bool IsNormalDisjunction => MinDisjunctsMinusOne == 0 && MaxDisjunctsPlusOne == Disjuncts.Length+1;
 
         /// <summary>
         /// Make a new clause (but doesn't add it to a Program)
@@ -95,8 +95,8 @@ namespace PicoSAT
             Disjuncts = disjuncts.Distinct().ToArray();
             if ((min != 1 || max != 0) && disjuncts.Length != Disjuncts.Length)
                 throw new ArgumentException("Nonstandard clause has non-unique disjuncts");
-            minDisjunctsMinusOne = (short)(min-1);
-            maxDisjunctsPlusOne = (ushort)(max == 0 ? disjuncts.Length+1 : max+1);
+            MinDisjunctsMinusOne = (short)(min-1);
+            MaxDisjunctsPlusOne = (ushort)(max == 0 ? disjuncts.Length+1 : max+1);
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace PicoSAT
         /// <returns>Whether the constraint is satisfied.</returns>
         public bool IsSatisfied(ushort satisfiedDisjuncts)
         {
-            return satisfiedDisjuncts > minDisjunctsMinusOne && satisfiedDisjuncts < maxDisjunctsPlusOne;
+            return satisfiedDisjuncts > MinDisjunctsMinusOne && satisfiedDisjuncts < MaxDisjunctsPlusOne;
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace PicoSAT
         /// </summary>
         public bool OneTooManyDisjuncts(ushort satisfiedDisjuncts)
         {
-            return satisfiedDisjuncts == maxDisjunctsPlusOne;
+            return satisfiedDisjuncts == MaxDisjunctsPlusOne;
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace PicoSAT
         /// </summary>
         public bool OneTooFewDisjuncts(ushort satisfiedDisjuncts)
         {
-            return satisfiedDisjuncts == minDisjunctsMinusOne;
+            return satisfiedDisjuncts == MinDisjunctsMinusOne;
         }
 
         public string Decompile(Problem problem)
