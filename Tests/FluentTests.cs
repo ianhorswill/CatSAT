@@ -165,7 +165,7 @@ namespace Tests
 
             // GOAL
             // At least one character has to die.
-            p.AtMost(1, cast.Select(who => alive(who, TimeHorizon-1)));
+            p.AtMost(1, cast, who => alive(who, TimeHorizon-1));
 
             // SOLVE
             for (int i = 0; i < 100; i++)

@@ -22,6 +22,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
+
+using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PicoSAT;
 using static PicoSAT.Language;
@@ -265,6 +268,98 @@ namespace Tests
             );
             prog.Optimize();
             Assert.Fail();
+        }
+
+        [TestMethod]
+        public void CharacterGeneratorTest()
+        {
+            var prog = new Problem("Character generator");
+            prog.Assert("character");
+            // Races
+            Partition("character", "human", "electroid", "insectoid");
+
+            // Classes
+            Partition("character", "fighter", "magic user", "cleric", "thief");
+            prog.Inconsistent("electroid", "cleric");
+
+            // Nationalities of humans
+            Partition("human", "landia", "placeville", "cityburgh");
+
+            // Religions of clerics
+            Partition("cleric", "monotheist", "pantheist", "lovecraftian","dawkinsian");
+            // Lovecraftianism is outlawed in Landia
+            prog.Inconsistent("landia", "lovecraftian");
+            // Insectoids believe in strict hierarchies
+            prog.Inconsistent("insectoid", "pantheist");
+            // Lovecraftianism is the state religion of cityburgh
+            prog.Inconsistent("cityburgh", "cleric", Not("lovecraftian"));
+
+
+            for (int i = 0; i < 100; i++)
+                Console.WriteLine(prog.Solve().Model);
+        }
+
+        [TestMethod]
+        public void PartyGeneratorTest()
+        {
+            var prog = new Problem("Party generator");
+            var cast = new[] {"fred", "jenny", "sally"};
+            var character = Predicate<string>("character");
+            var human = Predicate<string>("human");
+            var electroid = Predicate<string>("electroid");
+            var insectoid = Predicate<string>("insectoid");
+            var fighter = Predicate<string>("fighter");
+            var magicUser = Predicate<string>("magic_user");
+            var cleric = Predicate<string>("cleric");
+            var thief = Predicate<string>("thief");
+            var landia = Predicate<string>("landia");
+            var placeville = Predicate<string>("placeville");
+            var cityburgh = Predicate<string>("cityburgh");
+            var monotheist = Predicate<string>("monotheist");
+            var pantheist = Predicate<string>("pantheist");
+            var lovecraftian = Predicate<string>("lovecraftian");
+            var dawkinsian = Predicate<string>("dawkinsian");
+
+
+            foreach (var who in cast)
+            {
+                prog.Assert(character(who));
+                // Races
+                Partition(character(who), human(who), electroid(who), insectoid(who));
+
+                // Classes
+                Partition(character(who), fighter(who), magicUser(who), cleric(who), thief(who));
+                prog.Inconsistent(electroid(who), cleric(who));
+
+                // Nationalities of humans
+                Partition(human(who), landia(who), placeville(who), cityburgh(who));
+
+                // Religions of clerics
+                Partition(cleric(who), monotheist(who), pantheist(who), lovecraftian(who), dawkinsian(who));
+                // Lovecraftianism is outlawed in Landia
+                prog.Inconsistent(landia(who), lovecraftian(who));
+                // Insectoids believe in strict hierarchies
+                prog.Inconsistent(insectoid(who), pantheist(who));
+                // Lovecraftianism is the state religion of cityburgh
+                prog.Inconsistent(cityburgh(who), cleric(who), Not(lovecraftian(who)));
+            }
+
+            prog.AtMost(1, cast, fighter);
+            prog.AtMost(1, cast, magicUser);
+            prog.AtMost(1, cast, cleric);
+            prog.AtMost(1, cast, thief);
+
+
+            for (int i = 0; i < 100; i++)
+                Console.WriteLine(prog.Solve().Model);
+        }
+
+        void Partition(Proposition set, params Proposition[] subsets)
+        {
+            foreach (var subset in subsets)
+                Problem.Current.Assert((Expression)subset >= set);
+            Problem.Current.Inconsistent(subsets.Select(Not).Concat(new[]{set}));
+            Problem.Current.AtMost(1, subsets);
         }
     }
 }

@@ -169,7 +169,7 @@ namespace Tests
                     Not(kill(x,x))
                 );
                 // You can't kill multiple people
-                p.AtMost(1, cast.Select(y => kill(x, y)));
+                p.AtMost(1, cast, y => kill(x, y));
                 foreach (var y in cast)
                     p.Assert(
                         (Expression)kill(x, y) >= hasSword(x),

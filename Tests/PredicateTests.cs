@@ -58,11 +58,11 @@ namespace Tests
 
             // There should be one rook in each row
             foreach (var i in Range(0, n))
-                p.Unique(Range(0, n).Select(j => rook(i, j)));
+                p.Unique(Range(0, n), j => rook(i, j));
 
             // There should be one rook in each column
             foreach (var j in Range(0, n))
-                p.Unique(Range(0, n).Select(i => rook(i, j)));
+                p.Unique(Range(0, n), i => rook(i, j));
 
             var m = p.Solve();
 
@@ -72,9 +72,9 @@ namespace Tests
 
             m.Exactly(n, Range(0, n).SelectMany(i => Range(0, n).Select(j => rook(i, j))));
             foreach (var i in Range(0, n))
-                m.Unique(Range(0, n).Select(j => rook(i, j)));
+                m.Unique(Range(0, n), j => rook(i, j));
             foreach (var j in Range(0, n))
-                m.Unique(Range(0, n).Select(i => rook(i, j)));
+                m.Unique(Range(0, n), i => rook(i, j));
         }
 
         /// <summary>
@@ -101,11 +101,11 @@ namespace Tests
 
             // There should be at most one rook in each row
             foreach (var i in Range(0, n))
-                p.AtMost(1, Range(0, n).Select(j => rook(i, j)));
+                p.AtMost(1, Range(0, n), j => rook(i, j));
 
             // There should be at most one rook in each column
             foreach (var j in Range(0, n))
-                p.AtMost(1, Range(0, n).Select(i => rook(i, j)));
+                p.AtMost(1, Range(0, n), i => rook(i, j));
 
             var m = p.Solve();
 
@@ -203,8 +203,51 @@ namespace Tests
             }
         }
 
-        [TestMethod]
+        [TestMethod,ExpectedException(typeof(NonTightProblemException))]
         public void TransitiveClosureTest()
+        {
+            // Compute the transitive closure of a 5-node graph using Floyd-Warshall
+            // This *should* get constant-folded away
+            var p = new Problem("transitive closure test");
+            var vertices = new[] { "a", "b", "c", "d", "e" };
+            var edges = new[]
+            {
+                new[] {"a", "b"},
+                new[] {"a", "d"},
+                new[] {"b", "c"},
+                new[] {"d", "c"},
+            };
+            Proposition Adjacent(string v1, string v2) => edges.Any(e => (v1 == v2) || (e[0] == v1 && e[1] == v2) || (e[0] == v2 && e[1] == v1));
+
+            var connected = SymmetricPredicate<string>("connected");
+
+            foreach (var from in vertices)
+            foreach (var to in vertices)
+            {
+                if (from == to)
+                    continue;
+                p.Assert(connected(from, to) <= Adjacent(from, to));
+                foreach (var intermediary in vertices)
+                    if (intermediary != from && intermediary != to)
+                        p.Assert(connected(from, to) <= (Adjacent(from, intermediary) & connected(intermediary, to)));
+            }
+
+            p.Optimize();
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+
+                // a, b, c, d should be a connected component, e should be unconnected to anything but e
+                foreach (var v1 in vertices)
+                foreach (var v2 in vertices)
+                    Assert.IsTrue(s[connected(v1, v2)] == (v1 == v2) || (v1 != "e" && v2 != "e"));
+            }
+        }
+
+
+        [TestMethod]
+        public void FloydWarshallTest()
         {
             // Compute the transitive closure of a 5-node graph using Floyd-Warshall
             // This *should* get constant-folded away
@@ -248,7 +291,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void InverseTransitiveClosureTest()
+        public void InverseFloyWarshallTest()
         {
             // Make a random 5-node undirected graph with designated connected components.
             // Computes transitive closure of using Floyd-Warshall
@@ -301,12 +344,12 @@ namespace Tests
             foreach (var rank in digits)
                 foreach (var d in digits)
                 {
-                    p.Unique(digits.Select(row => cell(row, rank, d)));
-                    p.Unique(digits.Select(column => cell(rank, column, d)));
+                    p.Unique(digits, row => cell(row, rank, d));
+                    p.Unique(digits, column => cell(rank, column, d));
                 }
             foreach (var row in digits)
                 foreach (var col in digits)
-                    p.Unique(digits.Select(d => cell(row, col, d)));
+                    p.Unique(digits, d => cell(row, col, d));
 
             for (int i = 0; i < 100; i++)
                 p.Solve();
