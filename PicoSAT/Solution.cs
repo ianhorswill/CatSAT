@@ -192,9 +192,19 @@ namespace PicoSAT
                     throw new ArgumentException($"Internal error - invalid literal {l}");
             }
         }
-#endregion
+        #endregion
 
-#region Quantifiers
+        #region Quantifiers
+        public bool Quantify<T>(int min, int max, IEnumerable<T> domain, Func<T, Literal> f)
+        {
+            return Quantify(min, max, domain.Select(f));
+        }
+
+        public bool Quantify(int min, int max, params Literal[] literals)
+        {
+            return Quantify(min, max, (IEnumerable<Literal>)literals);
+        }
+
         public bool Quantify(int min, int max, IEnumerable<Literal> literals)
         {
             var enumerable = literals as Literal[] ?? literals.ToArray();
@@ -206,15 +216,45 @@ namespace PicoSAT
             return c >= min && c <= max;
         }
 
+        public int Count(params Literal[] literals)
+        {
+            return Count((IEnumerable<Literal>)literals);
+        }
+
+        public int Count<T>(IEnumerable<T> domain, Func<T, Literal> f)
+        {
+            return Count(domain.Select(f));
+        }
+
         public int Count(IEnumerable<Literal> literals)
         {
             return literals.Count(IsTrue);
         }
 
+        public bool All(params Literal[] literals)
+        {
+            return All((IEnumerable<Literal>)literals);
+        }
+
+        public bool All<T>(IEnumerable<T> domain, Func<T, Literal> f)
+        {
+            return All(domain.Select(f));
+        }
+
         public bool All(IEnumerable<Literal> literals)
         {
             var lits = literals.ToArray();
-            return Quantify(lits.Length, lits.Length, lits);
+            return Quantify(lits.Length, lits.Length, (IEnumerable<Literal>)lits);
+        }
+
+        public bool Exists(params Literal[] literals)
+        {
+            return Exists((IEnumerable<Literal>)literals);
+        }
+
+        public bool Exists<T>(IEnumerable<T> domain, Func<T, Literal> f)
+        {
+            return Exists(domain.Select(f));
         }
 
         // ReSharper disable once UnusedMember.Global
@@ -223,10 +263,30 @@ namespace PicoSAT
             return literals.Any(IsTrue);
         }
 
+        public bool Unique(params Literal[] literals)
+        {
+            return Unique((IEnumerable<Literal>)literals);
+        }
+
+        public bool Unique<T>(IEnumerable<T> domain, Func<T, Literal> f)
+        {
+            return Unique(domain.Select(f));
+        }
+
         // ReSharper disable once UnusedMethodReturnValue.Global
         public bool Unique(IEnumerable<Literal> literals)
         {
             return Quantify(1, 1, literals);
+        }
+
+        public bool Exactly(int n, params Literal[] literals)
+        {
+            return Exactly(n, (IEnumerable<Literal>)literals);
+        }
+
+        public bool Exactly<T>(int n, IEnumerable<T> domain, Func<T, Literal> f)
+        {
+            return Exactly(n, domain.Select(f));
         }
 
         // ReSharper disable once UnusedMethodReturnValue.Global
@@ -235,10 +295,30 @@ namespace PicoSAT
             return Quantify(n, n, literals);
         }
 
+        public bool AtMost(int n, params Literal[] literals)
+        {
+            return AtMost(n, (IEnumerable<Literal>)literals);
+        }
+
+        public bool AtMost<T>(int n, IEnumerable<T> domain, Func<T, Literal> f)
+        {
+            return AtMost(n, domain.Select(f));
+        }
+
         // ReSharper disable once UnusedMethodReturnValue.Global
         public bool AtMost(int n, IEnumerable<Literal> literals)
         {
             return Quantify(0, n, literals);
+        }
+
+        public bool AtLeast(int n, params Literal[] literals)
+        {
+            return AtLeast(n, (IEnumerable<Literal>)literals);
+        }
+
+        public bool AtLeast<T>(int n, IEnumerable<T> domain, Func<T, Literal> f)
+        {
+            return AtLeast(n, domain.Select(f));
         }
 
         // ReSharper disable once UnusedMember.Global
@@ -319,6 +399,7 @@ namespace PicoSAT
         /// <summary>
         /// Find the proposition from the specified clause that will do the least damage to the clauses that are already satisfied.
         /// </summary>
+        /// <param name="increaseTrueDisjuncts">If true, the clause has too few disjuncts true</param>
         /// <param name="disjuncts">Signed indices of the disjucts of the clause</param>
         /// <param name="lastFlipOfThisClause">Variable that was last chosen for flipping in this clause.</param>
         /// <returns>Index of the prop to flip</returns>

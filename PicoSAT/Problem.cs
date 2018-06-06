@@ -630,12 +630,33 @@ namespace PicoSAT
         }
 
         /// <summary>
+        /// Declare that these can't simultaneously be true 
+        /// </summary>
+        /// <typeparam name="T">Type of the domain</typeparam>
+        /// <param name="domain">Collection to quantify over</param>
+        /// <param name="f">Forms a literal from a domain element</param>
+        public void Inconsistent<T>(IEnumerable<T> domain, Func<T, Literal> f)
+        {
+            Inconsistent(domain.Select(f));
+        }
+
+        /// <summary>
         /// Declare that these can't simultaneously be true
         /// </summary>
         /// <param name="lits">outlawed literals</param>
         public void Inconsistent(IEnumerable<Literal> lits)
         {
             AddClause(new Clause(1, 0, lits.Select(l => (short)(-l.SignedIndex)).Distinct().ToArray()));
+        }
+
+        public void Quantify<T>(int min, int max, IEnumerable<T> domain, Func<T, Literal> f)
+        {
+            Quantify(min, max, domain.Select(f));
+        }
+
+        public void Quantify(int min, int max, params Literal[] literals)
+        {
+            Quantify(min, max, (IEnumerable<Literal>)literals);
         }
 
         public void Quantify(int min, int max, IEnumerable<Literal> enumerator)
@@ -648,11 +669,31 @@ namespace PicoSAT
             AddClause(new Clause((ushort)min, (ushort)max, disjuncts));
         }
 
+        public void All(params Literal[] literals)
+        {
+            All((IEnumerable<Literal>)literals);
+        }
+
+        public void All<T>(IEnumerable<T> domain, Func<T, Literal> f)
+        {
+            All(domain.Select(f));
+        }
+
         // ReSharper disable once UnusedMember.Global
         public void All(IEnumerable<Literal> enumerator)
         {
             var disjuncts = enumerator.Select(l => l.SignedIndex).ToArray();
             Quantify(disjuncts.Length, disjuncts.Length, disjuncts);
+        }
+
+        public void Exists(params Literal[] literals)
+        {
+            Exists((IEnumerable<Literal>)literals);
+        }
+
+        public void Exists<T>(IEnumerable<T> domain, Func<T, Literal> f)
+        {
+            Exists(domain.Select(f));
         }
 
         // ReSharper disable once UnusedMember.Global
@@ -661,9 +702,28 @@ namespace PicoSAT
             Quantify(1, 0, enumerator);
         }
 
+        public void Unique(params Literal[] literals)
+        {
+            Unique((IEnumerable<Literal>)literals);
+        }
+
+        public void Unique<T>(IEnumerable<T> domain, Func<T, Literal> f)
+        {
+            Unique(domain.Select(f));
+        }
         public void Unique(IEnumerable<Literal> enumerator)
         {
             Quantify(1, 1, enumerator);
+        }
+
+        public void Exactly(int n, params Literal[] literals)
+        {
+            Exactly(n, (IEnumerable<Literal>)literals);
+        }
+
+        public void Exactly<T>(int n, IEnumerable<T> domain, Func<T, Literal> f)
+        {
+            Exactly(n, domain.Select(f));
         }
 
         public void Exactly(int n, IEnumerable<Literal> enumerator)
@@ -671,9 +731,29 @@ namespace PicoSAT
             Quantify(n, n, enumerator);
         }
 
+        public void AtMost(int n, params Literal[] literals)
+        {
+            AtMost(n, (IEnumerable<Literal>)literals);
+        }
+
         public void AtMost(int n, IEnumerable<Literal> enumerator)
         {
             Quantify(0, n, enumerator);
+        }
+
+        public void AtMost<T>(int n, IEnumerable<T> domain, Func<T, Literal> f)
+        {
+            AtMost(n, domain.Select(f));
+        }
+
+        public void AtLeast(int n, params Literal[] literals)
+        {
+            AtLeast(n, (IEnumerable<Literal>)literals);
+        }
+
+        public void AtLeast<T>(int n, IEnumerable<T> domain, Func<T, Literal> f)
+        {
+            AtLeast(n, domain.Select(f));
         }
 
         // ReSharper disable once UnusedMember.Global
