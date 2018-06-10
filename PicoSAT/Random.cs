@@ -370,5 +370,11 @@ namespace PicoSAT
             1637,
             1657
         };
+
+        public static float Float(float min, float max)
+        {
+            double unitInterval = Next() / ((double) uint.MaxValue);
+            return min + (max - min) * (float)unitInterval;
+        }
     }
 }
