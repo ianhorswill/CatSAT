@@ -131,36 +131,40 @@ namespace PicoSAT
         // ReSharper disable once UnassignedField.Global
         public TimingData SolveFlips;
 
+        private static string _logFile;
+#endif
+
 
         /// <summary>
         /// Always print performance data to the console.
         /// </summary>
         public static bool LogPerformanceDataToConsole;
 
-        private static string _logFile;
         public static string LogFile
         {
+#if PerformanceStatistics
             get => _logFile;
             set
             {
                 _logFile = value;
                 System.IO.File.WriteAllLines(_logFile, new [] {"Name,Create,Compile,Optimize,Clauses,Variables,Floating,SolveMin, SolveMax,SolveAvg,FlipsMin,FlipsMax,FlipsAvg"});
             }
+#else
+            get => null;
+            set => {};
+#endif
         }
 
+        [Conditional("PerformanceStatistics")]
         public void LogPerformanceData()
         {
+#if PerformanceStatistics
             System.IO.File.AppendAllLines(LogFile, new []
             {
                 $"'{Name}',{CreationTime},{CompilationTime},{OptimizationTime},{Clauses.Count},{Variables.Count},{Variables.Count(v => v.DeterminionState == Variable.DeterminationState.Floating)},{SolveTimeMicroseconds.Min},{SolveTimeMicroseconds.Max},{SolveTimeMicroseconds.Average},{SolveFlips.Min},{SolveFlips.Max},{SolveFlips.Average}"
             });
-        }
-
-        ~Problem()
-        {
-            if (_logFile != null) LogPerformanceData();
-        }
 #endif
+        }
 
         public string PerformanceStatistics
         {
