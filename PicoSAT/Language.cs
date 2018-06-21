@@ -305,9 +305,11 @@ namespace PicoSAT
         /// Returns a negation for the specified proposition
         /// </summary>
         /// <param name="p">Proposition to negate</param>
-        public static Literal Not(Proposition p)
+        public static Literal Not(Literal p)
         {
-            return Negation.Not(p);
+            if (p is Negation n)
+                return n.Proposition;
+            return Negation.Not((Proposition)p);
         }
     }
 }

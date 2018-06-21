@@ -9,6 +9,13 @@ namespace Tests
     [TestClass]
     public class PseudoSMT
     {
+        [TestInitialize]
+        public void StartLogging()
+        {
+            Problem.LogPerformanceDataToConsole = true;
+            Problem.LogFile = "../../../Test timings.csv";
+        }
+
         [DebuggerDisplay("{name}")]
         class SMTVar
         {

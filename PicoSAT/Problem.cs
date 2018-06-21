@@ -1183,6 +1183,21 @@ namespace PicoSAT
                 }
             }
         }
-#endregion
+
+        /// <summary>
+        /// Reset a previously set proposition ot an undetermined state.
+        /// </summary>
+        /// <param name="p">Proposition to reset</param>
+        public void ResetProposition(Proposition p)
+        {
+            int i = p.Index;
+            if (Variables[i].DeterminionState == Variable.DeterminationState.Set)
+            {
+                var v = Variables[i];
+                v.DeterminionState = Variable.DeterminationState.Floating;
+                Variables[i] = v;
+            }
+        }
+        #endregion
     }
 }

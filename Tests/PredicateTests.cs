@@ -37,6 +37,7 @@ namespace Tests
         public void StartLogging()
         {
             Problem.LogPerformanceDataToConsole = true;
+            Problem.LogFile = "../../../Test timings.csv";
         }
 
         [TestMethod]
@@ -291,14 +292,39 @@ namespace Tests
         }
 
         [TestMethod]
-        public void InverseFloyWarshallTest()
+        public void InverseFloyWarshall5Test()
         {
             // Make a random 5-node undirected graph with designated connected components.
             // Computes transitive closure of using Floyd-Warshall
-            var p = new Problem("inverse transitive closure test");
-            var vertices = new[] { "a", "b", "c", "d", "e" };
+            InverseFWTest("IFW5", new[] { "a", "b", "c", "d", "e" });
+        }
+
+        //[TestMethod]
+        //public void InverseFloyWarshall10Test()
+        //{
+        //    // Make a random 5-node undirected graph with designated connected components.
+        //    // Computes transitive closure of using Floyd-Warshall
+        //    InverseFWTest("IFW10", new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" });
+        //}
+
+        //[TestMethod]
+        //public void InverseFloyWarshall20Test()
+        //{
+        //    // Make a random 5-node undirected graph with designated connected components.
+        //    // Computes transitive closure of using Floyd-Warshall
+        //    InverseFWTest("IFW20", new[]
+        //    {
+        //        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+        //        "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"
+        //    });
+        //}
+
+        private static void InverseFWTest(string name, string[] vertices)
+        {
+            var p = new Problem(name);
             var adjacent = Predicate<string, string>("adjacent");
             var floyd = Predicate<string, string, int>("d");
+
             // Inlines either adjacent or floyd, depending on k
             Proposition D(string v1, string v2, int k) => k == 0 ? adjacent(v1, v2) : floyd(v1, v2, k);
             for (int k = 1; k < vertices.Length; k++)
@@ -333,6 +359,7 @@ namespace Tests
                 foreach (var v2 in vertices)
                     Assert.IsTrue(s[Connected(v1, v2)] == (v1 == v2) || (v1 != "e" && v2 != "e"));
             }
+            p.LogPerformanceData();
         }
 
         [TestMethod]

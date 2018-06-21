@@ -294,7 +294,6 @@ namespace Tests
             // Lovecraftianism is the state religion of cityburgh
             prog.Inconsistent("cityburgh", "cleric", Not("lovecraftian"));
 
-
             for (int i = 0; i < 100; i++)
                 Console.WriteLine(prog.Solve().Model);
         }
