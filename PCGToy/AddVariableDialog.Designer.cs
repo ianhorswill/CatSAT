@@ -1,6 +1,6 @@
 ﻿namespace PCGToy
 {
-    partial class AddFieldDialog
+    partial class AddVariableDialog
     {
         /// <summary>
         /// Required designer variable.
@@ -173,7 +173,7 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.nameTextBox);
-            this.Name = "AddFieldDialog";
+            this.Name = "AddVariableDialog";
             this.Text = "Add variable";
             this.ResumeLayout(false);
             this.PerformLayout();

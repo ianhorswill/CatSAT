@@ -1,21 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace PCGToy
 {
-    public partial class AddFieldDialog : Form
+    public partial class AddVariableDialog : Form
     {
         private ProblemEditor Editor;
         private PCGProblem Problem => Editor.Problem;
 
-        public AddFieldDialog(ProblemEditor editor)
+        public AddVariableDialog(ProblemEditor editor)
         {
             InitializeComponent();
             Editor = editor;

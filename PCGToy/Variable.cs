@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PicoSAT;
 using static PicoSAT.Language;
 
@@ -10,7 +7,7 @@ namespace PCGToy
 {
     public class Variable
     {
-        public string Name;
+        public readonly string Name;
         public readonly PCGProblem Problem;
         public readonly string DomainName;
 
@@ -23,8 +20,10 @@ namespace PCGToy
                 Problem.Changed();
             }
         }
-        public Condition Condition;
+        public readonly Condition Condition;
         private object _value;
+
+        public string NameAndValue => $"{Name} = {Value??"null"}";
 
         public object Value
         {

@@ -95,12 +95,18 @@ namespace PCGToy
 
         private void addButton_Click(object sender, EventArgs e)
         {
-            var d = new AddFieldDialog(this);
+            var d = new AddVariableDialog(this);
             if (d.ShowDialog() == DialogResult.OK)
             {
                 RemoveFields();
                 RebuildFields();
             }
+        }
+
+        private void addNogoodButton_Click(object sender, EventArgs e)
+        {
+            var d = new AddNogoodDialog(this);
+            d.ShowDialog();
         }
     }
 }

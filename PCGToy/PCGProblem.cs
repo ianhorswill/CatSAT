@@ -121,8 +121,7 @@ namespace PCGToy
                 if (v.Condition != null)
                 {
                     WriteVar(v.Condition.Variable);
-                    Add("variable", v.Name, v.DomainName,
-                        new[] { v.Condition.Variable.Name, v.Condition.Value });
+                    Add("variable", v.Name, v.DomainName, ConditionToSExpression(v.Condition));
                 }
                 else
                     Add("variable", v.Name, v.DomainName);
@@ -140,10 +139,16 @@ namespace PCGToy
             }
 
             foreach (var nogood in Nogoods)
-                Add(new object[] { "nogood" }.Concat(nogood));
+                Add(new object[] { "nogood" }.Concat(nogood.Select(ConditionToSExpression)).ToArray());
 
             System.IO.File.WriteAllLines(path, code);
             dirty = false;
+        }
+
+        private static object[] ConditionToSExpression(Condition c)
+        {
+            var result = new[] { c.Variable.Name, c.Value };
+            return c.Positive ? result : new object[] {"not", result};
         }
 
         public Condition ConditionFromSExpression(object sexp)
@@ -183,6 +188,12 @@ namespace PCGToy
                 condition = new Condition(true, v, conditionValue);
             }
             Variables[varName] = new Variable(varName, this, domainName, condition);
+            Changed();
+        }
+
+        public void AddNogood(IEnumerable<Variable> vars)
+        {
+            Nogoods.Add(vars.Select(v => new Condition(true, v, v.Value)).ToArray());
             Changed();
         }
     }

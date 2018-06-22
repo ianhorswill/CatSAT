@@ -92,6 +92,7 @@
             this.addNogoodButton.Text = "Nope";
             this.addNogoodButton.UseVisualStyleBackColor = true;
             this.addNogoodButton.Visible = false;
+            this.addNogoodButton.Click += new System.EventHandler(this.addNogoodButton_Click);
             // 
             // ProblemEditor
             // 
