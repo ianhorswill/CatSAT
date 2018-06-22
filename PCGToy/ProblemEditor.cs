@@ -12,6 +12,8 @@ namespace PCGToy
             Problem = new PCGProblem();
         }
 
+        public bool EditMode => editModeCheckBox.Checked;
+
         public readonly PCGProblem Problem;
 
         private void nopeButton_Click(object sender, EventArgs e)
@@ -34,18 +36,36 @@ namespace PCGToy
 
         void Reload()
         {
-            var x = 25;
-            var y = 75;
-            foreach (var c in Controls)
-                if (c is Field f)
-                    Controls.Remove(f);
+            // Remove current fields
+            RemoveFields();
+
+            // Reload problem
             Problem.LoadFromFile(pathComboBox.Text);
+
+            // Make new fields
+            RebuildFields();
+        }
+
+        private void RebuildFields()
+        {
+            var x = 7;
+            var y = 55;
             foreach (var v in Problem.Variables)
             {
                 var f = new Field(v.Value.Name);
                 f.Location = new Point(x, y);
                 y += f.Height + 10;
                 Controls.Add(f);
+            }
+        }
+
+        private void RemoveFields()
+        {
+            for (int i = Controls.Count - 1; i >= 0; i--)
+            {
+                var c = Controls[i];
+                if (c is Field f)
+                    Controls.RemoveAt(i);
             }
         }
 
@@ -64,6 +84,22 @@ namespace PCGToy
                 }
 
                 e.Handled = true;
+            } else if (e.Control && e.KeyCode == Keys.S)
+                Problem.WriteToFile(pathComboBox.Text);
+        }
+
+        private void editModeCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            addNogoodButton.Visible = addButton.Visible = editModeCheckBox.Checked;
+        }
+
+        private void addButton_Click(object sender, EventArgs e)
+        {
+            var d = new AddFieldDialog(this);
+            if (d.ShowDialog() == DialogResult.OK)
+            {
+                RemoveFields();
+                RebuildFields();
             }
         }
     }

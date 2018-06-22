@@ -9,11 +9,11 @@ namespace PCGToy
         public Field(string name)
         {
             InitializeComponent();
-            nameTextBox.Text = Name = name;
-            nameTextBox.TextChanged += (ignore, args) =>
+            nameLabel.Text = Name = name;
+            ParentChanged += (sender, args) =>
             {
-                Name = nameTextBox.Text;
-                lockedCheckBox.Checked = true;
+                if (Parent != null)
+                    valueComboBox.AutoCompleteCustomSource.AddRange(Domain.Select(d => d.ToString()).ToArray());
             };
         }
 
@@ -25,13 +25,26 @@ namespace PCGToy
 
         private void valueComboBox_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (Domain.Contains(valueComboBox.Text))
-                Variable.Value = valueComboBox.Text;
-            else
+            if (!Domain.Contains(valueComboBox.Text))
             {
-                e.Cancel = true;
-                UpdateValue();
+                if (Editor.EditMode 
+                    && MessageBox.Show($"\"{valueComboBox.Text}\" isn't a part of the domain {Variable.DomainName}.  Add it?",
+                        "Unknown value", MessageBoxButtons.OKCancel,
+                        MessageBoxIcon.Warning)
+                    == DialogResult.OK)
+                {
+                    Variable.Domain = Variable.Domain.Concat(new object[] {valueComboBox.Text}).ToArray();
+                }
+                else
+                {
+                    e.Cancel = true;
+                    UpdateValue();
+                    return;
+                }
             }
+
+            Variable.Value = valueComboBox.Text;
+            lockedCheckBox.Checked = true;
         }
 
         public void UpdateValue()

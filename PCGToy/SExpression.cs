@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,65 @@ namespace PCGToy
 {
     public static class SExpression
     {
+        public static string ToSExpression(object value)
+        {
+            var b = new StringBuilder();
+            Write(value, b);
+            return b.ToString();
+        }
+
+        static void Write(object value, StringBuilder b)
+        {
+            switch (value)
+            {
+                case int i:
+                    b.Append(i);
+                    break;
+
+                case float f:
+                    b.Append(f);
+                    break;
+
+                case string s:
+                    if (StringSafe(s))
+                        b.Append(s);
+                    else
+                    {
+                        b.Append('"');
+                        b.Append(s);
+                        b.Append('"');
+                    }
+
+                    break;
+
+                case bool tf:
+                    b.Append(tf?"true":"false");
+                    break;
+
+                case IEnumerable e:
+                    b.Append('(');
+                    var first = true;
+                    foreach (var elt in e)
+                    {
+                        if (first)
+                            first = false;
+                        else b.Append(' ');
+                        Write(elt, b);
+                    }
+
+                    b.Append(')');
+                    break;
+
+                default:
+                    throw new ArgumentException($"Don't know how to render {value} as an s-expression.");
+            }
+        }
+
+        private static bool StringSafe(string s)
+        {
+            return s.IndexOfAny(badChars) < 0;
+        }
+
         public static object Read(TextReader r)
         {
             var result = ReadInternal(r);
@@ -119,6 +179,8 @@ namespace PCGToy
         }
 
         private static readonly StringBuilder StringBuffer = new StringBuilder();
+        private static readonly char[] badChars = new []{ ' ', '\r', '\n', '"', '(', ')' };
+
         private static string ReadString(TextReader r)
         {
             StringBuffer.Clear();

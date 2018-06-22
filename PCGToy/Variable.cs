@@ -12,7 +12,17 @@ namespace PCGToy
     {
         public string Name;
         public readonly PCGProblem Problem;
-        public object[] Domain;
+        public readonly string DomainName;
+
+        public object[] Domain
+        {
+            get => Problem.Domains[DomainName];
+            set
+            {
+                Problem.Domains[DomainName] = value;
+                Problem.Changed();
+            }
+        }
         public Condition Condition;
         private object _value;
 
@@ -37,13 +47,14 @@ namespace PCGToy
 
         internal Func<object, Proposition> predicate;
 
-        public Variable(string name, PCGProblem p, object[] domain, Condition condition)
+        public Variable(string name, PCGProblem p, string domainName, Condition condition)
         {
             Name = name;
             Problem = p;
-            Domain = domain;
+            DomainName = domainName;
             Condition = condition;
-            _value = Domain[0];
+            if (Domain.Length > 0)
+                _value = Domain[0];
             IsLocked = false;
         }
 

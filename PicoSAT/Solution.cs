@@ -25,6 +25,7 @@
 #define RANDOMIZE
 
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -339,6 +340,10 @@ namespace PicoSAT
         /// <returns>True if a satisfying assignment was found.</returns>
         internal bool Solve()
         {
+            if (propositions.Length == 1)
+                // Trivial problem, since propositions[0] isn't a real proposition.
+                return true;
+
 #if PerformanceStatistics
             Problem.Stopwatch.Reset();
             Problem.Stopwatch.Start();

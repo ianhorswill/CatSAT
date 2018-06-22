@@ -12,6 +12,15 @@ namespace PCGToy
 
         public Problem Problem;
 
+        private bool dirty;
+
+        public void Changed()
+        {
+            Problem = null;
+            RebuildProblem();
+            dirty = true;
+        }
+
         private void RebuildProblem()
         {
             Problem = new Problem();
@@ -80,7 +89,7 @@ namespace PCGToy
 
                             if (l.Count == 4)
                                 c = ConditionFromSExpression(l[3]);
-                            Variables[varName] = new Variable(varName, this, Domains[domain], c);
+                            Variables[varName] = new Variable(varName, this, domain, c);
                             break;
 
                         case "nogood":
@@ -92,6 +101,49 @@ namespace PCGToy
                     }
                 }
             }
+            Changed();
+        }
+
+        public void WriteToFile(string path)
+        {
+            List<string> code = new List<string>();
+            void Add(params object[] exp)
+            {
+                code.Add(SExpression.ToSExpression(exp));
+            }
+
+            HashSet<Variable> writtenVars = new HashSet<Variable>();
+            void WriteVar(Variable v)
+            {
+                if (writtenVars.Contains(v))
+                    return;
+
+                if (v.Condition != null)
+                {
+                    WriteVar(v.Condition.Variable);
+                    Add("variable", v.Name, v.DomainName,
+                        new[] { v.Condition.Variable.Name, v.Condition.Value });
+                }
+                else
+                    Add("variable", v.Name, v.DomainName);
+
+                writtenVars.Add(v);
+            }
+
+            foreach (var pair in Domains)
+                Add(new object[] {"domain", pair.Key }.Concat(pair.Value).ToArray());
+
+            foreach (var pair in Variables)
+            {
+                var v = pair.Value;
+                WriteVar(v);
+            }
+
+            foreach (var nogood in Nogoods)
+                Add(new object[] { "nogood" }.Concat(nogood));
+
+            System.IO.File.WriteAllLines(path, code);
+            dirty = false;
         }
 
         public Condition ConditionFromSExpression(object sexp)
@@ -113,6 +165,25 @@ namespace PCGToy
             if (!Variables.ContainsKey(condVarName))
                 throw new FileFormatException($"Unknown variable name {condVarName} in condition expression {sexp}");
             return new Condition(positive, Variables[condVarName], condExp[1]);
+        }
+
+        public void AddDomain(string domainName)
+        {
+            Domains[domainName] = new object[0];
+            Changed();
+        }
+
+        public void AddVariable(string varName, string domainName,
+            string conditionVarName, object conditionValue)
+        {
+            Condition condition = null;
+            if (!string.IsNullOrEmpty(conditionVarName))
+            {
+                var v = Variables[conditionVarName];
+                condition = new Condition(true, v, conditionValue);
+            }
+            Variables[varName] = new Variable(varName, this, domainName, condition);
+            Changed();
         }
     }
 }
