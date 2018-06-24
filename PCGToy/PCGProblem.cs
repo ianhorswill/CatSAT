@@ -12,13 +12,13 @@ namespace PCGToy
 
         public Problem Problem;
 
-        private bool dirty;
+        public bool IsDirty;
 
         public void Changed()
         {
             Problem = null;
             RebuildProblem();
-            dirty = true;
+            IsDirty = true;
         }
 
         private void RebuildProblem()
@@ -102,6 +102,7 @@ namespace PCGToy
                 }
             }
             Changed();
+            IsDirty = false;
         }
 
         public void WriteToFile(string path)
@@ -142,7 +143,7 @@ namespace PCGToy
                 Add(new object[] { "nogood" }.Concat(nogood.Select(ConditionToSExpression)).ToArray());
 
             System.IO.File.WriteAllLines(path, code);
-            dirty = false;
+            IsDirty = false;
         }
 
         private static object[] ConditionToSExpression(Condition c)

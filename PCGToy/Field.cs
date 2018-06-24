@@ -51,7 +51,7 @@ namespace PCGToy
         {
             var val = Variable.Value;
             valueComboBox.Text = val?.ToString() ?? "";
-            Enabled = val != null;
+            Enabled = Variable.Domain.Length == 0 || val != null;
         }
         
         private void lockedCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -65,6 +65,11 @@ namespace PCGToy
             {
                 Editor.Problem.Variables[Name].Unbind();
             }
+        }
+
+        public void Unlock()
+        {
+            lockedCheckBox.Checked = false;
         }
     }
 }

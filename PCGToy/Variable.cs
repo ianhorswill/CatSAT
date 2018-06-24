@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using PicoSAT;
 using static PicoSAT.Language;
@@ -21,6 +22,17 @@ namespace PCGToy
             }
         }
         public readonly Condition Condition;
+
+        /// <summary>
+        /// The variable this variable is dependent on, if any
+        /// </summary>
+        public Variable Parent => Condition?.Variable;
+
+        /// <summary>
+        /// The variables of which this is a parent.
+        /// </summary>
+        public List<Variable> Children = new List<Variable>();
+
         private object _value;
 
         public string NameAndValue => $"{Name} = {Value??"null"}";
@@ -52,6 +64,8 @@ namespace PCGToy
             Problem = p;
             DomainName = domainName;
             Condition = condition;
+            Parent?.Children.Add(this);
+
             if (Domain.Length > 0)
                 _value = Domain[0];
             IsLocked = false;
@@ -60,11 +74,14 @@ namespace PCGToy
         public void CompileToProblem(Problem p)
         {
             predicate = Predicate<object>(Name);
-            var generator = Domain.Select(predicate).Cast<Literal>();
-            var items = Condition == null ? generator : generator.Concat(new[] {Not(Condition.Literal)});
-            p.Unique(items);
-            if (IsLocked)
-                p[predicate(Value)] = true;
+            if (Domain.Length > 0)
+            {
+                var generator = Domain.Select(predicate).Cast<Literal>();
+                var items = Condition == null ? generator : generator.Concat(new[] {Not(Condition.Literal)});
+                p.Unique(items);
+                if (IsLocked)
+                    p[predicate(Value)] = true;
+            }
         }
 
         public void UpdateFromSolution(Solution s)

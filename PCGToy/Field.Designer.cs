@@ -61,9 +61,9 @@
             this.nameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.nameLabel.Location = new System.Drawing.Point(4, 10);
             this.nameLabel.Name = "nameLabel";
-            this.nameLabel.Size = new System.Drawing.Size(85, 37);
+            this.nameLabel.Size = new System.Drawing.Size(103, 37);
             this.nameLabel.TabIndex = 3;
-            this.nameLabel.Text = "Nme";
+            this.nameLabel.Text = "Name";
             // 
             // Field
             // 

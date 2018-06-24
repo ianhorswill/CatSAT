@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
+// ReSharper disable LocalizableElement
 
 namespace PCGToy
 {
@@ -10,11 +12,43 @@ namespace PCGToy
         {
             InitializeComponent();
             Problem = new PCGProblem();
+            EditMode = true;
         }
 
-        public bool EditMode => editModeCheckBox.Checked;
+        private string _filePath;
+
+        public string FilePath
+        {
+            get => _filePath;
+            set
+            {
+                Text = System.IO.Path.GetFileName(value);
+                _filePath = value;
+            }
+        }
+
+        public bool EditMode
+        {
+            get => editModeCheckBox.Checked;
+            set => editModeCheckBox.Checked = value;
+        }
 
         public readonly PCGProblem Problem;
+
+        public void MaybeSave()
+        {
+            if (Problem.IsDirty && MessageBox.Show("Do you want to save your file?", "Unsaved changes",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
+                Save();
+        }
+
+        private void Save()
+        {
+            if (FilePath == null)
+                SaveAsFile();
+            else
+                Problem.WriteToFile(FilePath);
+        }
 
         private void nopeButton_Click(object sender, EventArgs e)
         {
@@ -23,15 +57,22 @@ namespace PCGToy
 
         private void Solve()
         {
-            Problem.Solve();
-            foreach (var c in Controls)
-                if (c is Field f)
-                    f.UpdateValue();
-        }
+            try
+            {
+                Problem.Solve();
 
-        private void pathComboBox_Validated(object sender, EventArgs e)
-        {
-            Reload();
+                foreach (var c in Controls)
+                    if (c is Field f)
+                        f.UpdateValue();
+            }
+            catch (PicoSAT.TimeoutException)
+            {
+                MessageBox.Show(
+                    "Can't find a solution that satisfies all the requirements.  Try unlocking some variables!",
+                    "Unsatisfiable constraints",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
         }
 
         void Reload()
@@ -40,52 +81,120 @@ namespace PCGToy
             RemoveFields();
 
             // Reload problem
-            Problem.LoadFromFile(pathComboBox.Text);
+            Problem.LoadFromFile(FilePath);
 
             // Make new fields
-            RebuildFields();
+            BuildFields();
+            EditMode = false;
         }
 
         private void RebuildFields()
         {
+            RemoveFields();
+            BuildFields();
+        }
+
+        private void BuildFields()
+        {
             var x = 7;
-            var y = 55;
-            foreach (var v in Problem.Variables)
+            var y = 13;
+
+            void Build(Variable v, int indent)
             {
-                var f = new Field(v.Value.Name);
-                f.Location = new Point(x, y);
-                y += f.Height + 10;
+                //if (v.Value == null && v.Domain.Length != 0)
+                //    // Don't display
+                //    return;
+
+                var f = new Field(v.Name) {Location = new Point(x + 20 * indent, y)};
+                y += f.Height + 5;
                 Controls.Add(f);
+                foreach (var c in v.Children)
+                    Build(c, indent + 1);
+            }
+
+            var vars = Problem.Variables.Select(p => p.Value).ToArray();
+            //Array.Sort(vars, (v1, v2) => String.Compare(v1.Name, v2.Name, StringComparison.Ordinal));
+
+            foreach (var v in vars)
+            {
+                if (v.Parent == null)
+                    Build(v, 0);
             }
         }
 
         private void RemoveFields()
         {
-            for (int i = Controls.Count - 1; i >= 0; i--)
+            for (var i = Controls.Count - 1; i >= 0; i--)
             {
-                var c = Controls[i];
-                if (c is Field f)
+                if (Controls[i] is Field)
                     Controls.RemoveAt(i);
             }
         }
 
         private void ProblemEditor_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Control && e.KeyCode == Keys.O)
+            if (e.Control)
             {
-                var d = new OpenFileDialog();
-                d.Filter = "SCM files (*.scm)|All files (*.*)";
-                d.RestoreDirectory = true;
-                if (d.ShowDialog() == DialogResult.OK)
-                {
-                    pathComboBox.Text = d.FileName;
-                    Reload();
-                    Solve();
-                }
-
                 e.Handled = true;
-            } else if (e.Control && e.KeyCode == Keys.S)
-                Problem.WriteToFile(pathComboBox.Text);
+
+                switch (e.KeyCode)
+                {
+                    case Keys.O:
+                        OpenFile();
+                        break;
+
+                    case Keys.S:
+                        if (e.Shift)
+                            SaveAsFile();
+                        else
+                            Save();
+                        break;
+
+                    case Keys.N:
+                        new ProblemEditor().Show();
+                        break;
+
+                    case Keys.U:
+                        foreach (var c in Controls)
+                            if (c is Field f)
+                                f.Unlock();
+                        break;
+
+                    default:
+                        e.Handled = false;
+                        break;
+                }
+            }
+        }
+
+        private void OpenFile()
+        {
+            MaybeSave();
+            var d = new OpenFileDialog
+            {
+                Filter = "SCM files (*.scm)|*.scm|All files (*.*)|*.*",
+                RestoreDirectory = true
+            };
+            if (d.ShowDialog() == DialogResult.OK)
+            {
+                FilePath = d.FileName;
+                Reload();
+                Solve();
+            }
+        }
+
+        private void SaveAsFile()
+        {
+            var d = new SaveFileDialog
+            {
+                Filter = "SCM files (*.scm)|*.scm|All files (*.*)|*.*",
+                RestoreDirectory = true
+            };
+            if (d.ShowDialog() == DialogResult.OK)
+            {
+                FilePath = d.FileName;
+                Save();
+            }
         }
 
         private void editModeCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -98,8 +207,8 @@ namespace PCGToy
             var d = new AddVariableDialog(this);
             if (d.ShowDialog() == DialogResult.OK)
             {
-                RemoveFields();
                 RebuildFields();
+                Solve();
             }
         }
 
@@ -107,6 +216,11 @@ namespace PCGToy
         {
             var d = new AddNogoodDialog(this);
             d.ShowDialog();
+        }
+
+        private void ProblemEditor_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            MaybeSave();
         }
     }
 }

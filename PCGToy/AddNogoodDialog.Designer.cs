@@ -88,7 +88,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.variablesListBox);
             this.Name = "AddNogoodDialog";
-            this.Text = "AddNogoodDialog";
+            this.Text = "Add nogood";
             this.ResumeLayout(false);
             this.PerformLayout();
 
