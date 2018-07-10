@@ -50,10 +50,10 @@ namespace PCGToy
             else
             {
                 var v = Problem.Variables[conditionVarComboBox.Text];
-                var d = v.Domain;
+                var d = v.DomainValues;
                 conditionValueComboBox.AutoCompleteCustomSource.Clear();
                 conditionValueComboBox.AutoCompleteCustomSource.AddRange(d.Select(x => x.ToString()).ToArray());
-                if (d.Length > 0)
+                if (d.Count > 0)
                     conditionValueComboBox.Text = d[0].ToString();
                 else
                     InvalidateConditionVarChoice("Variable has an empty domain (no possible values)");
@@ -72,7 +72,7 @@ namespace PCGToy
         {
             var vName = conditionVarComboBox.Text;
             var v = Problem.Variables[vName];
-            var d = v.Domain;
+            var d = v.DomainValues;
             if (!d.Contains(conditionValueComboBox.Text))
             {
                 MessageBox.Show($"That is not a possible value for {vName}", "Invalid variable choice", MessageBoxButtons.OK);

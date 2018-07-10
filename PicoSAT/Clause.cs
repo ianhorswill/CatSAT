@@ -151,7 +151,7 @@ namespace PicoSAT
                     b.Append(" | ");
                 if (d < 0)
                     b.Append('!');
-                b.Append(problem.Variables[Math.Abs(d)].Proposition.Name);
+                b.Append(problem.SATVariables[Math.Abs(d)].Proposition.Name);
             }
             return b.ToString();
         }

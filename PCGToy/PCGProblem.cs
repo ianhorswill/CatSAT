@@ -6,7 +6,7 @@ namespace PCGToy
 {
     public class PCGProblem
     {
-        public readonly Dictionary<string, object[]> Domains = new Dictionary<string, object[]>();
+        public readonly Dictionary<string, FDomain<object>> Domains = new Dictionary<string, FDomain<object>>();
         public readonly Dictionary<string, Variable> Variables = new Dictionary<string, Variable>();
         public readonly List<Condition[]> Nogoods = new List<Condition[]>();
 
@@ -73,7 +73,7 @@ namespace PCGToy
                             if (l.Count < 3)
                                 throw new FileFormatException($"Domain {domainName} has no elements");
                             var elements = l.Skip(2).ToArray();
-                            Domains[domainName] = elements;
+                            Domains[domainName] = new FDomain<object>(domainName, elements);
                             break;
 
                         case "variable":
@@ -131,7 +131,7 @@ namespace PCGToy
             }
 
             foreach (var pair in Domains)
-                Add(new object[] {"domain", pair.Key }.Concat(pair.Value).ToArray());
+                Add(new object[] {"domain", pair.Key }.Concat(pair.Value.Values).ToArray());
 
             foreach (var pair in Variables)
             {
@@ -175,7 +175,7 @@ namespace PCGToy
 
         public void AddDomain(string domainName)
         {
-            Domains[domainName] = new object[0];
+            Domains[domainName] = new FDomain<object>(domainName);
             Changed();
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -21,7 +22,7 @@ namespace PCGToy
         private PCGProblem Problem => Editor.Problem;
         private Variable Variable => Problem.Variables[Name];
 
-        public object[] Domain => Variable.Domain;
+        public IList<object> Domain => Variable.DomainValues;
 
         private void valueComboBox_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
@@ -33,7 +34,7 @@ namespace PCGToy
                         MessageBoxIcon.Warning)
                     == DialogResult.OK)
                 {
-                    Variable.Domain = Variable.Domain.Concat(new object[] {valueComboBox.Text}).ToArray();
+                    Variable.DomainValues = Variable.DomainValues.Concat(new object[] {valueComboBox.Text}).ToArray();
                 }
                 else
                 {
@@ -51,7 +52,7 @@ namespace PCGToy
         {
             var val = Variable.Value;
             valueComboBox.Text = val?.ToString() ?? "";
-            Enabled = Variable.Domain.Length == 0 || val != null;
+            Enabled = Variable.DomainValues.Count == 0 || val != null;
         }
         
         private void lockedCheckBox_CheckedChanged(object sender, EventArgs e)

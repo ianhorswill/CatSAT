@@ -92,7 +92,7 @@ namespace PicoSAT
         {
             Problem = problem;
             Timeout = timeout;
-            propositions = new bool[problem.Variables.Count];
+            propositions = new bool[problem.SATVariables.Count];
             trueDisjunctCount = new ushort[problem.Clauses.Count];
             lastFlip = new ushort[problem.Clauses.Count];
         }
@@ -107,13 +107,25 @@ namespace PicoSAT
                 b.Append("<");
                 for (int i = 1; i < propositions.Length; i++)
                 {
-                    if (propositions[i] && !Problem.Variables[i].Proposition.IsInternal)
+                    if (propositions[i] && !Problem.SATVariables[i].Proposition.IsInternal)
                     {
                         if (firstOne)
                             firstOne = false;
                         else
                             b.Append(", ");
-                        b.Append(Problem.Variables[i].Proposition);
+                        b.Append(Problem.SATVariables[i].Proposition);
+                    }
+                }
+
+                foreach (var v in Problem.Variables())
+                {
+                    if (v.IsDefinedIn(this))
+                    {
+                        if (firstOne)
+                            firstOne = false;
+                        else
+                            b.Append(", ");
+                        b.Append(v.ValueString(this));
                     }
                 }
                 b.Append(">");
@@ -462,7 +474,7 @@ namespace PicoSAT
         int UnsatisfiedClauseDelta(ushort pIndex)
         {
             int threatCount = 0;
-            var prop = Problem.Variables[pIndex];
+            var prop = Problem.SATVariables[pIndex];
             List<ushort> increasingClauses;
             List<ushort> decreasingClauses;
 
@@ -549,7 +561,7 @@ namespace PicoSAT
         /// <param name="pIndex">Index of the variable/proposition to flip</param>
         private void Flip(ushort pIndex)
         {
-            var prop = Problem.Variables[pIndex];
+            var prop = Problem.SATVariables[pIndex];
             if (prop.IsPredetermined)
                 // Can't flip it.
                 return;
@@ -635,7 +647,7 @@ namespace PicoSAT
             // Initialize propositions[]
             for (var i = 0; i < propositions.Length; i++)
             {
-                propositions[i] = Problem.Variables[i].IsPredetermined?Problem.Variables[i].PredeterminedValue:Random.Next() % 2 == 0;
+                propositions[i] = Problem.SATVariables[i].IsPredetermined?Problem.SATVariables[i].PredeterminedValue:Random.Next() % 2 == 0;
             }
 
             unsatisfiedClauses.Clear();

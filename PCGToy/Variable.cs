@@ -11,13 +11,14 @@ namespace PCGToy
         public readonly string Name;
         public readonly PCGProblem Problem;
         public readonly string DomainName;
+        public FDomain<object> Domain => Problem.Domains[DomainName];
 
-        public object[] Domain
+        public IList<object> DomainValues
         {
-            get => Problem.Domains[DomainName];
+            get => Domain.Values;
             set
             {
-                Problem.Domains[DomainName] = value;
+                Problem.Domains[DomainName] = new FDomain<object>(DomainName, value);
                 Problem.Changed();
             }
         }
@@ -43,20 +44,18 @@ namespace PCGToy
             set
             {
                 _value = value;
-                Unbind();
-                Problem.Problem[predicate(value)] = true;
+                SolverVariable.SetPredeterminedValue(value);
             }
         }
 
         public void Unbind()
         {
-            foreach (var d in Domain)
-                Problem.Problem.ResetProposition(predicate(d));
+            SolverVariable.Reset();
         }
 
         public bool IsLocked;
 
-        internal Func<object, Proposition> predicate;
+        public FDVariable<object> SolverVariable;
 
         public Variable(string name, PCGProblem p, string domainName, Condition condition)
         {
@@ -66,34 +65,27 @@ namespace PCGToy
             Condition = condition;
             Parent?.Children.Add(this);
 
-            if (Domain.Length > 0)
-                _value = Domain[0];
+            if (DomainValues.Count> 0)
+                _value = DomainValues[0];
             IsLocked = false;
         }
 
         public void CompileToProblem(Problem p)
         {
-            predicate = Predicate<object>(Name);
-            if (Domain.Length > 0)
+            if (DomainValues.Count > 0)
             {
-                var generator = Domain.Select(predicate).Cast<Literal>();
-                var items = Condition == null ? generator : generator.Concat(new[] {Not(Condition.Literal)});
-                p.Unique(items);
+                SolverVariable = Condition == null? new FDVariable<object>(Name, Domain):new FDVariable<object>(Name, Domain, Condition.Literal);
                 if (IsLocked)
-                    p[predicate(Value)] = true;
+                    SolverVariable.SetPredeterminedValue(Value);
             }
         }
 
         public void UpdateFromSolution(Solution s)
         {
-            foreach (var v in Domain)
-                if (s[predicate(v)])
-                {
-                    _value = v;
-                    return;
-                }
-
-            _value = null;
+            if (SolverVariable.IsDefinedIn(s))
+                _value = SolverVariable.Value(s);
+            else
+                _value = null;
         }
     }
 }

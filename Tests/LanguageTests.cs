@@ -274,25 +274,25 @@ namespace Tests
         public void CharacterGeneratorTest()
         {
             var prog = new Problem("Character generator");
-            prog.Assert("character");
-            // Races
-            Partition("character", "human", "electroid", "insectoid");
-
-            // Classes
-            Partition("character", "fighter", "magic user", "cleric", "thief");
-            prog.Inconsistent("electroid", "cleric");
+            var race = new FDVariable<string>("race",
+                                              "human", "electroid", "insectoid");
+            var cclass = new FDVariable<string>("class",
+                                                "fighter", "magic user", "cleric", "thief");
+            // Electroids are atheists
+            prog.Inconsistent(race == "electroid", cclass == "cleric");
 
             // Nationalities of humans
-            Partition("human", "landia", "placeville", "cityburgh");
-
+            var nationality = new FDVariable<string>("nationality", race == "human",
+                                                     "landia", "placeville", "cityburgh");
             // Religions of clerics
-            Partition("cleric", "monotheist", "pantheist", "lovecraftian","dawkinsian");
+            var religion = new FDVariable<string>("religion", cclass == "cleric",
+                                                  "monotheist", "pantheist", "lovecraftian", "dawkinsian");
             // Lovecraftianism is outlawed in Landia
-            prog.Inconsistent("landia", "lovecraftian");
+            prog.Inconsistent(nationality == "landia", religion == "lovecraftian");
             // Insectoids believe in strict hierarchies
-            prog.Inconsistent("insectoid", "pantheist");
+            prog.Inconsistent(race == "insectoid", religion == "pantheist");
             // Lovecraftianism is the state religion of cityburgh
-            prog.Inconsistent("cityburgh", "cleric", Not("lovecraftian"));
+            prog.Inconsistent(nationality == "cityburgh", cclass == "cleric", Not(religion == "lovecraftian"));
 
             for (int i = 0; i < 100; i++)
                 Console.WriteLine(prog.Solve().Model);

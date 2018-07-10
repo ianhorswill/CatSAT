@@ -62,7 +62,7 @@ namespace PicoSAT
         {
             Name = name;
             Current = this;
-            Variables.Add(new Variable(new Proposition("I am not a valid proposition!  I am a placeholder!", 0)));
+            SATVariables.Add(new SATVariable(new Proposition("I am not a valid proposition!  I am a placeholder!", 0)));
 #if PerformanceStatistics
             Stopwatch.Reset();
             Stopwatch.Start();
@@ -161,7 +161,7 @@ namespace PicoSAT
 #if PerformanceStatistics
             System.IO.File.AppendAllLines(LogFile, new []
             {
-                $"'{Name}',{CreationTime},{CompilationTime},{OptimizationTime},{Clauses.Count},{Variables.Count},{Variables.Count(v => v.DeterminionState == Variable.DeterminationState.Floating)},{SolveTimeMicroseconds.Min},{SolveTimeMicroseconds.Max},{SolveTimeMicroseconds.Average},{SolveFlips.Min},{SolveFlips.Max},{SolveFlips.Average}"
+                $"'{Name}',{CreationTime},{CompilationTime},{OptimizationTime},{Clauses.Count},{SATVariables.Count},{SATVariables.Count(v => v.DeterminionState == SATVariable.DeterminationState.Floating)},{SolveTimeMicroseconds.Min},{SolveTimeMicroseconds.Max},{SolveTimeMicroseconds.Average},{SolveFlips.Min},{SolveFlips.Max},{SolveFlips.Average}"
             });
 #endif
         }
@@ -183,7 +183,7 @@ namespace PicoSAT
             get
             {
                 return
-                    $"{Variables.Count} variables, {Variables.Count(v => v.DeterminionState == Variable.DeterminationState.Floating)} floating, {Clauses.Count} clauses";
+                    $"{SATVariables.Count} variables, {SATVariables.Count(v => v.DeterminionState == SATVariable.DeterminationState.Floating)} floating, {Clauses.Count} clauses";
             }
         }
         
@@ -210,7 +210,7 @@ namespace PicoSAT
                             b.Append(" | ");
                         if (d < 0)
                             b.Append("!");
-                        b.Append(Variables[Math.Abs(d)].Proposition);
+                        b.Append(SATVariables[Math.Abs(d)].Proposition);
                     }
 
                 }
@@ -246,7 +246,7 @@ namespace PicoSAT
         /// There is one Variable for each Proposition.  And the Solution assigns a truth value to that 
         /// variable.
         /// </summary>
-        internal readonly List<Variable> Variables = new List<Variable>();
+        internal readonly List<SATVariable> SATVariables = new List<SATVariable>();
         /// <summary>
         /// The constraints in the Problem.
         /// Most of these are normal clauses (disjunctions), but other cardinality constraints are possible.
@@ -267,6 +267,16 @@ namespace PicoSAT
                     yield return pair.Value;
             }
         }
+
+        private List<Variable> variables;
+
+        public IEnumerable<Variable> Variables()
+        {
+            if (variables != null)
+                foreach (var v in variables)
+                    yield return v;
+        }
+
 #endregion
 
 #region Clause management
@@ -304,9 +314,9 @@ namespace PicoSAT
             foreach (var lit in clause.Disjuncts)
             {
                 if (lit > 0)
-                    Variables[lit].PositiveClauses.Add(clauseIndex);
+                    SATVariables[lit].PositiveClauses.Add(clauseIndex);
                 else
-                    Variables[-lit].NegativeClauses.Add(clauseIndex);
+                    SATVariables[-lit].NegativeClauses.Add(clauseIndex);
             }
         }
 
@@ -324,7 +334,21 @@ namespace PicoSAT
 
             return indices;
         }
-#endregion
+        #endregion
+
+        #region Variable management
+        /// <summary>
+        /// Add a new variable to the problem
+        /// </summary>
+        /// <param name="v"></param>
+        internal void AddVariable(Variable v)
+        {
+            if (variables == null)
+                variables = new List<Variable>() { v };
+            else
+                variables.Add(v);
+        }
+        #endregion
 
         /// <summary>
         /// Return a Solution to the Problem.
@@ -379,11 +403,11 @@ namespace PicoSAT
             switch (l)
             {
                 case Proposition p:
-                    SetPredeterminedValue(p, true, Variable.DeterminationState.Fixed);
+                    SetPredeterminedValue(p, true, SATVariable.DeterminationState.Fixed);
                     break;
 
                 case Negation n:
-                    SetPredeterminedValue(n.Proposition, false, Variable.DeterminationState.Fixed);
+                    SetPredeterminedValue(n.Proposition, false, SATVariable.DeterminationState.Fixed);
                     break;
 
                 default:
@@ -391,17 +415,17 @@ namespace PicoSAT
             }
         }
 
-        private void SetPredeterminedValue(Proposition p, bool value, Variable.DeterminationState s)
+        private void SetPredeterminedValue(Proposition p, bool value, SATVariable.DeterminationState s)
         {
             SetPredeterminedValue(p.Index, value, s);
         }
 
-        private void SetPredeterminedValue(int index, bool value, Variable.DeterminationState s)
+        private void SetPredeterminedValue(int index, bool value, SATVariable.DeterminationState s)
         {
-            var v = Variables[index];
+            var v = SATVariables[index];
             v.DeterminionState = s;
             v.PredeterminedValue = value;
-            Variables[index] = v;
+            SATVariables[index] = v;
         }
 
         public void Assert(Implication i)
@@ -517,17 +541,17 @@ namespace PicoSAT
                 }
             }
 
-            for (int i = 0; i < Variables.Count; i++)
-                Walk(Variables[i].Proposition);
+            for (int i = 0; i < SATVariables.Count; i++)
+                Walk(SATVariables[i].Proposition);
         }
 
         private void CompileRuleBodies()
         {
-            int startingVariableCount = Variables.Count;
+            int startingVariableCount = SATVariables.Count;
 
             for (int i = 0; i < startingVariableCount; i++)
             {
-                var v = Variables[i];
+                var v = SATVariables[i];
                 var p = v.Proposition;
                 var bodies = p.RuleBodies;
                 if (bodies != null)
@@ -786,8 +810,8 @@ namespace PicoSAT
                 return p;
 
             // It's a new proposition
-            p = new Proposition(key, (ushort) Variables.Count);
-            Variables.Add(new Variable(p));
+            p = new Proposition(key, (ushort) SATVariables.Count);
+            SATVariables.Add(new SATVariable(p));
             propositionTable[key] = p;
             return p;
         }
@@ -809,8 +833,8 @@ namespace PicoSAT
                 return (T)old;
 
             // It's a new proposition
-            var p = new T() { Name = key, Index = (ushort)Variables.Count };
-            Variables.Add(new Variable(p));
+            var p = new T() { Name = key, Index = (ushort)SATVariables.Count };
+            SATVariables.Add(new SATVariable(p));
             propositionTable[key] = p;
             return p;
         }
@@ -828,7 +852,7 @@ namespace PicoSAT
 
         internal Proposition KeyOf(Clause clause, ushort position)
         {
-            return Variables[clause.Disjuncts[position]].Proposition;
+            return SATVariables[clause.Disjuncts[position]].Proposition;
         }
 
         /// <summary>
@@ -837,7 +861,7 @@ namespace PicoSAT
         // ReSharper disable once UnusedMember.Global
         public bool IsAlwaysTrue(Proposition p)
         {
-            return Variables[p.Index].IsAlwaysTrue;
+            return SATVariables[p.Index].IsAlwaysTrue;
         }
 
         /// <summary>
@@ -845,7 +869,7 @@ namespace PicoSAT
         /// </summary>
         public bool IsAlwaysFalse(Proposition p)
         {
-            return Variables[p.Index].IsAlwaysFalse;
+            return SATVariables[p.Index].IsAlwaysFalse;
         }
 
         /// <summary>
@@ -853,7 +877,7 @@ namespace PicoSAT
         /// </summary>
         public bool IsConstant(Proposition p)
         {
-            return Variables[p.Index].IsPredetermined;
+            return SATVariables[p.Index].IsPredetermined;
         }
 #endregion
 
@@ -897,12 +921,12 @@ namespace PicoSAT
                     if (v > 0)
                     {
                         // Positive literal, so it must be true
-                        SetPredeterminedValue(v, true, Variable.DeterminationState.Inferred);
-                        foreach (var dependent in Variables[v].PositiveClauses)
+                        SetPredeterminedValue(v, true, SATVariable.DeterminationState.Inferred);
+                        foreach (var dependent in SATVariables[v].PositiveClauses)
                             // Dependent is now forced to true
                             counts[dependent] = -1;
 
-                        foreach (var dependent in Variables[v].NegativeClauses)
+                        foreach (var dependent in SATVariables[v].NegativeClauses)
                         {
                             // Dependent now has one less undetermined literal
                             if (counts[dependent] == 0)
@@ -921,12 +945,12 @@ namespace PicoSAT
                     else
                     {
                         // Negative literal, so it must be false
-                        SetPredeterminedValue(-v, false, Variable.DeterminationState.Inferred);
-                        foreach (var dependent in Variables[-v].NegativeClauses)
+                        SetPredeterminedValue(-v, false, SATVariable.DeterminationState.Inferred);
+                        foreach (var dependent in SATVariables[-v].NegativeClauses)
                             // Dependent is now forced to true
                             counts[dependent] = -1;
 
-                        foreach (var dependent in Variables[-v].PositiveClauses)
+                        foreach (var dependent in SATVariables[-v].PositiveClauses)
                         {
                             // Dependent now has one less undetermined literal
                             if (counts[dependent] == 0)
@@ -967,7 +991,7 @@ namespace PicoSAT
         {
             foreach (var d in c.Disjuncts)
             {
-                if (!Variables[Math.Abs(d)].IsPredetermined)
+                if (!SATVariables[Math.Abs(d)].IsPredetermined)
                     return d;
             }
             throw new InvalidOperationException("Internal error - UndeterminedDisjunctOf called on clause with no undertermined disjuncts");
@@ -981,7 +1005,7 @@ namespace PicoSAT
                 if (d > 0)
                 {
                     // Positive literal
-                    var v = Variables[d];
+                    var v = SATVariables[d];
                     if (v.IsPredetermined)
                     {
                         if (v.IsAlwaysTrue)
@@ -996,7 +1020,7 @@ namespace PicoSAT
                 else
                 {
                     // Positive literal
-                    var v = Variables[-d];
+                    var v = SATVariables[-d];
                     if (v.IsPredetermined)
                     {
                         if (v.IsAlwaysFalse)
@@ -1132,16 +1156,16 @@ namespace PicoSAT
         {
             get
             {
-                if (!Variables[p.Index].IsPredetermined)
+                if (!SATVariables[p.Index].IsPredetermined)
                     throw new InvalidOperationException($"{p} does not have a predetermined value; Call Solve() on the problem, and then check for the proposition's value in the solution.");
-                return Variables[p.Index].PredeterminedValue;
+                return SATVariables[p.Index].PredeterminedValue;
             }
             set
             {
-                if (Variables[p.Index].DeterminionState == Variable.DeterminationState.Fixed
-                    && Variables[p.Index].PredeterminedValue != value)
+                if (SATVariables[p.Index].DeterminionState == SATVariable.DeterminationState.Fixed
+                    && SATVariables[p.Index].PredeterminedValue != value)
                     throw new InvalidOperationException($"{p}'s value is fixed by an Assertion in the problem.  It cannot be changed.");
-                SetPredeterminedValue(p, value, Variable.DeterminationState.Set);
+                SetPredeterminedValue(p, value, SATVariable.DeterminationState.Set);
             }
         }
         
@@ -1151,13 +1175,13 @@ namespace PicoSAT
         /// </summary>
         private void ResetInferredPropositions()
         {
-            for (int i = 0; i < Variables.Count; i++)
+            for (int i = 0; i < SATVariables.Count; i++)
             {
-                if (Variables[i].DeterminionState == Variable.DeterminationState.Inferred)
+                if (SATVariables[i].DeterminionState == SATVariable.DeterminationState.Inferred)
                 {
-                    var v = Variables[i];
-                    v.DeterminionState = Variable.DeterminationState.Floating;
-                    Variables[i] = v;
+                    var v = SATVariables[i];
+                    v.DeterminionState = SATVariable.DeterminationState.Floating;
+                    SATVariables[i] = v;
                 }
             }
 
@@ -1167,8 +1191,8 @@ namespace PicoSAT
         private void RecomputeFloatingVariables()
         {
             FloatingVariables.Clear();
-            for (ushort i = 0; i < Variables.Count; i++)
-                if (Variables[i].DeterminionState == Variable.DeterminationState.Floating)
+            for (ushort i = 0; i < SATVariables.Count; i++)
+                if (SATVariables[i].DeterminionState == SATVariable.DeterminationState.Floating)
                     FloatingVariables.Add(i);
         }
 
@@ -1177,13 +1201,13 @@ namespace PicoSAT
         /// </summary>
         public void ResetPropositions()
         {
-            for (int i = 0; i < Variables.Count; i++)
+            for (int i = 0; i < SATVariables.Count; i++)
             {
-                if (Variables[i].DeterminionState == Variable.DeterminationState.Set)
+                if (SATVariables[i].DeterminionState == SATVariable.DeterminationState.Set)
                 {
-                    var v = Variables[i];
-                    v.DeterminionState = Variable.DeterminationState.Floating;
-                    Variables[i] = v;
+                    var v = SATVariables[i];
+                    v.DeterminionState = SATVariable.DeterminationState.Floating;
+                    SATVariables[i] = v;
                 }
             }
         }
@@ -1195,11 +1219,11 @@ namespace PicoSAT
         public void ResetProposition(Proposition p)
         {
             int i = p.Index;
-            if (Variables[i].DeterminionState == Variable.DeterminationState.Set)
+            if (SATVariables[i].DeterminionState == SATVariable.DeterminationState.Set)
             {
-                var v = Variables[i];
-                v.DeterminionState = Variable.DeterminationState.Floating;
-                Variables[i] = v;
+                var v = SATVariables[i];
+                v.DeterminionState = SATVariable.DeterminationState.Floating;
+                SATVariables[i] = v;
             }
         }
         #endregion

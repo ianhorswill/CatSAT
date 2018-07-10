@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PicoSAT;
+﻿using PicoSAT;
 using static PicoSAT.Language;
 
 namespace PCGToy
@@ -25,7 +20,7 @@ namespace PCGToy
         {
             get
             {
-                var p = Variable.predicate(Value);
+                var p = Variable.SolverVariable == Value;
                 return Positive ? p : Not(p);
             }
         }
