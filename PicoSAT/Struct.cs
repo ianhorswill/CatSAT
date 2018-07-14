@@ -6,10 +6,10 @@ namespace PicoSAT
 {
     public class Struct : VariableType
     {
-        private readonly StructMember[] variables;
+        private readonly Member[] variables;
         private readonly Action<Problem, StructVar> constrainer;
 
-        public Struct(string name, StructMember[] variables, Action<Problem, StructVar> constrainer = null) : base(name)
+        public Struct(string name, Member[] variables, Action<Problem, StructVar> constrainer = null) : base(name)
         {
             this.variables = variables;
             this.constrainer = constrainer;
@@ -65,21 +65,21 @@ namespace PicoSAT
         }
     }
     
-    public class StructMember
+    public class Member
     {
         public readonly object Name;
         public readonly VariableType Type;
         public readonly object ConditionName;
         public readonly object ConditionValue;
 
-        public StructMember(object name, VariableType type, object conditionName = null, object conditionValue = null)
+        public Member(object name, VariableType type, object conditionName = null, object conditionValue = null)
         {
             Name = name;
             Type = type;
             ConditionName = conditionName;
             ConditionValue = conditionValue;
         }
-        public StructMember(string name, string condition, params string[] values) :
+        public Member(string name, string condition, params string[] values) :
             this(name, new FDomain<string>(name, values), ConditionNameFromString(condition), ConditionValueFromString(condition))
         { }
 
