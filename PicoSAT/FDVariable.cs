@@ -77,7 +77,7 @@ namespace PicoSAT
         /// <returns></returns>
         public static Literal operator ==(FDVariable<T> var, T value)
         {
-            Debug.Assert(var != null, nameof(var) + " != null");
+            Debug.Assert((object)var != null, nameof(var) + " != null");
             return var.valuePropositions[var.domain.IndexOf(value)];
         }
 
@@ -89,8 +89,15 @@ namespace PicoSAT
         /// <returns></returns>
         public static Literal operator !=(FDVariable<T> var, T value)
         {
-            Debug.Assert(var != null, nameof(var) + " != null");
+            Debug.Assert((object)var != null, nameof(var) + " != null");
             return Language.Not(var.valuePropositions[var.domain.IndexOf(value)]);
+        }
+
+        public override Literal EqualityProposition(object value)
+        {
+            if (value is T tValue)
+                return this == tValue;
+            throw new ArgumentException($"{value} is not a valid value for FDVariable {Name}");
         }
 
         public override bool IsDefinedIn(Solution s)

@@ -1,9 +1,13 @@
-﻿namespace PicoSAT
+﻿using System;
+
+namespace PicoSAT
 {
     /// <summary>
     /// Base class for non-Boolean variables
     /// </summary>
+#pragma warning disable 660,661
     public abstract class Variable
+#pragma warning restore 660,661
     {
         /// <summary>
         /// Object that names the variable
@@ -49,6 +53,35 @@
         public override string ToString()
         {
             return Name.ToString();
+        }
+
+        /// <summary>
+        /// A Proposition asserting that the variable has a specified value.
+        /// </summary>
+        /// <param name="var">The variable who value should be checked</param>
+        /// <param name="value">The value to check for</param>
+        /// <returns></returns>
+        public static Literal operator ==(Variable var, object value)
+        {
+            return var.EqualityProposition(value);
+        }
+
+        /// <summary>
+        /// A Proposition asserting that the variable does not have a specified value.
+        /// </summary>
+        /// <param name="var">The variable who value should be checked</param>
+        /// <param name="value">The value to check for</param>
+        /// <returns></returns>
+        public static Literal operator !=(Variable var, object value)
+        {
+            return Language.Not(var == value);
+        }
+
+
+
+        public virtual Literal EqualityProposition(object vConditionValue)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -259,7 +259,6 @@ namespace Tests
             var p = (Proposition)"p";
             var q = (Proposition)"q";
             var r = (Proposition)"r";
-            var s = (Proposition)"s";
             prog.Assert(
                 p <= q,
                 p <= r,
@@ -294,6 +293,34 @@ namespace Tests
             // Lovecraftianism is the state religion of cityburgh
             prog.Inconsistent(nationality == "cityburgh", cclass == "cleric", Not(religion == "lovecraftian"));
 
+            for (int i = 0; i < 100; i++)
+                Console.WriteLine(prog.Solve().Model);
+        }
+
+        [TestMethod]
+        public void StructCharacterGeneratorTest()
+        {
+            var prog = new Problem("Struct character generator");
+            var characterType = new Struct("Character",
+                new []{
+                    new Member("race", null, "human", "electroid", "insectoid"),
+                    new Member("class", null, "fighter", "magic user", "cleric", "thief"),
+                    new Member("nationality", "race=human", "landia", "placeville", "cityburgh"),
+                    new Member("religion", "class=cleric", "monotheist", "pantheist", "lovecraftian", "dawkinsian")
+                },
+                (p, v) =>
+                {
+                    // Electroids are atheists
+                    p.Inconsistent(v["race"] == "electroid", v["class"] == "cleric");
+                    // Lovecraftianism is outlawed in Landia
+                    p.Inconsistent(v["nationality"] == "landia", v["religion"] == "lovecraftian");
+                    // Insectoids believe in strict hierarchies
+                    p.Inconsistent(v["race"] == "insectoid", v["religion"] == "pantheist");
+                    // Lovecraftianism is the state religion of cityburgh
+                    p.Inconsistent(v["nationality"] == "cityburgh", v["class"] == "cleric", v["religion"] != "lovecraftian");
+                });
+
+            prog.Instantiate("character", characterType);
             for (int i = 0; i < 100; i++)
                 Console.WriteLine(prog.Solve().Model);
         }
@@ -353,12 +380,47 @@ namespace Tests
                 Console.WriteLine(prog.Solve().Model);
         }
 
-        void Partition(Proposition set, params Proposition[] subsets)
+        void Partition(Proposition set, params Literal[] subsets)
         {
             foreach (var subset in subsets)
-                Problem.Current.Assert((Expression)subset >= set);
+                Problem.Current.Assert(subset >= set);
             Problem.Current.Inconsistent(subsets.Select(Not).Concat(new[]{set}));
             Problem.Current.AtMost(1, subsets);
+        }
+
+        [TestMethod]
+        public void StructPartyGeneratorTest()
+        {
+            var prog = new Problem("Struct character generator");
+            var party = new[] { "fred", "jenny", "sally" };
+
+            var characterType = new Struct("Character",
+                // Members
+                new[]{
+                    new Member("race", null, "human", "electroid", "insectoid"),
+                    new Member("class", null, "fighter", "magic user", "cleric", "thief"),
+                    new Member("nationality", "race=human", "landia", "placeville", "cityburgh"),
+                    new Member("religion", "class=cleric", "monotheist", "pantheist", "lovecraftian", "dawkinsian")
+                },
+                // Constraints
+                (p, v) =>
+                {
+                    // Electroids are atheists
+                    p.Inconsistent(v["race"] == "electroid", v["class"] == "cleric");
+                    // Lovecraftianism is outlawed in Landia
+                    p.Inconsistent(v["nationality"] == "landia", v["religion"] == "lovecraftian");
+                    // Insectoids believe in strict hierarchies
+                    p.Inconsistent(v["race"] == "insectoid", v["religion"] == "pantheist");
+                    // Lovecraftianism is the state religion of cityburgh
+                    p.Inconsistent(v["nationality"] == "cityburgh", v["class"] == "cleric", v["religion"] != "lovecraftian");
+                });
+
+            // Make one for each party member
+            var castVars = party.Select(c => (StructVar)prog.Instantiate(c, characterType)).ToArray();
+            // All the classes have to be different
+            prog.AllDifferent(castVars.Select(c => (FDVariable<string>)c["class"]));
+            for (int i = 0; i < 100; i++)
+                Console.WriteLine(prog.Solve().Model);
         }
     }
 }

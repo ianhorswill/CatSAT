@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PicoSAT
 {
@@ -31,5 +28,11 @@ namespace PicoSAT
         }
 
         public T this[int i] => Values[i];
+
+        public override Variable Instantiate(object name, Problem p, Literal condition = null)
+        {
+            // ReSharper disable once ObjectCreationAsStatement
+            return new FDVariable<T>(name, this, condition);
+        }
     }
 }
