@@ -43,8 +43,12 @@
   <ItemGroup>
     <Compile Include="Actions.cs" />
     <Compile Include="Call.cs" />
+    <Compile Include="ConditionAttribute.cs" />
     <Compile Include="Clause.cs" />
+    <Compile Include="CompiledStruct.cs" />
+    <Compile Include="CompiledStructType.cs" />
     <Compile Include="Domain.cs" />
+    <Compile Include="DomainAttribute.cs" />
     <Compile Include="Expression.cs" />
     <Compile Include="FDomain.cs" />
     <Compile Include="FDVariable.cs" />

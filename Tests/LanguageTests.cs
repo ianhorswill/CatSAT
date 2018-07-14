@@ -325,6 +325,63 @@ namespace Tests
                 Console.WriteLine(prog.Solve().Model);
         }
 
+        class Character : CompiledStruct
+        {
+            public Character(object name, Problem p, Literal condition = null) : base(name, p, condition)
+            {
+                // Electroids are atheists
+                p.Inconsistent(Race == "electroid", Class == "cleric");
+                // Lovecraftianism is outlawed in Landia
+                p.Inconsistent(Nationality == "landia", Religion == "lovecraftian");
+                // Insectoids believe in strict hierarchies
+                p.Inconsistent(Race == "insectoid", Religion == "pantheist");
+                // Lovecraftianism is the state religion of cityburgh
+                p.Inconsistent(Nationality == "cityburgh", Class == "cleric", Religion != "lovecraftian");
+            }
+
+            [Domain("race", "human", "electroid", "insectoid")]
+            // ReSharper disable MemberCanBePrivate.Local
+#pragma warning disable 649
+            public readonly FDVariable<string> Race;
+
+            [Domain("class", "fighter", "magic user", "cleric", "thief")]
+            public readonly FDVariable<string> Class;
+
+            [Domain("nationality", "landia", "placeville", "cityburgh"), Condition("Race", "human")]
+            public readonly FDVariable<string> Nationality;
+
+            [Domain("religion", "monotheist", "pantheist", "lovecraftian", "dawkinsian"), Condition("Class", "cleric")]
+            public readonly FDVariable<string> Religion;
+#pragma warning restore 649
+            // ReSharper restore MemberCanBePrivate.Local
+        }
+
+        [TestMethod]
+        public void CompileStructCharacterGeneratorTest()
+        {
+            var d = new CompiledStructType(typeof(Character));
+            var prog = new Problem("compiled struct character generator");
+            prog.Instantiate("character", d);
+            for (int i = 0; i < 100; i++)
+                Console.WriteLine(prog.Solve().Model);
+        }
+
+        [TestMethod]
+        public void CompileStructPartyGeneratorTest()
+        {
+            var d = new CompiledStructType(typeof(Character));
+            var prog = new Problem("compiled struct party generator");
+            var party = new[] { "fred", "jenny", "sally" };
+
+            // Make one for each party member
+            var partyVars = party.Select(c => (Character)prog.Instantiate(c, d)).ToArray();
+            // All the classes have to be different
+            prog.AllDifferent(partyVars.Select(c => c.Class));
+
+            for (int i = 0; i < 100; i++)
+                Console.WriteLine(prog.Solve().Model);
+        }
+
         [TestMethod]
         public void PartyGeneratorTest()
         {
