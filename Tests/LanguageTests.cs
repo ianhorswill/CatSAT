@@ -356,6 +356,74 @@ namespace Tests
             // ReSharper restore MemberCanBePrivate.Local
         }
 
+        enum Races
+        {
+            Human,
+            Electroid,
+            Insectoid
+        }
+
+        enum Classes
+        {
+            Fighter,
+            MagicUser,
+            Cleric,
+            Thief
+        }
+
+        enum Nationalities
+        {
+            Landia,
+            Placeville,
+            Cityburgh
+        }
+
+        enum Religions
+        {
+            Monotheist,
+            Pantheist,
+            Lovecraftian,
+            Dawkinsian
+        }
+
+        class CharacterWithEnums : CompiledStruct
+        {
+            public CharacterWithEnums(object name, Problem p, Literal condition = null) : base(name, p, condition)
+            {
+                // Electroids are atheists
+                p.Inconsistent(Race == Races.Electroid, Class == Classes.Cleric);
+                // Lovecraftianism is outlawed in Landia
+                p.Inconsistent(Nationality == Nationalities.Landia, Religion == Religions.Lovecraftian);
+                // Insectoids believe in strict hierarchies
+                p.Inconsistent(Race == Races.Insectoid, Religion == Religions.Pantheist);
+                // Lovecraftianism is the state religion of cityburgh
+                p.Inconsistent(Nationality == Nationalities.Cityburgh, Class == Classes.Cleric, Religion != Religions.Lovecraftian);
+            }
+            
+            // ReSharper disable MemberCanBePrivate.Local
+#pragma warning disable 649
+            public readonly EnumVariable<Races> Race;
+            public readonly EnumVariable<Classes> Class;
+
+            [Condition("Race", Races.Human)]
+            public readonly EnumVariable<Nationalities> Nationality;
+
+            [Condition("Class", Classes.Cleric)]
+            public readonly EnumVariable<Religions> Religion;
+#pragma warning restore 649
+            // ReSharper restore MemberCanBePrivate.Local
+        }
+
+        [TestMethod]
+        public void CompileStructWithEnumsCharacterGeneratorTest()
+        {
+            var d = new CompiledStructType(typeof(CharacterWithEnums));
+            var prog = new Problem("compiled struct with enums character generator");
+            prog.Instantiate("character", d);
+            for (int i = 0; i < 100; i++)
+                Console.WriteLine(prog.Solve().Model);
+        }
+
         [TestMethod]
         public void CompileStructCharacterGeneratorTest()
         {

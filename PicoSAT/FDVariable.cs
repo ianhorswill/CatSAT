@@ -13,13 +13,13 @@ namespace PicoSAT
         /// <summary>
         /// Domain of the variable
         /// </summary>
-        private readonly FDomain<T> domain;
+        protected readonly FDomain<T> domain;
         /// <inheritdoc />
         public override Domain<T> Domain => domain;
         /// <summary>
         /// Individual propositions asserting the different possible values of the variable.
         /// </summary>
-        private readonly Proposition[] valuePropositions;
+        protected readonly Proposition[] valuePropositions;
 
         /// <summary>
         /// Make a new finite-domain variable to solve for

@@ -8,19 +8,39 @@ namespace PicoSAT
         {
             foreach (var f in GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
             {
-                var a = f.GetCustomAttribute<DomainAttribute>();
-                if (a != null)
+                if (f.FieldType.IsSubclassOf(typeof(Variable)))
                 {
-                    Literal c = null;
-                    var ca = f.GetCustomAttribute<ConditionAttribute>();
-                    if (ca != null)
+                    var vName = new VariableNamePath(f.Name, name);
+                    var c = FieldCondition(f);
+
+                    object value;
+
+                    var a = f.GetCustomAttribute<DomainAttribute>();
+                    if (a != null)
                     {
-                        var v = (Variable) GetType().GetField(ca.VariableName).GetValue(this);
-                        c = v == ca.VariableValue;
+                        value = a.Domain.Instantiate(vName, p, c);
                     }
-                    f.SetValue(this, a.Domain.Instantiate(new VariableNamePath(f.Name, name), p, c));
+                    else
+                    {
+                        value = f.FieldType.InvokeMember(null, BindingFlags.CreateInstance, null, null,
+                            new object[] {vName, c});
+                    }
+
+                    f.SetValue(this, value);
                 }
             }
+        }
+
+        private Literal FieldCondition(FieldInfo f)
+        {
+            var ca = f.GetCustomAttribute<ConditionAttribute>();
+            if (ca != null)
+            {
+                var v = (Variable) GetType().GetField(ca.VariableName).GetValue(this);
+                return v == ca.VariableValue;
+            }
+
+            return null;
         }
 
         public override object UntypedValue(Solution s)

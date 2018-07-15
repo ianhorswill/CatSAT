@@ -49,6 +49,8 @@
     <Compile Include="CompiledStructType.cs" />
     <Compile Include="Domain.cs" />
     <Compile Include="DomainAttribute.cs" />
+    <Compile Include="EnumDomain.cs" />
+    <Compile Include="EnumVariable.cs" />
     <Compile Include="Expression.cs" />
     <Compile Include="FDomain.cs" />
     <Compile Include="FDVariable.cs" />
