@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Variable.cs" company="Ian Horswill">
+// <copyright file="SATVariable.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
