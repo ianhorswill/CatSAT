@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ConditionAttribute.cs" company="Ian Horswill">
+// <copyright file="VariableType.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,23 +22,39 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace PicoSAT
 {
-    public class ConditionAttribute : Attribute
+    [DebuggerDisplay("{" + nameof(Name) + "}")]
+    public abstract class VariableType
     {
-        public readonly string VariableName;
-        public readonly object VariableValue;
+        public readonly string Name;
 
-        public ConditionAttribute(string variableName, object variableValue)
+        public static readonly Dictionary<string, VariableType> Types = new Dictionary<string, VariableType>();
+
+        protected VariableType(string name)
         {
-            VariableName = variableName;
-            VariableValue = variableValue;
+            Name = name;
+            Types[Name] = this;
+        }
+
+        public static VariableType TypeNamed(string n)
+        {
+            return Types[n];
+        }
+
+        public static bool TypeExists(string n)
+        {
+            return Types.ContainsKey(n);
+        }
+
+        public abstract Variable Instantiate(object name, Problem p, Literal condition = null);
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 }

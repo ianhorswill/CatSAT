@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="VariableProblemExtensions.cs" company="Ian Horswill">
+// <copyright file="DomainAttribute.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,28 +23,27 @@
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PicoSAT
 {
-    public static class VariableProblemExtensions
+    [AttributeUsage(AttributeTargets.Field)]
+    public class DomainAttribute : Attribute
     {
-        public static Variable Instantiate(this Problem p, object name, VariableType t, Literal condition = null)
+        public readonly string DomainName;
+
+        public DomainAttribute(string domainName)
         {
-            return t.Instantiate(name, p, condition);
+            DomainName = domainName;
         }
 
-        public static void AllDifferent<T>(this Problem p, IEnumerable<FDVariable<T>> vars)
+        public DomainAttribute(string domainName, params string[] domainElements)
         {
-            var d = (FDomain<T>)vars.First().Domain;
-            foreach (var v in vars)
-                if (v.Domain != d)
-                    throw new ArgumentException($"Variables in AllDifferent() call must have identical domains");
-            foreach (var value in d.Values)
-                p.AtMost(1, vars.Select(var => var == value));
+            DomainName = domainName;
+            if (!VariableType.TypeExists(domainName))
+                // ReSharper disable once ObjectCreationAsStatement
+                new FDomain<string>(domainName, domainElements);
         }
+
+        public VariableType Domain => VariableType.TypeNamed(DomainName);
     }
 }

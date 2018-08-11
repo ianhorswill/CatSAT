@@ -72,7 +72,10 @@ namespace PicoSAT
 
         public abstract object UntypedValue(Solution s);
 
-        public abstract bool IsDefinedIn(Solution solution);
+        public virtual bool IsDefinedIn(Solution solution)
+        {
+            return (object)Condition == null || solution[Condition];
+        }
 
         public override string ToString()
         {

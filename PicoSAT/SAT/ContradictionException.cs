@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="VariableType.cs" company="Ian Horswill">
+// <copyright file="ContradictionException.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,40 +22,25 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+using System;
 
 namespace PicoSAT
 {
-    [DebuggerDisplay("{" + nameof(Name) + "}")]
-    public abstract class VariableType
+    /// <summary>
+    /// Signifies the Problem contains a contradiction
+    /// </summary>
+    public class ContradictionException : Exception
     {
-        public readonly string Name;
+        public readonly Problem Problem;
 
-        public static readonly Dictionary<string, VariableType> Types = new Dictionary<string, VariableType>();
-
-        protected VariableType(string name)
+        internal ContradictionException(Problem problem, Clause clause) : base($"Contradiction found in clause {clause.Decompile(problem)}")
         {
-            Name = name;
-            Types[Name] = this;
+            Problem = problem;
         }
 
-        public static VariableType TypeNamed(string n)
+        internal ContradictionException(Problem problem, string message) : base($"Contradiction found: {message}")
         {
-            return Types[n];
-        }
-
-        public static bool TypeExists(string n)
-        {
-            return Types.ContainsKey(n);
-        }
-
-        public abstract Variable Instantiate(object name, Problem p, Literal condition = null);
-
-        public override string ToString()
-        {
-            return Name;
+            Problem = problem;
         }
     }
 }

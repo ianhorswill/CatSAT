@@ -90,6 +90,7 @@ namespace PicoSAT
     /// Represents a Proposition or a Negation.
     /// </summary>
 #pragma warning disable 660,661
+    [DebuggerDisplay("{" + nameof(DebugName) + "}")]
     public abstract class Literal : Expression
 #pragma warning restore 660,661
     {
@@ -140,7 +141,9 @@ namespace PicoSAT
         public static implicit operator Literal(bool b)
         {
             return (Proposition) b;
-        } 
+        }
+
+        private string DebugName => ToString();
     }
 
     /// <summary>
@@ -195,6 +198,18 @@ namespace PicoSAT
         /// setting their values.
         /// </summary>
         public bool IsConstant => Index == 0;
+
+        public bool IsCall(string functorName)
+        {
+            return Name is Call c && c.Name == functorName;
+        }
+
+        public T Arg<T>(int index)
+        {
+            if (Name is Call c)
+                return (T) c.Args[index];
+            throw new ArgumentException($"Proposition {Name} is not a call to a predicate");
+        }
 
         internal Proposition(object name, ushort index)
         {
@@ -436,7 +451,7 @@ namespace PicoSAT
     /// A conjunction of literals.
     /// Used in rule bodies.
     /// </summary>
-    class Conjunction : Expression
+    public class Conjunction : Expression
     {
         /// <summary>
         /// LHS of the conjunction

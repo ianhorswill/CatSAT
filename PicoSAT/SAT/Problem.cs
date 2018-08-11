@@ -23,30 +23,6 @@
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 #define NewOptimizer
-#region Copyright
-// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Problem.cs" company="Ian Horswill">
-// Copyright (C) 2018 Ian Horswill
-//  
-// Permission is hereby granted, free of charge, to any person obtaining a copy of
-// this software and associated documentation files (the "Software"), to deal in the
-// Software without restriction, including without limitation the rights to use, copy,
-// modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
-// and to permit persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//  
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-// PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
-#endregion
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -301,6 +277,25 @@ namespace PicoSAT
                     yield return v;
         }
 
+        internal Dictionary<Type, TheorySolver> TheorySolvers;
+
+        /// <summary>
+        /// Returns the (unique) TheorySolver of type T for this problem, creating it if necessary.
+        /// </summary>
+        /// <typeparam name="T">The type of theory solver</typeparam>
+        /// <returns>The theory solver of type T</returns>
+        public T GetSolver<T>() where T: TheorySolver
+        {
+            if (TheorySolvers == null)
+                TheorySolvers = new Dictionary<Type, TheorySolver>();
+
+            if (TheorySolvers.TryGetValue(typeof(T), out TheorySolver t))
+                return (T)t;
+            var solver = TheorySolver.MakeTheorySolver<T>(this);
+            TheorySolvers[typeof(T)] = solver;
+            return solver;
+        }
+
 #endregion
 
 #region Clause management
@@ -535,6 +530,14 @@ namespace PicoSAT
                 if (Tight)
                     CheckTightness();
                 CompileRuleBodies();
+
+                if (TheorySolvers != null)
+                    foreach (var p in TheorySolvers)
+                    {
+                        var message = p.Value.Preprocess();
+                        if (message != null)
+                            throw new ContradictionException(this, message);
+                    }
 #if PerformanceStatistics
                 CompilationTime = Stopwatch.ElapsedTicks / (0.000001f * Stopwatch.Frequency);
 #endif
@@ -590,7 +593,7 @@ namespace PicoSAT
 #if !DEBUG
         private void CleanPropositionInfo()
         {
-            foreach (var v in Variables)
+            foreach (var v in SATVariables)
             {
                 var p = v.Proposition;
                 p.RuleBodies = null;
@@ -903,6 +906,21 @@ namespace PicoSAT
         {
             return SATVariables[p.Index].IsPredetermined;
         }
+
+        public bool IsConstant(Literal l)
+        {
+            switch (l)
+            {
+                case Proposition p:
+                    return IsConstant(p);
+
+                case Negation n:
+                    return IsConstant(n.Proposition);
+
+                default:
+                    throw new ArgumentException();
+            }
+        }
 #endregion
 
 #region Optimization (unit resolution)
@@ -1190,6 +1208,41 @@ namespace PicoSAT
                     && SATVariables[p.Index].PredeterminedValue != value)
                     throw new InvalidOperationException($"{p}'s value is fixed by an Assertion in the problem.  It cannot be changed.");
                 SetPredeterminedValue(p, value, SATVariable.DeterminationState.Set);
+            }
+        }
+
+        public bool this[Literal l]
+        {
+            get
+            {
+                switch (l)
+                {
+                    case Proposition p:
+                        return this[p];
+
+                    case Negation n:
+                        return !this[n.Proposition];
+
+                    default:
+                        throw new ArgumentException($"Invalid literal type {l}");
+                }
+            }
+
+            set
+            {
+                switch (l)
+                {
+                    case Proposition p:
+                        this[p] = value;
+                        break;
+
+                    case Negation n:
+                        this[n.Proposition] = !value;
+                        break;
+
+                    default:
+                        throw new ArgumentException($"Invalid literal type {l}");
+                }
             }
         }
         

@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CompiledStructType.cs" company="Ian Horswill">
+// <copyright file="VariableProblemExtensions.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,27 +24,25 @@
 #endregion
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PicoSAT
 {
-    public class CompiledStructType : VariableType
+    public static class VariableProblemExtensions
     {
-        private readonly Type type;
-        public CompiledStructType(Type t) : base(t.Name)
+        public static Variable Instantiate(this Problem p, object name, VariableType t, Literal condition = null)
         {
-            Debug.Assert(t.IsSubclassOf(typeof(CompiledStruct)));
-            type = t;
+            return t.Instantiate(name, p, condition);
         }
 
-        public override Variable Instantiate(object name, Problem p, Literal condition = null)
+        public static void AllDifferent<T>(this Problem p, IEnumerable<FDVariable<T>> vars)
         {
-            return (Variable) type.InvokeMember(null, BindingFlags.CreateInstance, null, null,
-                new[] {name, p, condition});
+            var d = (FDomain<T>)vars.First().Domain;
+            foreach (var v in vars)
+                if (v.Domain != d)
+                    throw new ArgumentException($"Variables in AllDifferent() call must have identical domains");
+            foreach (var value in d.Values)
+                p.AtMost(1, vars.Select(var => var == value));
         }
     }
 }

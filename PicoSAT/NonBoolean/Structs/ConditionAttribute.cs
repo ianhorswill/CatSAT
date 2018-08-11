@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DomainAttribute.cs" company="Ian Horswill">
+// <copyright file="ConditionAttribute.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,31 +23,18 @@
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PicoSAT
 {
-    [AttributeUsage(AttributeTargets.Field)]
-    public class DomainAttribute : Attribute
+    public class ConditionAttribute : Attribute
     {
-        public readonly string DomainName;
+        public readonly string VariableName;
+        public readonly object VariableValue;
 
-        public DomainAttribute(string domainName)
+        public ConditionAttribute(string variableName, object variableValue)
         {
-            DomainName = domainName;
+            VariableName = variableName;
+            VariableValue = variableValue;
         }
-
-        public DomainAttribute(string domainName, params string[] domainElements)
-        {
-            DomainName = domainName;
-            if (!VariableType.TypeExists(domainName))
-                // ReSharper disable once ObjectCreationAsStatement
-                new FDomain<string>(domainName, domainElements);
-        }
-
-        public VariableType Domain => VariableType.TypeNamed(DomainName);
     }
 }

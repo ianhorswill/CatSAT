@@ -22,11 +22,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-using System;
+
 using System.Collections.Generic;
-using System.Linq;
 using PicoSAT;
-using static PicoSAT.Language;
 
 namespace PCGToy
 {

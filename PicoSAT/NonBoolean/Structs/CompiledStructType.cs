@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ContradictionException.cs" company="Ian Horswill">
+// <copyright file="CompiledStructType.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,19 +23,24 @@
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 using System;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace PicoSAT
 {
-    /// <summary>
-    /// Signifies the Problem contains a contradiction
-    /// </summary>
-    public class ContradictionException : Exception
+    public class CompiledStructType : VariableType
     {
-        public readonly Problem Problem;
-
-        internal ContradictionException(Problem problem, Clause clause) : base($"Contradiction found in clause {clause.Decompile(problem)}")
+        private readonly Type type;
+        public CompiledStructType(Type t) : base(t.Name)
         {
-            Problem = problem;
+            Debug.Assert(t.IsSubclassOf(typeof(CompiledStruct)));
+            type = t;
+        }
+
+        public override Variable Instantiate(object name, Problem p, Literal condition = null)
+        {
+            return (Variable) type.InvokeMember(null, BindingFlags.CreateInstance, null, null,
+                new[] {name, p, condition});
         }
     }
 }

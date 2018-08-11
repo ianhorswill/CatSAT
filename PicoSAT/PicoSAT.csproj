@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PicoSAT</RootNamespace>
     <AssemblyName>PicoSAT</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -21,6 +21,7 @@
     <DefineConstants>TRACE;DEBUG;PerformanceStatistics</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,46 +30,50 @@
     <DefineConstants>TRACE;PerformanceStatistics</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actions.cs" />
-    <Compile Include="Call.cs" />
-    <Compile Include="ConditionAttribute.cs" />
-    <Compile Include="Clause.cs" />
-    <Compile Include="CompiledStruct.cs" />
-    <Compile Include="CompiledStructType.cs" />
-    <Compile Include="Domain.cs" />
-    <Compile Include="DomainAttribute.cs" />
-    <Compile Include="EnumDomain.cs" />
-    <Compile Include="EnumVariable.cs" />
-    <Compile Include="Expression.cs" />
-    <Compile Include="FDomain.cs" />
-    <Compile Include="FDVariable.cs" />
-    <Compile Include="Fluents.cs" />
-    <Compile Include="Solution.cs" />
-    <Compile Include="Language.cs" />
-    <Compile Include="NonTightProblemException.cs" />
-    <Compile Include="ContradictionException.cs" />
-    <Compile Include="Struct.cs" />
-    <Compile Include="TimeoutException.cs" />
-    <Compile Include="SATVariable.cs" />
-    <Compile Include="Random.cs" />
-    <Compile Include="Problem.cs" />
+    <Compile Include="Fluents\Actions.cs" />
+    <Compile Include="NonBoolean\SMT\Float\FloatDomain.cs" />
+    <Compile Include="NonBoolean\SMT\Float\FloatProposition.cs" />
+    <Compile Include="NonBoolean\SMT\Float\FloatSolver.cs" />
+    <Compile Include="NonBoolean\SMT\Float\FloatVariable.cs" />
+    <Compile Include="NonBoolean\SMT\Float\Interval.cs" />
+    <Compile Include="SAT\Call.cs" />
+    <Compile Include="NonBoolean\Structs\ConditionAttribute.cs" />
+    <Compile Include="SAT\Clause.cs" />
+    <Compile Include="NonBoolean\Structs\CompiledStruct.cs" />
+    <Compile Include="NonBoolean\Structs\CompiledStructType.cs" />
+    <Compile Include="NonBoolean\Domain.cs" />
+    <Compile Include="NonBoolean\Structs\DomainAttribute.cs" />
+    <Compile Include="NonBoolean\NBSAT\EnumDomain.cs" />
+    <Compile Include="NonBoolean\NBSAT\EnumVariable.cs" />
+    <Compile Include="SAT\Expression.cs" />
+    <Compile Include="NonBoolean\NBSAT\FDomain.cs" />
+    <Compile Include="NonBoolean\NBSAT\FDVariable.cs" />
+    <Compile Include="Fluents\Fluents.cs" />
+    <Compile Include="SAT\Solution.cs" />
+    <Compile Include="SAT\Language.cs" />
+    <Compile Include="SAT\NonTightProblemException.cs" />
+    <Compile Include="SAT\ContradictionException.cs" />
+    <Compile Include="NonBoolean\Structs\Struct.cs" />
+    <Compile Include="NonBoolean\SMT\TheoryProposition.cs" />
+    <Compile Include="NonBoolean\SMT\TheorySolver.cs" />
+    <Compile Include="NonBoolean\SMT\TheoryVariable.cs" />
+    <Compile Include="SAT\TimeoutException.cs" />
+    <Compile Include="SAT\SATVariable.cs" />
+    <Compile Include="SAT\Random.cs" />
+    <Compile Include="SAT\Problem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DomainVariable.cs" />
-    <Compile Include="Variable.cs" />
-    <Compile Include="VariableProblemExtensions.cs" />
-    <Compile Include="VariableType.cs" />
+    <Compile Include="NonBoolean\DomainVariable.cs" />
+    <Compile Include="NonBoolean\Variable.cs" />
+    <Compile Include="NonBoolean\VariableProblemExtensions.cs" />
+    <Compile Include="NonBoolean\VariableType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

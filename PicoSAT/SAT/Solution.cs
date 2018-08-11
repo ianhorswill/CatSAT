@@ -25,7 +25,6 @@
 #define RANDOMIZE
 
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -361,11 +360,13 @@ namespace PicoSAT
             Problem.Stopwatch.Start();
 #endif
 
+            var remainingFlips = Timeout;
+
+            restart:
             MakeRandomAssignment();
             var flipsSinceImprovement = 0;
             var wp = 0f;
 
-            var remainingFlips = Timeout;
             for (; unsatisfiedClauses.Count > 0 && remainingFlips > 0; remainingFlips--)
             {
                 // Hill climb: pick an unsatisfied clause at random and flip one of its variables
@@ -399,6 +400,12 @@ namespace PicoSAT
                     }
                 }
             }
+
+            if (unsatisfiedClauses.Count == 0 && Problem.TheorySolvers != null)
+                // Ask the theory solvers, if any, to do their work
+                if (!Problem.TheorySolvers.All(p => p.Value.Solve(this)))
+                    // They failed; try again
+                    goto restart;
 
 #if PerformanceStatistics
             SolveTimeMicroseconds = Problem.Stopwatch.ElapsedTicks / (Stopwatch.Frequency * 0.000001f);
