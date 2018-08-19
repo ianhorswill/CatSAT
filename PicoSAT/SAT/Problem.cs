@@ -284,7 +284,7 @@ namespace PicoSAT
         /// </summary>
         /// <typeparam name="T">The type of theory solver</typeparam>
         /// <returns>The theory solver of type T</returns>
-        public T GetSolver<T>() where T: TheorySolver
+        public T GetSolver<T>() where T: TheorySolver, new()
         {
             if (TheorySolvers == null)
                 TheorySolvers = new Dictionary<Type, TheorySolver>();
@@ -520,16 +520,19 @@ namespace PicoSAT
 
         private void FinishCodeGeneration()
         {
-            if (compilationState == CompilationState.HaveRules)
+            if (compilationState != CompilationState.Compiled)
             {
 #if PerformanceStatistics
                 CreationTime = Stopwatch.ElapsedTicks / (0.000001f * Stopwatch.Frequency);
                 Stopwatch.Reset();
                 Stopwatch.Start();
 #endif
-                if (Tight)
-                    CheckTightness();
-                CompileRuleBodies();
+                if (compilationState == CompilationState.HaveRules)
+                {
+                    if (Tight)
+                        CheckTightness();
+                    CompileRuleBodies();
+                }
 
                 if (TheorySolvers != null)
                     foreach (var p in TheorySolvers)
@@ -853,7 +856,7 @@ namespace PicoSAT
             return p;
         }
 
-        public T GetPropositionOfType<T>(object key) where T: Proposition, new()
+        public T GetSpecialProposition<T>(object key) where T: SpecialProposition, new()
         {
             // It's already in the table
             if (propositionTable.TryGetValue(key, out Proposition old))
@@ -861,6 +864,7 @@ namespace PicoSAT
 
             // It's a new proposition
             var p = new T() { Name = key, Index = (ushort)SATVariables.Count };
+            p.Initialize(this);
             SATVariables.Add(new SATVariable(p));
             propositionTable[key] = p;
             return p;

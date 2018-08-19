@@ -7,15 +7,9 @@ namespace PicoSAT
     {
         protected Problem Problem;
 
-        protected TheorySolver(Problem p)
+        public static T MakeTheorySolver<T>(Problem p) where T : TheorySolver, new()
         {
-            Problem = p;
-        }
-
-        protected static Dictionary<Type, Func<Problem,TheorySolver>> constructors = new Dictionary<Type, Func<Problem, TheorySolver>>();
-        public static T MakeTheorySolver<T>(Problem p) where T : TheorySolver
-        {
-            return (T)(constructors[typeof(T)](p));
+            return new T() { Problem = p };
         } 
 
         /// <summary>

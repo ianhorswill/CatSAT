@@ -61,10 +61,10 @@ namespace PicoSAT
         /// <typeparam name="TProp">Type of proposition to return</typeparam>
         /// <param name="name">Name of the predicate</param>
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
-        public static Func<T1, TProp> PredicateOfType<T1,TProp>(string name) where TProp : Proposition, new()
+        public static Func<T1, TProp> PredicateOfType<T1,TProp>(string name) where TProp : SpecialProposition, new()
         {
             var problem = Problem.Current;
-            return arg1 => problem.GetPropositionOfType<TProp>(new Call(name, arg1));
+            return arg1 => problem.GetSpecialProposition<TProp>(new Call(name, arg1));
         }
 
         /// <summary>
@@ -76,10 +76,10 @@ namespace PicoSAT
         /// <param name="name">Name of the predicate</param>
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
         public static Func<T1, T2, TProp> PredicateOfType<T1, T2, TProp>(string name)
-            where TProp: Proposition, new()
+            where TProp: SpecialProposition, new()
         {
             var problem = Problem.Current;
-            return (arg1, arg2) => problem.GetPropositionOfType<TProp>(new Call(name, arg1, arg2));
+            return (arg1, arg2) => problem.GetSpecialProposition<TProp>(new Call(name, arg1, arg2));
         }
 
         /// <summary>
@@ -109,14 +109,14 @@ namespace PicoSAT
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
         public static Func<T, T, TProp> SymmetricPredicateOfType<T, TProp>(string name) 
             where T : IComparable
-            where TProp : Proposition, new()
+            where TProp : SpecialProposition, new()
         {
             var problem = Problem.Current;
             return (arg1, arg2) =>
             {
                 if (arg1.CompareTo(arg2) > 0)
-                    return problem.GetPropositionOfType<TProp>(new Call(name, arg2, arg1));
-                return problem.GetPropositionOfType<TProp>(new Call(name, arg1, arg2));
+                    return problem.GetSpecialProposition<TProp>(new Call(name, arg2, arg1));
+                return problem.GetSpecialProposition<TProp>(new Call(name, arg1, arg2));
             };
         }
 
@@ -131,14 +131,14 @@ namespace PicoSAT
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
         public static Func<T1, T1, T2, TProp> SymmetricPredicateOfType<T1, T2, TProp>(string name)
             where T1 : IComparable
-            where TProp : Proposition, new()
+            where TProp : SpecialProposition, new()
         {
             var problem = Problem.Current;
             return (arg1, arg2, arg3) =>
             {
                 if (arg1.CompareTo(arg2) > 0)
-                    return problem.GetPropositionOfType<TProp>(new Call(name, arg2, arg1, arg3));
-                return problem.GetPropositionOfType<TProp>(new Call(name, arg1, arg2, arg3));
+                    return problem.GetSpecialProposition<TProp>(new Call(name, arg2, arg1, arg3));
+                return problem.GetSpecialProposition<TProp>(new Call(name, arg1, arg2, arg3));
             };
         }
 
@@ -186,10 +186,10 @@ namespace PicoSAT
         /// <param name="name">Name of the predicate</param>
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
         public static Func<T1, T2, T3, TProp> PredicateOfType<T1, T2, T3, TProp>(string name)
-            where TProp : Proposition, new()
+            where TProp : SpecialProposition, new()
         {
             var problem = Problem.Current;
-            return (arg1, arg2, arg3) => problem.GetPropositionOfType<TProp>(new Call(name, arg1, arg2, arg3));
+            return (arg1, arg2, arg3) => problem.GetSpecialProposition<TProp>(new Call(name, arg1, arg2, arg3));
         }
 
         /// <summary>
@@ -217,10 +217,10 @@ namespace PicoSAT
         /// <param name="name">Name of the predicate</param>
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
         public static Func<T1, T2, T3, T4, TProp> PredicateOfType<T1, T2, T3, T4, TProp>(string name)
-            where TProp : Proposition, new()
+            where TProp : SpecialProposition, new()
         {
             var problem = Problem.Current;
-            return (arg1, arg2, arg3, arg4) => problem.GetPropositionOfType<TProp>(new Call(name, arg1, arg2, arg3, arg4));
+            return (arg1, arg2, arg3, arg4) => problem.GetSpecialProposition<TProp>(new Call(name, arg1, arg2, arg3, arg4));
         }
 
         /// <summary>
@@ -250,10 +250,10 @@ namespace PicoSAT
         /// <param name="name">Name of the predicate</param>
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
         public static Func<T1, T2, T3, T4, T5, TProp> PredicateOfType<T1, T2, T3, T4, T5, TProp>(string name)
-            where TProp : Proposition, new()
+            where TProp : SpecialProposition, new()
         {
             var problem = Problem.Current;
-            return (arg1, arg2, arg3, arg4, arg5) => problem.GetPropositionOfType<TProp>(new Call(name, arg1, arg2, arg3, arg4, arg5));
+            return (arg1, arg2, arg3, arg4, arg5) => problem.GetSpecialProposition<TProp>(new Call(name, arg1, arg2, arg3, arg4, arg5));
         }
 
         /// <summary>

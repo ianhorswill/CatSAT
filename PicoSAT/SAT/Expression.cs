@@ -330,6 +330,14 @@ namespace PicoSAT
     }
 
     /// <summary>
+    /// A proposition that involves specialized processing.
+    /// </summary>
+    public class SpecialProposition : Proposition
+    {
+        public virtual void Initialize(Problem p) { }
+    }
+
+    /// <summary>
     /// Represents a negated proposition.
     /// </summary>
     public class Negation : Literal

@@ -103,7 +103,7 @@ namespace PicoSAT
             {
                 var b = new StringBuilder();
                 var firstOne = true;
-                b.Append("<");
+                b.Append("{");
                 for (int i = 1; i < propositions.Length; i++)
                 {
                     if (propositions[i] && !Problem.SATVariables[i].Proposition.IsInternal)
@@ -127,7 +127,7 @@ namespace PicoSAT
                         b.Append(v.ValueString(this));
                     }
                 }
-                b.Append(">");
+                b.Append("}");
                 return b.ToString();
             }
         }

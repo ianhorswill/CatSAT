@@ -31,7 +31,7 @@ namespace PicoSAT
 {
     public static class Actions
     {
-        public class ActionInstantiation : Proposition { }
+        public class ActionInstantiation : SpecialProposition { }
         public class SymmetricActionInstantiation : ActionInstantiation { }
 
         static readonly Dictionary<object, object> Domain = new Dictionary<object, object>();

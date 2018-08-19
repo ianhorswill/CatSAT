@@ -52,6 +52,11 @@ namespace PicoSAT
 
         public abstract Variable Instantiate(object name, Problem p, Literal condition = null);
 
+        public Variable Instantiate(object name)
+        {
+            return Instantiate(name, Problem.Current);
+        }
+
         public override string ToString()
         {
             return Name;

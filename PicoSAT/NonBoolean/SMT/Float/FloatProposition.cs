@@ -2,7 +2,7 @@
 {
     class FloatProposition : TheoryProposition
     {
-        public FloatProposition(Problem p)
+        public override void Initialize(Problem p)
         {
             p.GetSolver<FloatSolver>().Propositions.Add(this);
         }

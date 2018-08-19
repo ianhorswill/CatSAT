@@ -4,13 +4,15 @@ namespace PicoSAT.NonBoolean.SMT.Float
 {
     public class FloatDomain : Domain<float>
     {
-        public FloatDomain(string name) : base(name)
+        public readonly Interval Bounds;
+        public FloatDomain(string name, float lowerBound, float upperBound) : base(name)
         {
+            Bounds = new Interval(lowerBound, upperBound);
         }
 
         public override Variable Instantiate(object name, Problem p, Literal condition = null)
         {
-            throw new NotImplementedException();
+            return new FloatVariable(name, this, condition, p);
         }
     }
 }
