@@ -123,12 +123,12 @@ namespace PicoSAT
             return startingPosition + 1;
         }
 
-        public static Implication operator <=(Expression body, Literal head)
+        public static Implication operator <(Expression body, Literal head)
         {
             throw new NotImplementedException("Use head <= body for rules");
         }
 
-        public static Implication operator >=(Expression body, Literal head)
+        public static Implication operator >(Expression body, Literal head)
         {
             return new Implication(head, body);
         }

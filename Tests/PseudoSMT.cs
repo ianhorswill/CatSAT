@@ -302,7 +302,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void NPCStatsTest()
+        public void PSMTNPCStatsTest()
         {
             SMTVar.Reset();
             var p = new Problem("NPC stats");
@@ -314,20 +314,20 @@ namespace Tests
             var charisma = new SMTVar("char", 0, 10);
             p.Unique("fighter", "magic user", "cleric", "thief");
             p.Assert(
-                ((Expression)(Proposition)"fighter") >= (str > intel),
-                ((Expression)(Proposition)"fighter") >= (str > 5),
-                ((Expression)(Proposition)"fighter") >= (con > 5),
-                ((Expression)(Proposition)"fighter") >= (intel < 8),
-                ((Expression)(Proposition)"magic") >= (str < intel),
-                ((Expression)(Proposition)"magic") >= (intel > 5),
-                ((Expression)(Proposition)"magic") >= (str < 8),
-                ((Expression)(Proposition)"cleric") >= (wis > 5),
-                ((Expression)(Proposition)"cleric") >= (con < wis),
-                ((Expression)(Proposition)"theif") >= (dex > 5),
-                ((Expression)(Proposition)"theif") >= (charisma > 5),
-                ((Expression)(Proposition)"theif") >= (wis < 5),
-                ((Expression)(Proposition)"theif") >= (dex > str),
-                ((Expression)(Proposition)"theif") >= (charisma > intel)
+                ((Expression)(Proposition)"fighter") > (str > intel),
+                ((Expression)(Proposition)"fighter") > (str > 5),
+                ((Expression)(Proposition)"fighter") > (con > 5),
+                ((Expression)(Proposition)"fighter") > (intel < 8),
+                ((Expression)(Proposition)"magic") > (str < intel),
+                ((Expression)(Proposition)"magic") > (intel > 5),
+                ((Expression)(Proposition)"magic") > (str < 8),
+                ((Expression)(Proposition)"cleric") > (wis > 5),
+                ((Expression)(Proposition)"cleric") > (con < wis),
+                ((Expression)(Proposition)"theif") > (dex > 5),
+                ((Expression)(Proposition)"theif") > (charisma > 5),
+                ((Expression)(Proposition)"theif") > (wis < 5),
+                ((Expression)(Proposition)"theif") > (dex > str),
+                ((Expression)(Proposition)"theif") > (charisma > intel)
                 );
             for (int i = 0; i < 100; i++)
             {

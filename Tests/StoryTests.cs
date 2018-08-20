@@ -163,17 +163,17 @@ namespace Tests
             {
                 p.Assert(
                     evil(x) == Not(rich(x)),
-                    (Expression)caged(x) >= rich(x),
+                    caged(x) > rich(x),
                     hasSword(x) == (rich(x) & Not(caged(x))),
-                    someoneFree <= (Expression)Not(caged(x)),
+                    someoneFree <= Not(caged(x)),
                     Not(kill(x,x))
                 );
                 // You can't kill multiple people
                 p.AtMost(1, cast, y => kill(x, y));
                 foreach (var y in cast)
                     p.Assert(
-                        (Expression)kill(x, y) >= hasSword(x),
-                        (Expression)kill(x,y) >= evil(y)
+                        kill(x, y) > hasSword(x),
+                        kill(x,y) > evil(y)
                     );
             }
 

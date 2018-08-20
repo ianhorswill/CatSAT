@@ -117,7 +117,7 @@ namespace PicoSAT
         public static void Precondition(Func<int, ActionInstantiation> action, Func<int, Proposition> precondition)
         {
             foreach (var t in ActionTimePoints)
-                Problem.Current.Assert((Expression)action(t) >= precondition(t));
+                Problem.Current.Assert(action(t) > precondition(t));
         }
 
         public static void Precondition<T1>(Func<T1, int, ActionInstantiation> action, Func<T1, int, Proposition> precondition)
@@ -125,7 +125,7 @@ namespace PicoSAT
             var domain1 = (ICollection<T1>) Domain[action];
             foreach (var d1 in domain1)
             foreach (var t in ActionTimePoints)
-                Problem.Current.Assert((Expression)action(d1, t) >= precondition(d1, t));
+                Problem.Current.Assert(action(d1, t) > precondition(d1, t));
         }
 
         public static void Precondition<T1, T2>(Func<T1, T2, int, ActionInstantiation> action,
@@ -138,7 +138,7 @@ namespace PicoSAT
             foreach (var d1 in domain1)
             foreach (var d2 in domain2)
             foreach (var t in ActionTimePoints)
-                Problem.Current.Assert((Expression) action(d1, d2, t) >= precondition(d1, d2, t));
+                Problem.Current.Assert(action(d1, d2, t) > precondition(d1, d2, t));
         }
 
         public static void Precondition<T1>(Func<T1, T1, int, SymmetricActionInstantiation> action,
@@ -149,7 +149,7 @@ namespace PicoSAT
             MapDomain<T1,bool>(action,
                 (d1, d2) =>
                 {
-                    Problem.Current.Assert((Expression) action(d1, d2, t) >= precondition(d1, d2, t));
+                    Problem.Current.Assert(action(d1, d2, t) > precondition(d1, d2, t));
                     return false;
                 });
         }

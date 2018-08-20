@@ -11,7 +11,7 @@ namespace PicoSAT.NonBoolean.SMT.Float
             var c = (Call)Name;
             Variable = (FloatVariable)c.Args[0];
             Bound = (float)c.Args[1];
-            (IsUpper?Variable.UpperBounds:Variable.LowerBounds).Add(this);
+            (IsUpper?Variable.UpperConstantBounds:Variable.LowerConstantBounds).Add(this);
         }
 
         public FloatVariable Variable;

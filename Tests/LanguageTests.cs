@@ -41,7 +41,7 @@ namespace Tests
             var t = (Proposition)"t";
 
             p.Assert(
-                (t & (Proposition) true) >= s,
+                (t & (Proposition) true) > s,
                 t
             );
 
@@ -507,7 +507,7 @@ namespace Tests
         void Partition(Proposition set, params Literal[] subsets)
         {
             foreach (var subset in subsets)
-                Problem.Current.Assert(subset >= set);
+                Problem.Current.Assert(subset > set);
             Problem.Current.Inconsistent(subsets.Select(Not).Concat(new[]{set}));
             Problem.Current.AtMost(1, subsets);
         }

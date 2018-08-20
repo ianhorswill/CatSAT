@@ -45,6 +45,8 @@
     <Compile Include="NonBoolean\SMT\Float\FloatVariable.cs" />
     <Compile Include="NonBoolean\SMT\Float\Interval.cs" />
     <Compile Include="NonBoolean\SMT\Float\ConstantBound.cs" />
+    <Compile Include="NonBoolean\SMT\Float\VariableBound.cs" />
+    <Compile Include="NonBoolean\SMT\Float\VariableEquation.cs" />
     <Compile Include="SAT\Call.cs" />
     <Compile Include="NonBoolean\Structs\ConditionAttribute.cs" />
     <Compile Include="SAT\Clause.cs" />

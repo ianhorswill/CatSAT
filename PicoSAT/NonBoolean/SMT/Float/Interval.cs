@@ -11,6 +11,7 @@
         public float Lower;
         public float Upper;
 
+        public bool IsNonEmpty => Upper >= Lower;
         public bool IsEmpty => Upper < Lower;
         // ReSharper disable once CompareOfFloatsByEqualityOperator
         public bool IsUnique => Upper == Lower;

@@ -102,7 +102,10 @@ namespace PicoSAT
         public static Literal operator ==(FDVariable<T> var, T value)
         {
             Debug.Assert((object)var != null, nameof(var) + " != null");
-            return var.valuePropositions[var.domain.IndexOf(value)];
+            var index = var.domain.IndexOf(value);
+            if (index < 0)
+                throw new ArgumentException($"{value} is not a member of the domain {var.Domain.Name}");
+            return var.valuePropositions[index];
         }
 
         /// <summary>
