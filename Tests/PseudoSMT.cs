@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PicoSAT;
+using CatSAT;
 
 namespace Tests
 {
@@ -98,7 +98,7 @@ namespace Tests
 
                 foreach (var v in AllVars)
                 {
-                    float value = PicoSAT.Random.Float(v.currentMin, v.currentMax);
+                    float value = CatSAT.Random.Float(v.currentMin, v.currentMax);
                     v.Value = value;
                     if (!v.BoundAbove(value))
                         return false;

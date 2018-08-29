@@ -24,8 +24,8 @@
 #endregion
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PicoSAT;
-using static PicoSAT.Language;
+using CatSAT;
+using static CatSAT.Language;
 using static System.Linq.Enumerable;
 
 namespace Tests

@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Condition.cs" company="Ian Horswill">
+// <copyright file="EnumVariable.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,31 +22,37 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-using CatSAT;
-using static CatSAT.Language;
+using System.Diagnostics;
 
-namespace PCGToy
+namespace CatSAT
 {
-    public class Condition
+    public class EnumVariable<T> : FDVariable<T>
     {
-        public bool Positive;
-        public Variable Variable;
-        public object Value;
+        public EnumVariable(object name, Literal condition = null) : base(name, EnumDomain<T>.Singleton, condition)
+        { }
 
-        public Condition(bool positive, Variable variable, object value)
+        /// <summary>
+        /// A Proposition asserting that the variable has a specified value.
+        /// </summary>
+        /// <param name="var">The variable who value should be checked</param>
+        /// <param name="value">The value to check for</param>
+        /// <returns></returns>
+        public static Literal operator ==(EnumVariable<T> var, T value)
         {
-            Positive = positive;
-            Variable = variable;
-            Value = value;
+            Debug.Assert((object)var != null, nameof(var) + " != null");
+            return var.valuePropositions[var.domain.IndexOf(value)];
         }
 
-        public Literal Literal
+        /// <summary>
+        /// A Proposition asserting that the variable does not have a specified value.
+        /// </summary>
+        /// <param name="var">The variable who value should be checked</param>
+        /// <param name="value">The value to check for</param>
+        /// <returns></returns>
+        public static Literal operator !=(EnumVariable<T> var, T value)
         {
-            get
-            {
-                var p = Variable.SolverVariable == Value;
-                return Positive ? p : Not(p);
-            }
+            Debug.Assert((object)var != null, nameof(var) + " != null");
+            return Language.Not(var.valuePropositions[var.domain.IndexOf(value)]);
         }
     }
 }

@@ -1,6 +1,6 @@
-#region Copyright
+﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AssemblyInfo.cs" company="Ian Horswill">
+// <copyright file="ContradictionException.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,22 +22,25 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-using System.Reflection;
-using System.Runtime.InteropServices;
+using System;
 
-[assembly: AssemblyTitle("Tests")]
-[assembly: AssemblyDescription("Tests for CatSAT")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Tests")]
-[assembly: AssemblyCopyright("Copyright © Ian Horswill 2018")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+namespace CatSAT
+{
+    /// <summary>
+    /// Signifies the Problem contains a contradiction
+    /// </summary>
+    public class ContradictionException : Exception
+    {
+        public readonly Problem Problem;
 
-[assembly: ComVisible(false)]
+        internal ContradictionException(Problem problem, Clause clause) : base($"Contradiction found in clause {clause.Decompile(problem)}")
+        {
+            Problem = problem;
+        }
 
-[assembly: Guid("6eef031c-5a3d-412e-a55f-0fb5f764ce0f")]
-
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+        internal ContradictionException(Problem problem, string message) : base($"Contradiction found: {message}")
+        {
+            Problem = problem;
+        }
+    }
+}

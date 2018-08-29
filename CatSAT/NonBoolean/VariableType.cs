@@ -1,6 +1,6 @@
-#region Copyright
+﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AssemblyInfo.cs" company="Ian Horswill">
+// <copyright file="VariableType.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,22 +22,44 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-using System.Reflection;
-using System.Runtime.InteropServices;
+using System.Collections.Generic;
+using System.Diagnostics;
 
-[assembly: AssemblyTitle("Tests")]
-[assembly: AssemblyDescription("Tests for CatSAT")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Tests")]
-[assembly: AssemblyCopyright("Copyright © Ian Horswill 2018")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+namespace CatSAT
+{
+    [DebuggerDisplay("{" + nameof(Name) + "}")]
+    public abstract class VariableType
+    {
+        public readonly string Name;
 
-[assembly: ComVisible(false)]
+        public static readonly Dictionary<string, VariableType> Types = new Dictionary<string, VariableType>();
 
-[assembly: Guid("6eef031c-5a3d-412e-a55f-0fb5f764ce0f")]
+        protected VariableType(string name)
+        {
+            Name = name;
+            Types[Name] = this;
+        }
 
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+        public static VariableType TypeNamed(string n)
+        {
+            return Types[n];
+        }
+
+        public static bool TypeExists(string n)
+        {
+            return Types.ContainsKey(n);
+        }
+
+        public abstract Variable Instantiate(object name, Problem p, Literal condition = null);
+
+        public Variable Instantiate(object name)
+        {
+            return Instantiate(name, Problem.Current);
+        }
+
+        public override string ToString()
+        {
+            return Name;
+        }
+    }
+}

@@ -25,8 +25,8 @@
 using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PicoSAT;
-using static PicoSAT.Language;
+using CatSAT;
+using static CatSAT.Language;
 
 namespace Tests
 {

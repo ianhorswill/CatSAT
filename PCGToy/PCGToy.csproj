@@ -111,9 +111,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PicoSAT\PicoSAT.csproj">
+    <ProjectReference Include="..\CatSAT\CatSAT.csproj">
       <Project>{6895fa26-7801-4a8b-a457-9f9cf1c7faa4}</Project>
-      <Name>PicoSAT</Name>
+      <Name>CatSAT</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

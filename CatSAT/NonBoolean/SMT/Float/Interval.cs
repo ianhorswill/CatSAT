@@ -1,6 +1,6 @@
-#region Copyright
+﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AssemblyInfo.cs" company="Ian Horswill">
+// <copyright file="Interval.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,22 +22,34 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-using System.Reflection;
-using System.Runtime.InteropServices;
+namespace CatSAT
+{
+    public struct Interval
+    {
+        public Interval(float lowerBound, float upperBound)
+        {
+            Lower = lowerBound;
+            Upper = upperBound;
+        }
 
-[assembly: AssemblyTitle("Tests")]
-[assembly: AssemblyDescription("Tests for CatSAT")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Tests")]
-[assembly: AssemblyCopyright("Copyright © Ian Horswill 2018")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+        public float Lower;
+        public float Upper;
 
-[assembly: ComVisible(false)]
+        public bool IsNonEmpty => Upper >= Lower;
+        public bool IsEmpty => Upper < Lower;
+        // ReSharper disable once CompareOfFloatsByEqualityOperator
+        public bool IsUnique => Upper == Lower;
 
-[assembly: Guid("6eef031c-5a3d-412e-a55f-0fb5f764ce0f")]
+        public void BoundAbove(float upper)
+        {
+            if (upper < Upper)
+                Upper = upper;
+        }
 
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+        public void BoundBelow(float lower)
+        {
+            if (lower > Lower)
+                Lower = lower;
+        }
+    }
+}

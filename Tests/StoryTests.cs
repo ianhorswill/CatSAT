@@ -26,10 +26,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PicoSAT;
-using static PicoSAT.Language;
-using static PicoSAT.Fluents;
-using static PicoSAT.Actions;
+using CatSAT;
+using static CatSAT.Language;
+using static CatSAT.Fluents;
+using static CatSAT.Actions;
 
 namespace Tests
 {

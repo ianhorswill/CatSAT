@@ -1,6 +1,6 @@
-#region Copyright
+﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AssemblyInfo.cs" company="Ian Horswill">
+// <copyright file="VariableBound.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,22 +22,22 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-using System.Reflection;
-using System.Runtime.InteropServices;
+namespace CatSAT.NonBoolean.SMT.Float
+{
+    class VariableBound : FloatProposition
+    {
+        public override void Initialize(Problem p)
+        {
+            base.Initialize(p);
+            var c = (Call)Name;
+            Lhs = (FloatVariable)c.Args[0];
+            Rhs = (FloatVariable)c.Args[1];
+        }
 
-[assembly: AssemblyTitle("Tests")]
-[assembly: AssemblyDescription("Tests for CatSAT")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Tests")]
-[assembly: AssemblyCopyright("Copyright © Ian Horswill 2018")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+        public FloatVariable Lhs, Rhs;
 
-[assembly: ComVisible(false)]
+        public bool IsUpper => Operator == "<=";
 
-[assembly: Guid("6eef031c-5a3d-412e-a55f-0fb5f764ce0f")]
-
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+        private string Operator => ((Call) Name).Name;
+    }
+}

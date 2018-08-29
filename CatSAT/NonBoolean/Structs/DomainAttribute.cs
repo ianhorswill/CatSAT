@@ -1,6 +1,6 @@
-#region Copyright
+﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AssemblyInfo.cs" company="Ian Horswill">
+// <copyright file="DomainAttribute.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,22 +22,28 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-using System.Reflection;
-using System.Runtime.InteropServices;
+using System;
 
-[assembly: AssemblyTitle("Tests")]
-[assembly: AssemblyDescription("Tests for CatSAT")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Tests")]
-[assembly: AssemblyCopyright("Copyright © Ian Horswill 2018")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+namespace CatSAT
+{
+    [AttributeUsage(AttributeTargets.Field)]
+    public class DomainAttribute : Attribute
+    {
+        public readonly string DomainName;
 
-[assembly: ComVisible(false)]
+        public DomainAttribute(string domainName)
+        {
+            DomainName = domainName;
+        }
 
-[assembly: Guid("6eef031c-5a3d-412e-a55f-0fb5f764ce0f")]
+        public DomainAttribute(string domainName, params string[] domainElements)
+        {
+            DomainName = domainName;
+            if (!VariableType.TypeExists(domainName))
+                // ReSharper disable once ObjectCreationAsStatement
+                new FDomain<string>(domainName, domainElements);
+        }
 
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+        public VariableType Domain => VariableType.TypeNamed(DomainName);
+    }
+}

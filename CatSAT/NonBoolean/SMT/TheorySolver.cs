@@ -1,6 +1,6 @@
-#region Copyright
+﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AssemblyInfo.cs" company="Ian Horswill">
+// <copyright file="TheorySolver.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,22 +22,33 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-using System.Reflection;
-using System.Runtime.InteropServices;
+using System;
+using System.Collections.Generic;
 
-[assembly: AssemblyTitle("Tests")]
-[assembly: AssemblyDescription("Tests for CatSAT")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Tests")]
-[assembly: AssemblyCopyright("Copyright © Ian Horswill 2018")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+namespace CatSAT
+{
+    public abstract class TheorySolver
+    {
+        protected Problem Problem;
 
-[assembly: ComVisible(false)]
+        public static T MakeTheorySolver<T>(Problem p) where T : TheorySolver, new()
+        {
+            return new T() { Problem = p };
+        } 
 
-[assembly: Guid("6eef031c-5a3d-412e-a55f-0fb5f764ce0f")]
+        /// <summary>
+        /// Add any necessary clauses before the start of the solving process
+        /// </summary>
+        /// <returns>Error message (string), if an inconsistency is detected, otherwise null</returns>
+        public virtual string Preprocess()
+        {
+            return null;
+        }
 
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+        /// <summary>
+        /// Find values for the solver variables
+        /// </summary>
+        /// <returns>True if successful</returns>
+        public abstract bool Solve(Solution s);
+    }
+}

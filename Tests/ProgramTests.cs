@@ -23,7 +23,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PicoSAT;
+using CatSAT;
 
 namespace Tests
 {

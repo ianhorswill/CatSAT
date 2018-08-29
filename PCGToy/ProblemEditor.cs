@@ -89,7 +89,7 @@ namespace PCGToy
                     if (c is Field f)
                         f.UpdateValue();
             }
-            catch (PicoSAT.TimeoutException)
+            catch (CatSAT.TimeoutException)
             {
                 MessageBox.Show(
                     "Can't find a solution that satisfies all the requirements.  Try unlocking some variables!",

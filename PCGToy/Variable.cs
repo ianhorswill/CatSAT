@@ -22,9 +22,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-
 using System.Collections.Generic;
-using PicoSAT;
+using CatSAT;
 
 namespace PCGToy
 {
