@@ -35,6 +35,23 @@ namespace CatSAT
     {
 #if XORSHIFT
         private static uint state = 234923840;
+
+        /// <summary>
+        /// Set the seed to a specified value.
+        /// </summary>
+        public static void SetSeed(uint seed)
+        {
+            state = seed;
+        }
+
+        /// <summary>
+        /// Set the seed to the current time (System.DateTime.Now.Ticks)
+        /// </summary>
+        public static void SetSeed()
+        {
+            SetSeed((uint)System.DateTime.Now.Ticks);
+        }
+
         public static uint Next()
         {
             /* Algorithm "xor" from p. 4 of Marsaglia, "Xorshift RNGs" */
@@ -59,10 +76,10 @@ namespace CatSAT
         }
 #endif
 
-    /// <summary>
-    /// Return a random integer in [0, max)
-    /// </summary>
-    public static uint InRange(uint max)
+        /// <summary>
+        /// Return a random integer in [0, max)
+        /// </summary>
+        public static uint InRange(uint max)
         {
             return Next() % max;
         }
@@ -89,7 +106,7 @@ namespace CatSAT
         /// </summary>
         public static T RandomElement<T>(this List<T> list)
         {
-            return list[(int)InRange((uint)list.Count)];
+            return list[(int) InRange((uint) list.Count)];
         }
 
         /// <summary>
@@ -374,7 +391,7 @@ namespace CatSAT
         public static float Float(float min, float max)
         {
             double unitInterval = Next() / ((double) uint.MaxValue);
-            return min + (max - min) * (float)unitInterval;
+            return min + (max - min) * (float) unitInterval;
         }
     }
 }
