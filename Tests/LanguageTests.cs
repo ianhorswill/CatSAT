@@ -269,6 +269,38 @@ namespace Tests
         }
 
         [TestMethod]
+        public void LowTechCharacterGeneratorTest()
+        {
+            var prog = new Problem("Character generator");
+            prog.Assert("character");
+
+            // Races 
+            Partition("character", "human", "electroid", "insectoid");
+
+            // Classes 
+            Partition("character", "fighter", "magic user", "cleric", "thief");
+            prog.Inconsistent("electroid", "cleric");
+
+            // Nationalities of humans 
+            Partition("human", "landia", "placeville", "cityburgh");
+
+            // Religions of clerics 
+            Partition("cleric", "monotheist", "pantheist", "lovecraftian", "dawkinsian");
+
+            // Lovecraftianism is outlawed in Landia 
+            prog.Inconsistent("landia", "lovecraftian");
+
+            // Insectoids believe in strict hierarchies 
+            prog.Inconsistent("insectoid", "pantheist");
+
+            // Lovecraftianism is the state religion of cityburgh 
+            prog.Inconsistent("cityburgh", "cleric", Not("lovecraftian"));
+
+            for (int i = 0; i < 100; i++)
+                Console.WriteLine(prog.Solve().Model);
+        }
+
+        [TestMethod]
         public void CharacterGeneratorTest()
         {
             var prog = new Problem("Character generator");
