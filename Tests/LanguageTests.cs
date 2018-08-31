@@ -300,13 +300,21 @@ namespace Tests
                 Console.WriteLine(prog.Solve().Model);
         }
 
+        class CharacterObject
+        {
+            public string cclass;
+            public string race;
+            public string nationality;
+            public string religion;
+        }
+
         [TestMethod]
         public void CharacterGeneratorTest()
         {
             var prog = new Problem("Character generator");
             var race = new FDVariable<string>("race",
                                               "human", "electroid", "insectoid");
-            var cclass = new FDVariable<string>("class",
+            var cclass = new FDVariable<string>("cclass",
                                                 "fighter", "magic user", "cleric", "thief");
             // Electroids are atheists
             prog.Inconsistent(race == "electroid", cclass == "cleric");
@@ -325,7 +333,21 @@ namespace Tests
             prog.Inconsistent(nationality == "cityburgh", cclass == "cleric", Not(religion == "lovecraftian"));
 
             for (int i = 0; i < 100; i++)
-                Console.WriteLine(prog.Solve().Model);
+            {
+                var solution = prog.Solve();
+                var characterObject = new CharacterObject();
+
+                string Value(FDVariable<string> v)
+                {
+                    return v.IsDefinedIn(solution) ? v.Value(solution) : null;
+                }
+                solution.Populate(characterObject);
+                Assert.AreEqual(Value(race), characterObject.race);
+                Assert.AreEqual(Value(cclass), characterObject.cclass);
+                Assert.AreEqual(Value(nationality), characterObject.nationality);
+                Assert.AreEqual(Value(religion), characterObject.religion);
+                Console.WriteLine(solution.Model);
+            }
         }
 
         [TestMethod]

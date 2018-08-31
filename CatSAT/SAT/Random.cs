@@ -31,7 +31,7 @@ namespace CatSAT
     /// <summary>
     /// A fast RNG
     /// </summary>
-    internal static class Random
+    public static class Random
     {
 #if XORSHIFT
         private static uint state = 234923840;

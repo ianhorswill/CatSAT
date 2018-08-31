@@ -59,3 +59,11 @@ packages/
 #Test files
 *.testsettings
 Test timings.csv
+
+#Unity stuff
+Library/
+Temp/
+
+#Emacs stuff
+*~
+

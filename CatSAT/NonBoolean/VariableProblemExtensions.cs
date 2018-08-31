@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace CatSAT
 {
@@ -37,12 +38,56 @@ namespace CatSAT
 
         public static void AllDifferent<T>(this Problem p, IEnumerable<FDVariable<T>> vars)
         {
-            var d = (FDomain<T>)vars.First().Domain;
-            foreach (var v in vars)
+            var fdVariables = vars as FDVariable<T>[] ?? vars.ToArray();
+            var d = (FDomain<T>)fdVariables.First().Domain;
+            foreach (var v in fdVariables)
                 if (v.Domain != d)
                     throw new ArgumentException($"Variables in AllDifferent() call must have identical domains");
             foreach (var value in d.Values)
-                p.AtMost(1, vars.Select(var => var == value));
+                p.AtMost(1, fdVariables.Select(var => var == value));
+        }
+
+        /// <summary>
+        /// Fill in  the fields of target with the values of the variables and propositions
+        /// with the same name, from a new solution to the specified problem.
+        /// </summary>
+        /// <param name="p">Problem to solve to get values from</param>
+        /// <param name="target">Object to fill in</param>
+        /// <param name="bindingFlags">Binding flags for field lookup (defaults to public)</param>
+        public static void Populate(this Problem p, object target, BindingFlags bindingFlags = BindingFlags.Public)
+        {
+            p.Solve().Populate(target, bindingFlags);
+        }
+
+        /// <summary>
+        /// Fill in  the fields of target with the values of the variables and propositions
+        /// with the same name, from solution.
+        /// </summary>
+        /// <param name="s">Solution to get values from</param>
+        /// <param name="target">Object to fill in</param>
+        /// <param name="bindingFlags">Binding flags for field lookup (defaults to public)</param>
+        public static void Populate(this Solution s, object target, BindingFlags bindingFlags = BindingFlags.Public)
+        {
+            var targetType = target.GetType();
+            var fields = targetType.GetFields(bindingFlags | BindingFlags.Instance);
+            foreach (var f in fields)
+            {
+                var name = f.Name;
+                var fieldType = f.FieldType;
+                if (fieldType == typeof(bool))
+                {
+                    // it's a proposition
+                    if (s.Problem.HasPropositionNamed(name))
+                    f.SetValue(target, s[name]);
+                } else
+                {
+                    var v = s.Problem.VariableNamed(name);
+                    if ((object)v != null)
+                    {
+                        f.SetValue(target, v.IsDefinedIn(s)?v.UntypedValue(s):null);
+                    }
+                }
+            }
         }
     }
 }

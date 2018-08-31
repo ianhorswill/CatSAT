@@ -338,9 +338,16 @@ namespace CatSAT
         {
             return Quantify(n, 0, literals);
         }
-#endregion
-        
-#region Solver
+        #endregion
+
+        #region Variables
+        /// <summary>
+        /// Get untyped value of variable
+        /// </summary>
+        public object this[Variable v] => v.UntypedValue(this);
+        #endregion
+
+        #region Solver
         private const int Theta = 3;
         private const float Phi = 0.2f;
 

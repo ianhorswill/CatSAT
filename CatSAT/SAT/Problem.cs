@@ -277,6 +277,31 @@ namespace CatSAT
                     yield return v;
         }
 
+
+        /// <summary>
+        /// True if problem contains a variable with the specified name
+        /// </summary>
+        public bool HasVariableNamed(object name)
+        {
+            // TODO: make this more performant.
+            foreach (var v in variables)
+                if (v.Name.Equals(name))
+                    return true;
+            return false;
+        }
+
+        /// <summary>
+        /// Returns the variable with the specified name, if any.
+        /// </summary>
+        public Variable VariableNamed(object name)
+        {
+            // TODO: make this more performant.
+            foreach (var v in variables)
+                if (v.Name.Equals(name))
+                    return v;
+            return null;
+        }
+
         internal Dictionary<Type, TheorySolver> TheorySolvers;
 
         /// <summary>
@@ -823,6 +848,14 @@ namespace CatSAT
 
 #region Mapping between Literals objects and Variables
         private readonly Dictionary<object, Proposition> propositionTable = new Dictionary<object, Proposition>();
+
+        /// <summary>
+        /// True if the problem has a proposition with the specified name
+        /// </summary>
+        public bool HasPropositionNamed(object name)
+        {
+            return propositionTable.ContainsKey(name);
+        }
 
         /// <summary>
         /// Get a proposition within this Problem, with the specified key
