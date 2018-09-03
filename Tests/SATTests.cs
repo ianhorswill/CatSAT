@@ -32,6 +32,68 @@ namespace Tests
     public class SATTests
     {
         [TestMethod]
+        public void QuantificationNoConstantFoldingTest()
+        {
+            var p = new Problem("QuantificationConstantFoldingTest");
+            p.Unique("a", "b");
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Assert.IsTrue(s["a"]^s["b"]);
+            }
+        }
+
+        [TestMethod]
+        public void QuantificationConstantFoldingSatisfiableTest()
+        {
+            var p = new Problem("QuantificationConstantFoldingTest");
+            p.Unique(true, false, "a", "b");
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Assert.IsFalse(s["a"] || s["b"]);
+            }
+        }
+
+        [TestMethod]
+        public void QuantificationConstantFoldingSatisfiableTest2()
+        {
+            var p = new Problem("QuantificationConstantFoldingTest");
+            p.AtLeast(2, true, false, "a", "b");
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Assert.IsTrue(s["a"] || s["b"]);
+            }
+        }
+
+        [TestMethod]
+        public void QuantificationConstantFoldingSatisfiableTest3()
+        {
+            var p = new Problem("QuantificationConstantFoldingTest");
+            p.AtLeast(3, true, false, "a", "b");
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Assert.IsTrue(s["a"] && s["b"]);
+            }
+        }
+
+        [TestMethod, ExpectedException(typeof(ContradictionException))]
+        public void QuantificationConstantFoldingTooManyTest()
+        {
+            var p = new Problem("QuantificationConstantFoldingTest");
+            p.Unique(true, true, "a", "b");
+        }
+
+        [TestMethod, ExpectedException(typeof(ContradictionException))]
+        public void QuantificationConstantFoldingTooFewTest()
+        {
+            var p = new Problem("QuantificationConstantFoldingTest");
+            p.AtLeast(3, false, false, "a", "b");
+        }
+
+        [TestMethod]
         public void PositiveSolveTest()
         {
             var p = new Problem("Positive solve test");

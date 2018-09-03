@@ -744,7 +744,37 @@ namespace CatSAT
 
         public void Quantify(int min, int max, IEnumerable<Literal> enumerator)
         {
-            Quantify(min, max, enumerator.Select(l => l.SignedIndex).Distinct().ToArray());
+            // TODO: change all this so that max=0 doesn't mean no upper bound; it's turning out ot be a bad design decision.
+            if (max > 0 && min > max)
+                throw new ContradictionException(this, "minimum number of disjuncts is more than the maximum number");
+            var trueCount = 0;
+            var set = new HashSet<Literal>();
+            foreach (var l in enumerator)
+            {
+                if ((object)l == Proposition.True)
+                    trueCount++;
+                else if ((object) l != Proposition.False)
+                    set.Add(l);
+            }
+
+            if (min - trueCount > set.Count)
+                throw new ContradictionException(this, "Minimum in quantification is larger than the number of non-false elements in the clause");
+
+            if (max > 0 && trueCount > max)
+                throw new ContradictionException(this, "Quantification clause can never be satisfied");
+
+            if (max > 0 && max == trueCount)
+            {
+                foreach (var l in set)
+                    Assert(Not(l));
+            }
+            else if (min - trueCount == set.Count)
+            {
+                foreach (var l in set)
+                    Assert(l);
+            }
+            else
+                Quantify(Math.Max(0, min-trueCount), max==0?0:max-trueCount, set.Select(l => l.SignedIndex).ToArray());
         }
 
         public void Quantify(int min, int max, short[] disjuncts)
