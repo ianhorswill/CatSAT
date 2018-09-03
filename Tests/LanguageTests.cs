@@ -600,5 +600,80 @@ namespace Tests
             for (int i = 0; i < 100; i++)
                 Console.WriteLine(prog.Solve().Model);
         }
+
+        [TestMethod]
+        public void FamilyGeneratorTest()
+        {
+            var p = new Problem("family generator");
+
+            var FamilySize = 25;
+            var generationCount = 5;
+            var matriarch = 1;
+            var cast = Enumerable.Range(matriarch, FamilySize).ToArray();
+            var kids = Enumerable.Range(matriarch+1, FamilySize-1).ToArray();
+            var childGenerations = Enumerable.Range(1, generationCount - 1).ToArray();
+            var female = Predicate<int>("female");
+            var generation = Predicate<int, int>("generation");
+            var parent = Predicate<int, int>("parent");
+            // Interestingly, this doesn't seem to speed things up.
+            //Func<int, int, Proposition> parent = (child, par) =>
+            //    child > par ? p.GetProposition(new Call("parent", child, par)) : false;
+
+            // Make of person # who is person number -who
+            int Mate(int who) => -who;
+
+            // Family must be 40-60% female
+            p.Quantify((int)(FamilySize*.4), (int)(FamilySize*.6), kids, female);
+
+            // Matriarch is the generation 0 female
+            p.Assert(female(matriarch), Not(female(Mate(matriarch))));
+            p.Assert(generation(matriarch, 0));
+            
+            foreach (var child in kids)
+            {
+                // Everyone has exactly one parent from within the family (and one from outside)
+                p.Unique(cast, par => parent(child, par));
+                // Everyone has a generation number
+                p.Unique(childGenerations, g => generation(child, g));
+                p.Assert(
+                    // Only matriarch and patriarch are generation 0
+                    Not(generation(child, 0)),
+                    // Heteronormativity
+                    female(child) == Not(female(Mate(child))));
+                foreach (var par in cast)
+                foreach (var g in childGenerations)
+                    // Child's generation is one more than parent's generation
+                    p.Assert(generation(child, g) <= (parent(child, par) & generation(par, g-1)));
+            }
+            // Every generation has at least one kid
+            foreach (var g in childGenerations)
+                p.Exists(kids, k => generation(k, g));
+            p.Optimize();
+
+            Console.WriteLine(p.Stats);
+            Console.WriteLine(p.PerformanceStatistics);
+            Console.WriteLine();
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.PerformanceStatistics);
+                void PrintTree(int who, int depth)
+                {
+                    for (int j = 0; j < depth; j++) Console.Write("    ");
+                    Console.WriteLine($"{Gender(who)} {who}: + {Mate(who)}");
+                    foreach (var child in kids.Where(k => s[parent(k, who)]))
+                        PrintTree(child, depth+1);
+                }
+
+                string Gender(int who)
+                {
+                    return s[female(who)] ? "female" : "male";
+                }
+
+
+                PrintTree(matriarch, 0);
+            }
+        }
     }
 }
