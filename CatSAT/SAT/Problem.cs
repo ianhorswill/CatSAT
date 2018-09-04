@@ -751,9 +751,9 @@ namespace CatSAT
             var set = new HashSet<Literal>();
             foreach (var l in enumerator)
             {
-                if ((object)l == Proposition.True)
+                if (ReferenceEquals(l, Proposition.True))
                     trueCount++;
-                else if ((object) l != Proposition.False)
+                else if (!ReferenceEquals(l, Proposition.False))
                     set.Add(l);
             }
 

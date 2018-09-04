@@ -302,10 +302,14 @@ namespace Tests
 
         class CharacterObject
         {
+#pragma warning disable 649
+            // ReSharper disable InconsistentNaming
             public string cclass;
             public string race;
             public string nationality;
             public string religion;
+            // ReSharper restore InconsistentNaming
+#pragma warning restore 649
         }
 
         [TestMethod]
@@ -409,6 +413,8 @@ namespace Tests
             // ReSharper restore MemberCanBePrivate.Local
         }
 
+        // ReSharper disable UnusedMember.Global
+        // ReSharper disable UnusedMember.Local
         enum Races
         {
             Human,
@@ -438,6 +444,9 @@ namespace Tests
             Lovecraftian,
             Dawkinsian
         }
+        // ReSharper restore UnusedMember.Local
+        // ReSharper restore UnusedMember.Global
+
 
         class CharacterWithEnums : CompiledStruct
         {
