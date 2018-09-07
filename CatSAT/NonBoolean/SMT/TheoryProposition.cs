@@ -24,6 +24,9 @@
 #endregion
 namespace CatSAT
 {
+    /// <summary>
+    /// Base class of all propositions used by TheorySolvers.
+    /// </summary>
     public abstract class TheoryProposition : SpecialProposition
     {
     }

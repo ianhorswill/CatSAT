@@ -26,11 +26,25 @@ using System;
 
 namespace CatSAT
 {
+    /// <summary>
+    /// An attribute representing that the Variable to which it is attached is only defined in solutions for which the specified variable has the specified value.
+    /// </summary>
     public class ConditionAttribute : Attribute
     {
+        /// <summary>
+        /// Variable whose value to check
+        /// </summary>
         public readonly string VariableName;
+        /// <summary>
+        /// Value to compare to
+        /// </summary>
         public readonly object VariableValue;
 
+        /// <summary>
+        /// States that this variable is only defined when variableName's value is equal to variableValue
+        /// </summary>
+        /// <param name="variableName">Variable to check the value of</param>
+        /// <param name="variableValue">Value the variable should have</param>
         public ConditionAttribute(string variableName, object variableValue)
         {
             VariableName = variableName;

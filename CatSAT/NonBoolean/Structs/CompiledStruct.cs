@@ -26,8 +26,12 @@ using System.Reflection;
 
 namespace CatSAT
 {
+    /// <summary>
+    /// A CatSAT variable whose value is a normal C# class whose fields are automatically filled in by CatSAT.
+    /// </summary>
     public abstract class CompiledStruct : Variable
     {
+        /// <inheritdoc />
         protected CompiledStruct(object name, Problem p, Literal condition) : base(name, p, condition)
         {
             foreach (var f in GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
@@ -67,11 +71,13 @@ namespace CatSAT
             return null;
         }
 
+        /// <inheritdoc />
         public override object UntypedValue(Solution s)
         {
             throw new System.NotImplementedException();
         }
 
+        /// <inheritdoc />
         public override bool IsDefinedIn(Solution solution)
         {
             return false;

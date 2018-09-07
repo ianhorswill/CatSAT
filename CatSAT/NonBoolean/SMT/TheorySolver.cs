@@ -22,15 +22,25 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-using System;
-using System.Collections.Generic;
-
 namespace CatSAT
 {
+    /// <summary>
+    /// A special purpose solver used to find values of TheoryVariables after the main SAT solver has found a partial model.
+    /// </summary>
     public abstract class TheorySolver
     {
+        /// <summary>
+        /// Problem on which this TheorySolver is to work.
+        /// </summary>
         protected Problem Problem;
 
+        /// <summary>
+        /// Makes a new theory solver
+        /// This is needed just because of issues with C# generics.
+        /// </summary>
+        /// <param name="p">Problem this solver is assigned to</param>
+        /// <typeparam name="T">Type of TheorySolver to make.</typeparam>
+        /// <returns></returns>
         public static T MakeTheorySolver<T>(Problem p) where T : TheorySolver, new()
         {
             return new T() { Problem = p };

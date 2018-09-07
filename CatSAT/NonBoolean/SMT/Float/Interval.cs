@@ -24,32 +24,64 @@
 #endregion
 namespace CatSAT
 {
+    /// <summary>
+    /// A closed inteval over the single-precision floating-point numbers
+    /// </summary>
     public struct Interval
     {
+        /// <summary>
+        /// An interval over the floats
+        /// </summary>
+        /// <param name="lowerBound">Lower bound</param>
+        /// <param name="upperBound">Upper bound</param>
         public Interval(float lowerBound, float upperBound)
         {
             Lower = lowerBound;
             Upper = upperBound;
         }
 
+        /// <summary>
+        /// Lower bound
+        /// </summary>
         public float Lower;
+        /// <summary>
+        /// Upper bound
+        /// </summary>
         public float Upper;
 
+        /// <summary>
+        /// True if the interval isn't empty
+        /// </summary>
         public bool IsNonEmpty => Upper >= Lower;
+        /// <summary>
+        /// True if the interval is empty
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public bool IsEmpty => Upper < Lower;
         // ReSharper disable once CompareOfFloatsByEqualityOperator
+        /// <summary>
+        /// True if the interval is a single value
+        /// </summary>
         public bool IsUnique => Upper == Lower;
 
-        public void BoundAbove(float upper)
-        {
-            if (upper < Upper)
-                Upper = upper;
-        }
+        ///// <summary>
+        ///// Lower the upper bound to the specified value, if it isn't already lower
+        ///// </summary>
+        ///// <param name="upper">New bound</param>
+        //public void BoundAbove(float upper)
+        //{
+        //    if (upper < Upper)
+        //        Upper = upper;
+        //}
 
-        public void BoundBelow(float lower)
-        {
-            if (lower > Lower)
-                Lower = lower;
-        }
+        ///// <summary>
+        ///// Raise the lower bound to the specified value if it isn't already higher
+        ///// </summary>
+        ///// <param name="lower">New bound</param>
+        //public void BoundBelow(float lower)
+        //{
+        //    if (lower > Lower)
+        //        Lower = lower;
+        //}
     }
 }

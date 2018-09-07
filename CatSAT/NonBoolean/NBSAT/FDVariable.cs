@@ -31,19 +31,25 @@ namespace CatSAT
 {
 #pragma warning disable 660,661
     // ReSharper disable once InconsistentNaming
+    /// <summary>
+    /// A finite domain variable.
+    /// FDVariables use an "eager" implementation, meaning there's one proposition in the Problem for every possible value of the variable.
+    /// </summary>
+    /// <typeparam name="T">Type of variable values</typeparam>
     public class FDVariable<T> : DomainVariable<T>
 #pragma warning restore 660,661
     {
         /// <summary>
         /// Domain of the variable
         /// </summary>
+        // ReSharper disable once InconsistentNaming
         protected readonly FDomain<T> domain;
         /// <inheritdoc />
         public override Domain<T> Domain => domain;
         /// <summary>
         /// Individual propositions asserting the different possible values of the variable.
         /// </summary>
-        protected readonly Proposition[] valuePropositions;
+        protected readonly Proposition[] ValuePropositions;
 
         /// <summary>
         /// Make a new finite-domain variable to solve for
@@ -66,11 +72,11 @@ namespace CatSAT
             : base(name, problem, condition)
         {
             this.domain = domain;
-            valuePropositions = domain.Values.Select(v => problem.GetInternalProposition(new ValueProposition(this, v))).ToArray();
+            ValuePropositions = domain.Elements.Select(v => problem.GetInternalProposition(new ValueProposition(this, v))).ToArray();
             if ((object)condition == null)
-                problem.Unique((IEnumerable<Literal>)valuePropositions);
+                problem.Unique((IEnumerable<Literal>)ValuePropositions);
             else
-                problem.Unique(valuePropositions.Concat(new[] { Language.Not(condition)}));
+                problem.Unique(ValuePropositions.Concat(new[] { Language.Not(condition)}));
         }
 
         /// <summary>
@@ -102,10 +108,11 @@ namespace CatSAT
         public static Literal operator ==(FDVariable<T> var, T value)
         {
             Debug.Assert((object)var != null, nameof(var) + " != null");
+            // ReSharper disable once PossibleNullReferenceException
             var index = var.domain.IndexOf(value);
             if (index < 0)
                 throw new ArgumentException($"{value} is not a member of the domain {var.Domain.Name}");
-            return var.valuePropositions[index];
+            return var.ValuePropositions[index];
         }
 
         /// <summary>
@@ -117,9 +124,16 @@ namespace CatSAT
         public static Literal operator !=(FDVariable<T> var, T value)
         {
             Debug.Assert((object)var != null, nameof(var) + " != null");
-            return Language.Not(var.valuePropositions[var.domain.IndexOf(value)]);
+            // ReSharper disable once PossibleNullReferenceException
+            return Language.Not(var.ValuePropositions[var.domain.IndexOf(value)]);
         }
 
+        /// <summary>
+        /// Returns the Prooposition representing that this variable has the specified value
+        /// </summary>
+        /// <param name="value">Value to compare to</param>
+        /// <returns>The unique Proposition object representing that this variable has the specified value.</returns>
+        /// <exception cref="ArgumentException">When value is not an element of the variable's domain.</exception>
         public override Literal EqualityProposition(object value)
         {
             if (value is T tValue)
@@ -127,9 +141,10 @@ namespace CatSAT
             throw new ArgumentException($"{value} is not a valid value for FDVariable {Name}");
         }
 
+        /// <inheritdoc />
         public override bool IsDefinedIn(Solution s)
         {
-            foreach (var p in valuePropositions)
+            foreach (var p in ValuePropositions)
                 if (s[p])
                     return true;
             return false;
@@ -138,7 +153,7 @@ namespace CatSAT
         /// <inheritdoc />
         public override T Value(Solution s)
         {
-            foreach (var p in valuePropositions)
+            foreach (var p in ValuePropositions)
                 if (s[p])
                     return ((ValueProposition) p.Name).Value;
             throw new InvalidOperationException($"{Name} has no value assigned.");
@@ -147,7 +162,7 @@ namespace CatSAT
         /// <inheritdoc />
         public override T PredeterminedValue()
         {
-            foreach (var p in valuePropositions)
+            foreach (var p in ValuePropositions)
                 if (Problem[p])
                     return ((ValueProposition)p.Name).Value;
             throw new InvalidOperationException($"{Name} has no value assigned.");
@@ -156,18 +171,18 @@ namespace CatSAT
         /// <inheritdoc />
         public override void SetPredeterminedValue(T newValue)
         {
-            foreach (var p in valuePropositions)
+            foreach (var p in ValuePropositions)
                 Problem[p] = ((ValueProposition)p.Name).Value.Equals(newValue);
         }
 
         /// <inheritdoc />
         public override void Reset()
         {
-            foreach (var p in valuePropositions)
+            foreach (var p in ValuePropositions)
                 Problem.ResetProposition(p);
         }
 
-        public class ValueProposition
+        private class ValueProposition
         {
             public ValueProposition(FDVariable<T> var, T val)
             {

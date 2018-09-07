@@ -29,23 +29,52 @@ using static CatSAT.Fluents;
 
 namespace CatSAT
 {
+    /// <summary>
+    /// Represents an action that can modify a fluent
+    /// Actions are functions that map time points, and optionally other arguments to propositions representing that
+    /// that action has occurred at that time.
+    /// </summary>
     public static class Actions
     {
+        /// <summary>
+        /// Represents an application of an action to a specific set of arguments at a specific point in time
+        /// </summary>
         public class ActionInstantiation : SpecialProposition { }
+        /// <summary>
+        /// Represents an application of an action to a specifc set of arguments at a specifc point in time
+        /// </summary>
         public class SymmetricActionInstantiation : ActionInstantiation { }
 
         static readonly Dictionary<object, object> Domain = new Dictionary<object, object>();
 
+        /// <summary>
+        /// Creates a new atomic action within a CatSAT Problem
+        /// </summary>
+        /// <param name="name">Name of the action</param>
+        /// <returns>The action</returns>
         public static Func<int, ActionInstantiation> Action(string name)
         {
             return PredicateOfType<int, ActionInstantiation>(name);
         }
 
+        /// <summary>
+        /// Enumeration of all possible instances of action at the specified timepoint
+        /// </summary>
+        /// <param name="a">Action</param>
+        /// <param name="t">Timepoint</param>
+        /// <returns>Instances</returns>
+        // ReSharper disable once UnusedMember.Global
         public static IEnumerable<ActionInstantiation> Instances(Func<int, ActionInstantiation> a, int t)
         {
             yield return a(t);
         }
 
+        /// <summary>
+        /// Creates a new atomic action within a CatSAT Problem
+        /// </summary>
+        /// <param name="name">Name of the action</param>
+        /// <param name="domain1">Domain for first argument</param>
+        /// <returns>The action</returns>
         public static Func<T1, int, ActionInstantiation> Action<T1>(string name, ICollection<T1> domain1)
         {
             var a = PredicateOfType<T1, int, ActionInstantiation>(name);
@@ -53,18 +82,41 @@ namespace CatSAT
             return a;
         }
 
+        /// <summary>
+        /// Maps function over the domain of the action
+        /// </summary>
+        /// <param name="a">Action over whose domain to map</param>
+        /// <param name="f">Function to apply to the domain</param>
+        /// <typeparam name="T1">Type of the action's argument</typeparam>
+        /// <typeparam name="TOut">Result type of the function</typeparam>
+        /// <returns>Stream of results of the function on the domain elements</returns>
+        // ReSharper disable once UnusedMember.Global
         public static IEnumerable<TOut> MapDomain<T1, TOut>(Func<T1, int, ActionInstantiation> a, Func<T1, TOut> f)
         {
             foreach (var arg in (IEnumerable<T1>) Domain[a])
                 yield return f(arg);
         }
 
+        /// <summary>
+        /// Enumeration of all possible instances of action at the specified timepoint
+        /// </summary>
+        /// <param name="a">Action</param>
+        /// <param name="t">Timepoint</param>
+        /// <returns>Instances</returns>
+        // ReSharper disable once UnusedMember.Global
         public static IEnumerable<ActionInstantiation> Instances<T1>(Func<T1, int, ActionInstantiation> a, int t)
         {
             foreach (var arg in (IEnumerable<T1>)Domain[a])
                 yield return a(arg, t);
         }
 
+        /// <summary>
+        /// Creates a new atomic action within a CatSAT Problem
+        /// </summary>
+        /// <param name="name">Name of the action</param>
+        /// <param name="domain1">Domain for first argument</param>
+        /// <param name="domain2">Domain for second argument</param>
+        /// <returns>The action</returns>
         public static Func<T1, T2, int, ActionInstantiation> Action<T1, T2>(string name, ICollection<T1> domain1, ICollection<T2> domain2)
         {
             var a = PredicateOfType<T1, T2, int, ActionInstantiation>(name);
@@ -72,6 +124,15 @@ namespace CatSAT
             return a;
         }
 
+        /// <summary>
+        /// Maps function over the domain of the action
+        /// </summary>
+        /// <param name="a">Action over whose domain to map</param>
+        /// <param name="f">Function to apply to the domain</param>
+        /// <typeparam name="T1">Type of the action's argument</typeparam>
+        /// <typeparam name="T2">Type of the action's second argument</typeparam>
+        /// <typeparam name="TOut">Result type of the function</typeparam>
+        /// <returns>Stream of results of the function on the domain elements</returns>
         public static IEnumerable<TOut> MapDomain<T1, T2, TOut>(Func<T1, T2, int, ActionInstantiation> a,
             Func<T1, T2, TOut> f)
         {
@@ -83,12 +144,24 @@ namespace CatSAT
                 yield return f(arg1, arg2);
         }
 
+        /// <summary>
+        /// Enumeration of all possible instances of action at the specified timepoint
+        /// </summary>
+        /// <param name="a">Action</param>
+        /// <param name="t">Timepoint</param>
+        /// <returns>Instances</returns>
         public static IEnumerable<ActionInstantiation> Instances<T1, T2>(Func<T1, T2, int, ActionInstantiation> a,
             int t)
         {
             return MapDomain(a, (arg1, arg2) => a(arg1, arg2, t));
         }
 
+        /// <summary>
+        /// Creates a new atomic action within a CatSAT Problem
+        /// </summary>
+        /// <param name="name">Name of the action</param>
+        /// <param name="domain">Domain for first and second arguments</param>
+        /// <returns>The action</returns>
         public static Func<T, T, int, SymmetricActionInstantiation> SymmetricAction<T>(string name, ICollection<T> domain)
             where T : IComparable
         {
@@ -97,6 +170,14 @@ namespace CatSAT
             return a;
         }
 
+        /// <summary>
+        /// Maps function over the domain of the action
+        /// </summary>
+        /// <param name="a">Action over whose domain to map</param>
+        /// <param name="f">Function to apply to the domain</param>
+        /// <typeparam name="T1">Type of the action's arguments</typeparam>
+        /// <typeparam name="TOut">Result type of the function</typeparam>
+        /// <returns>Stream of results of the function on the domain elements</returns>
         public static IEnumerable<TOut> MapDomain<T1, TOut>(Func<T1, T1, int, SymmetricActionInstantiation> a, Func<T1, T1, TOut> f)
         where T1:IComparable
         {
@@ -107,6 +188,12 @@ namespace CatSAT
                     yield return f(arg1, arg2);
         }
 
+        /// <summary>
+        /// Enumeration of all possible instances of action at the specified timepoint
+        /// </summary>
+        /// <param name="a">Action</param>
+        /// <param name="t">Timepoint</param>
+        /// <returns>Instances</returns>
         public static IEnumerable<SymmetricActionInstantiation> Instances<T1>(Func<T1, T1, int, SymmetricActionInstantiation> a,
             int t)
         where T1 : IComparable
@@ -114,12 +201,24 @@ namespace CatSAT
             return MapDomain(a, (arg1, arg2) => a(arg1, arg2, t));
         }
 
+        /// <summary>
+        /// Asserts that the specified fluent is a precondition of the action
+        /// </summary>
+        /// <param name="action">Action</param>
+        /// <param name="precondition">Fluent that must be true at a given timepoint for the action to be runnable.</param>
+        // ReSharper disable once UnusedMember.Global
         public static void Precondition(Func<int, ActionInstantiation> action, Func<int, Proposition> precondition)
         {
             foreach (var t in ActionTimePoints)
                 Problem.Current.Assert(action(t) > precondition(t));
         }
 
+        /// <summary>
+        /// Asserts that the specified fluent is a precondition of the action
+        /// </summary>
+        /// <param name="action">Action</param>
+        /// <param name="precondition">Fluent that must be true at a given timepoint for the action to be runnable.</param>
+        // ReSharper disable once UnusedMember.Global
         public static void Precondition<T1>(Func<T1, int, ActionInstantiation> action, Func<T1, int, Proposition> precondition)
         {
             var domain1 = (ICollection<T1>) Domain[action];
@@ -128,6 +227,11 @@ namespace CatSAT
                 Problem.Current.Assert(action(d1, t) > precondition(d1, t));
         }
 
+        /// <summary>
+        /// Asserts that the specified fluent is a precondition of the action
+        /// </summary>
+        /// <param name="action">Action</param>
+        /// <param name="precondition">Fluent that must be true at a given timepoint for the action to be runnable.</param>
         public static void Precondition<T1, T2>(Func<T1, T2, int, ActionInstantiation> action,
             Func<T1, T2, int, Literal> precondition)
         {
@@ -141,12 +245,18 @@ namespace CatSAT
                 Problem.Current.Assert(action(d1, d2, t) > precondition(d1, d2, t));
         }
 
+        /// <summary>
+        /// Asserts that the specified fluent is a precondition of the action
+        /// </summary>
+        /// <param name="action">Action</param>
+        /// <param name="precondition">Fluent that must be true at a given timepoint for the action to be runnable.</param>
         public static void Precondition<T1>(Func<T1, T1, int, SymmetricActionInstantiation> action,
             Func<T1, T1, int, Literal> precondition)
         where T1:IComparable
         {
             foreach (var t in ActionTimePoints)
-            MapDomain<T1,bool>(action,
+                // ReSharper disable once IteratorMethodResultIsIgnored
+                MapDomain(action,
                 (d1, d2) =>
                 {
                     Problem.Current.Assert(action(d1, d2, t) > precondition(d1, d2, t));
@@ -154,12 +264,24 @@ namespace CatSAT
                 });
         }
 
+        /// <summary>
+        /// Asserts the specified action activates the specified fluent
+        /// </summary>
+        /// <param name="action">Action that changes the fluent</param>
+        /// <param name="effect">Fluent being activated</param>
+        // ReSharper disable once UnusedMember.Global
         public static void Adds(Func<int, ActionInstantiation> action, Func<int, FluentInstantiation> effect)
         {
             foreach (var t in ActionTimePoints)
                 Problem.Current.Assert(Activate(effect(t)) <= action(t));
         }
 
+        /// <summary>
+        /// Asserts the specified action activates the specified fluent
+        /// </summary>
+        /// <param name="action">Action that changes the fluent</param>
+        /// <param name="effect">Fluent being activated</param>
+        // ReSharper disable once UnusedMember.Global
         public static void Adds<T1>(Func<T1, int, ActionInstantiation> action, Func<T1, int, FluentInstantiation> effect)
         {
             var domain1 = (ICollection<T1>)Domain[action];
@@ -168,6 +290,11 @@ namespace CatSAT
                 Problem.Current.Assert(Activate(effect(d1, t)) <= action(d1, t));
         }
 
+        /// <summary>
+        /// Asserts the specified action activates the specified fluent
+        /// </summary>
+        /// <param name="action">Action that changes the fluent</param>
+        /// <param name="effect">Fluent being activated</param>
         public static void Adds<T1, T2>(Func<T1, T2, int, ActionInstantiation> action,
             Func<T1, T2, int, FluentInstantiation> effect)
         {
@@ -181,12 +308,18 @@ namespace CatSAT
                 Problem.Current.Assert(Activate(effect(d1, d2, t)) <= action(d1, d2, t));
         }
 
+        /// <summary>
+        /// Asserts the specified action activates the specified fluent
+        /// </summary>
+        /// <param name="action">Action that changes the fluent</param>
+        /// <param name="effect">Fluent being activated</param>
         public static void Adds<T1>(Func<T1, T1, int, SymmetricActionInstantiation> action,
             Func<T1, T1, int, FluentInstantiation> effect)
             where T1 : IComparable
         {
             foreach (var t in ActionTimePoints)
-                MapDomain<T1, bool>(action,
+                // ReSharper disable once IteratorMethodResultIsIgnored
+                MapDomain(action,
                     (d1, d2) =>
                     {
                         Problem.Current.Assert(Activate(effect(d1, d2, t)) <= action(d1, d2, t));
@@ -194,12 +327,24 @@ namespace CatSAT
                     });
         }
 
+        /// <summary>
+        /// Asserts the specified action deactivates the specified fluent
+        /// </summary>
+        /// <param name="action">Action that changes the fluent</param>
+        /// <param name="effect">Fluent being deactivated</param>
+        // ReSharper disable once UnusedMember.Global
         public static void Deletes(Func<int, ActionInstantiation> action, Func<int, FluentInstantiation> effect)
         {
             foreach (var t in ActionTimePoints)
                 Problem.Current.Assert(Deactivate(effect(t)) <= action(t));
         }
 
+        /// <summary>
+        /// Asserts the specified action deactivates the specified fluent
+        /// </summary>
+        /// <param name="action">Action that changes the fluent</param>
+        /// <param name="effect">Fluent being deactivated</param>
+        // ReSharper disable once UnusedMember.Global
         public static void Deletes<T1>(Func<T1, int, ActionInstantiation> action, Func<T1, int, FluentInstantiation> effect)
         {
             var domain1 = (ICollection<T1>)Domain[action];
@@ -208,6 +353,11 @@ namespace CatSAT
                 Problem.Current.Assert(Deactivate(effect(d1, t)) <= action(d1, t));
         }
 
+        /// <summary>
+        /// Asserts the specified action deactivates the specified fluent
+        /// </summary>
+        /// <param name="action">Action that changes the fluent</param>
+        /// <param name="effect">Fluent being deactivated</param>
         public static void Deletes<T1, T2>(Func<T1, T2, int, ActionInstantiation> action,
             Func<T1, T2, int, FluentInstantiation> effect)
         {
@@ -221,12 +371,19 @@ namespace CatSAT
                 Problem.Current.Assert(Deactivate(effect(d1, d2, t)) <= action(d1, d2, t));
         }
 
+        /// <summary>
+        /// Asserts the specified action deactivates the specified fluent
+        /// </summary>
+        /// <param name="action">Action that changes the fluent</param>
+        /// <param name="effect">Fluent being deactivated</param>
+        // ReSharper disable once UnusedMember.Global
         public static void Deletes<T1>(Func<T1, T1, int, SymmetricActionInstantiation> action,
             Func<T1, T1, int, FluentInstantiation> effect)
             where T1 : IComparable
         {
             foreach (var t in ActionTimePoints)
-                MapDomain<T1, bool>(action,
+                // ReSharper disable once IteratorMethodResultIsIgnored
+                MapDomain(action,
                     (d1, d2) =>
                     {
                         Problem.Current.Assert(Deactivate(effect(d1, d2, t)) <= action(d1, d2, t));

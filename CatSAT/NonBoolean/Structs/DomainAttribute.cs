@@ -26,16 +26,34 @@ using System;
 
 namespace CatSAT
 {
+    /// <summary>
+    /// Annotates a Variable-valued field in a CompiledStruct to specify its domain
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class DomainAttribute : Attribute
     {
+        /// <summary>
+        /// Make of this variable's domain
+        /// </summary>
         public readonly string DomainName;
 
+        /// <summary>
+        /// Specify that this field should have the specified domain.
+        /// Field must appear in a CompiledStruct and must be a subtype of CatSAT.Variable
+        /// </summary>
+        /// <param name="domainName"></param>
+        // ReSharper disable once UnusedMember.Global
         public DomainAttribute(string domainName)
         {
             DomainName = domainName;
         }
 
+        /// <summary>
+        /// Specify that this field should have the specified finite domain with the specified elements.
+        /// Field must appear in a CompiledStruct and must be a subtype of CatSAT.Variable
+        /// </summary>
+        /// <param name="domainName"></param>
+        /// <param name="domainElements">Elements of the domain</param>
         public DomainAttribute(string domainName, params string[] domainElements)
         {
             DomainName = domainName;
@@ -44,6 +62,9 @@ namespace CatSAT
                 new FDomain<string>(domainName, domainElements);
         }
 
+        /// <summary>
+        /// Domain being specified.
+        /// </summary>
         public VariableType Domain => VariableType.TypeNamed(DomainName);
     }
 }

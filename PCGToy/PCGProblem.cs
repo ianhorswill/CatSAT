@@ -155,7 +155,7 @@ namespace PCGToy
             }
 
             foreach (var pair in Domains)
-                Add(new object[] {"domain", pair.Key }.Concat(pair.Value.Values).ToArray());
+                Add(new object[] {"domain", pair.Key }.Concat(pair.Value.Elements).ToArray());
 
             foreach (var pair in Variables)
             {

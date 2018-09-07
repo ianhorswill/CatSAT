@@ -63,6 +63,10 @@ namespace CatSAT
             problem.AddVariable(this);
         }
 
+        /// <summary>
+        /// A string of the form "variablename=value", used for debugging
+        /// </summary>
+        /// <param name="s">Solution from which to get the variable's value</param>
         public virtual string ValueString(Solution s)
         {
             if (IsDefinedIn(s))
@@ -70,13 +74,23 @@ namespace CatSAT
             return $"{Name} undefined";
         }
 
+        /// <summary>
+        /// Returns the variable's value within a given solution, as type object.
+        /// </summary>
+        /// <param name="s">Solution from which to get the variable's value</param>
+        /// <returns></returns>
         public abstract object UntypedValue(Solution s);
 
+        /// <summary>
+        /// True if the variable has a value defined in the specified solution.
+        /// </summary>
+        /// <param name="solution">Solution to check</param>
         public virtual bool IsDefinedIn(Solution solution)
         {
             return (object)Condition == null || solution[Condition];
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return Name.ToString();
@@ -87,9 +101,9 @@ namespace CatSAT
         /// </summary>
         /// <param name="var">The variable who value should be checked</param>
         /// <param name="value">The value to check for</param>
-        /// <returns></returns>
         public static Literal operator ==(Variable var, object value)
         {
+            // ReSharper disable once PossibleNullReferenceException
             return var.EqualityProposition(value);
         }
 
@@ -103,9 +117,11 @@ namespace CatSAT
         {
             return Language.Not(var == value);
         }
-
-
-
+        
+        /// <summary>
+        /// A literal representing that this variable has the specified value.
+        /// </summary>
+        /// <param name="vConditionValue">Value to compare the variable to.</param>
         public virtual Literal EqualityProposition(object vConditionValue)
         {
             throw new NotImplementedException();

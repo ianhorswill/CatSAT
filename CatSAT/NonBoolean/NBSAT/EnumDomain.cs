@@ -26,6 +26,10 @@ using System.Diagnostics;
 
 namespace CatSAT
 {
+    /// <summary>
+    /// A domain whose values are the values of an enumerated type.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class EnumDomain<T> : FDomain<T>
     {
         private EnumDomain() : base(typeof(T).Name, (T[]) typeof(T).GetEnumValues())
@@ -33,6 +37,9 @@ namespace CatSAT
             Debug.Assert(typeof(T).IsEnum);
         }
 
+        /// <summary>
+        /// The unique EnumDomain for enum type T.
+        /// </summary>
         public static readonly EnumDomain<T> Singleton = new EnumDomain<T>();
     }
 }

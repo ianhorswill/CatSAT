@@ -38,7 +38,7 @@ namespace CatSAT
         /// </summary>
         public readonly Proposition Offender;
 
-        public NonTightProblemException(Proposition offender) : base($"{offender} is inferrable from itself!")
+        internal NonTightProblemException(Proposition offender) : base($"{offender} is inferrable from itself!")
         {
             Offender = offender;
         }

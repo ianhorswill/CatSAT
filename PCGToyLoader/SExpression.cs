@@ -23,73 +23,72 @@
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
 namespace PCGToy
 {
-    public static class SExpression
+    internal static class SExpression
     {
-        public static string ToSExpression(object value)
-        {
-            var b = new StringBuilder();
-            Write(value, b);
-            return b.ToString();
-        }
+        //public static string ToSExpression(object value)
+        //{
+        //    var b = new StringBuilder();
+        //    Write(value, b);
+        //    return b.ToString();
+        //}
 
-        static void Write(object value, StringBuilder b)
-        {
-            switch (value)
-            {
-                case int i:
-                    b.Append(i);
-                    break;
+        //static void Write(object value, StringBuilder b)
+        //{
+        //    switch (value)
+        //    {
+        //        case int i:
+        //            b.Append(i);
+        //            break;
 
-                case float f:
-                    b.Append(f);
-                    break;
+        //        case float f:
+        //            b.Append(f);
+        //            break;
 
-                case string s:
-                    if (StringSafe(s))
-                        b.Append(s);
-                    else
-                    {
-                        b.Append('"');
-                        b.Append(s);
-                        b.Append('"');
-                    }
+        //        case string s:
+        //            if (StringSafe(s))
+        //                b.Append(s);
+        //            else
+        //            {
+        //                b.Append('"');
+        //                b.Append(s);
+        //                b.Append('"');
+        //            }
 
-                    break;
+        //            break;
 
-                case bool tf:
-                    b.Append(tf?"true":"false");
-                    break;
+        //        case bool tf:
+        //            b.Append(tf?"true":"false");
+        //            break;
 
-                case IEnumerable e:
-                    b.Append('(');
-                    var first = true;
-                    foreach (var elt in e)
-                    {
-                        if (first)
-                            first = false;
-                        else b.Append(' ');
-                        Write(elt, b);
-                    }
+        //        case IEnumerable e:
+        //            b.Append('(');
+        //            var first = true;
+        //            foreach (var elt in e)
+        //            {
+        //                if (first)
+        //                    first = false;
+        //                else b.Append(' ');
+        //                Write(elt, b);
+        //            }
 
-                    b.Append(')');
-                    break;
+        //            b.Append(')');
+        //            break;
 
-                default:
-                    throw new ArgumentException($"Don't know how to render {value} as an s-expression.");
-            }
-        }
+        //        default:
+        //            throw new ArgumentException($"Don't know how to render {value} as an s-expression.");
+        //    }
+        //}
 
-        private static bool StringSafe(string s)
-        {
-            return s.IndexOfAny(badChars) < 0;
-        }
+        //private static bool StringSafe(string s)
+        //{
+        //    return s.IndexOfAny(BadChars) < 0;
+        //}
 
         public static object Read(TextReader r)
         {
@@ -161,7 +160,7 @@ namespace PCGToy
                     return sign * float.Parse(StringBuffer.ToString());
 
                 default:
-                    throw new FileFormatException($"Unknown number formatl {StringBuffer.ToString()}");
+                    throw new FileFormatException($"Unknown number formatl {StringBuffer}");
             }
         }
 
@@ -201,7 +200,7 @@ namespace PCGToy
         }
 
         private static readonly StringBuilder StringBuffer = new StringBuilder();
-        private static readonly char[] badChars = new []{ ' ', '\r', '\n', '"', '(', ')' };
+        //private static readonly char[] BadChars = new []{ ' ', '\r', '\n', '"', '(', ')' };
 
         private static string ReadString(TextReader r)
         {
@@ -212,7 +211,7 @@ namespace PCGToy
                 switch (c = r.Read())
                 {
                     case -1:
-                        throw new FileFormatException($"Premature end of file inside string \"{StringBuffer.ToString()}\"");
+                        throw new FileFormatException($"Premature end of file inside string \"{StringBuffer}\"");
 
                     case '"':
                         // Do nothing; the while loop will terminate
@@ -278,9 +277,12 @@ namespace PCGToy
         }
     }
 
+    /// <summary>
+    /// Signals that a file loaded with the Generator class was not a valid PCGToy file.
+    /// </summary>
     public class FileFormatException : Exception
     {
-        public FileFormatException(string message) : base(message)
+        internal FileFormatException(string message) : base(message)
         {
             
         }

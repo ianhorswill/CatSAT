@@ -29,8 +29,10 @@ namespace CatSAT
     /// A Domain defines the set of possible values of a Variable.
     /// </summary>
     /// <typeparam name="T">Underlying data type of values</typeparam>
+    // ReSharper disable once UnusedTypeParameter
     public abstract class Domain<T> : VariableType
     {
+        /// <inheritdoc />
         protected Domain(string name) : base(name)
         { }
     }

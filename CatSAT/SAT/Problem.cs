@@ -101,16 +101,34 @@ namespace CatSAT
         /// </summary>
         public float CreationTime { get; private set; }
 
+        /// <summary>
+        /// Statistics for a single performance measurement
+        /// </summary>
         public struct TimingData
         {
+            /// <summary>
+            /// Shortest time spent on the operation (microseconds)
+            /// </summary>
             public float Min;
+            /// <summary>
+            /// Longest time spent on the operation (microseconds)
+            /// </summary>
             public float Max;
+            /// <summary>
+            /// Sum of total time spent on the operation over all solver operations
+            /// </summary>
             private float sum;
+            /// <summary>
+            /// Number of solver calls over which sum is split
+            /// </summary>
             private int count;
 
+            /// <summary>
+            /// Average time spent on the operation per solver call (microseconds)
+            /// </summary>
             public float Average => count==0?0:sum / count;
 
-            public void AddReading(float reading)
+            internal void AddReading(float reading)
             {
                 if (count == 0)
                 {
@@ -127,7 +145,13 @@ namespace CatSAT
         }
 
         // ReSharper disable once UnassignedField.Global
+        /// <summary>
+        /// Time spent solving
+        /// </summary>
         public TimingData SolveTimeMicroseconds;
+        /// <summary>
+        /// Number of flips used in the solver
+        /// </summary>
         // ReSharper disable once UnassignedField.Global
         public TimingData SolveFlips;
 
@@ -140,6 +164,9 @@ namespace CatSAT
         /// </summary>
         public static bool LogPerformanceDataToConsole;
 
+        /// <summary>
+        /// File to which to log performance data, if any.
+        /// </summary>
         public static string LogFile
         {
 #if PerformanceStatistics
@@ -156,7 +183,7 @@ namespace CatSAT
         }
 
         [Conditional("PerformanceStatistics")]
-        public void LogPerformanceData()
+        internal void LogPerformanceData()
         {
 #if PerformanceStatistics
             System.IO.File.AppendAllLines(LogFile, new []
@@ -166,6 +193,9 @@ namespace CatSAT
 #endif
         }
 
+        /// <summary>
+        /// String showing solving performance statistics for this problem object
+        /// </summary>
         public string PerformanceStatistics
         {
             get
@@ -178,6 +208,9 @@ namespace CatSAT
             }
         }
 
+        /// <summary>
+        /// String showing size statistics for this problem object
+        /// </summary>
         public string Stats
         {
             get
@@ -270,6 +303,9 @@ namespace CatSAT
 
         private List<Variable> variables;
 
+        /// <summary>
+        /// All Variables (NBSAT, SMT) attached to this Problem.
+        /// </summary>
         public IEnumerable<Variable> Variables()
         {
             if (variables != null)
@@ -281,6 +317,7 @@ namespace CatSAT
         /// <summary>
         /// True if problem contains a variable with the specified name
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public bool HasVariableNamed(object name)
         {
             // TODO: make this more performant.
@@ -430,21 +467,35 @@ namespace CatSAT
         }
 
 #region Assertions
+        /// <summary>
+        /// Adds a set of assertions to this problem.
+        /// Assertions are immutable: they cannot be changed or reset
+        /// Assertions cannot be edded after the first call to Solve()
+        /// </summary>
+        /// <param name="assertions">Assertions to add (literals, rules, implications, etc.)</param>
+        /// <exception cref="InvalidOperationException">When the Problem has already been solved once</exception>
         public void Assert(params Assertable[] assertions)
         {
             foreach (var a in assertions)
                 a.Assert(this);
         }
 
-        public void Assert(Literal l)
+        /// <summary>
+        /// Asserts the literal must always be true in any solution.
+        /// Assertions are immutable: they cannot be changed or reset
+        /// Assertions cannot be edded after the first call to Solve()
+        /// </summary>
+        /// <param name="literal">Literal tha must always be true</param>
+        /// <exception cref="InvalidOperationException">When the Problem has already been solved once</exception>
+        public void Assert(Literal literal)
         {
-            if (Equals(l, Proposition.True))
+            if (Equals(literal, Proposition.True))
                 // We already know that true is true.
                 return;
-            if (Equals(l, Proposition.False))
+            if (Equals(literal, Proposition.False))
                 throw new InvalidOperationException("Attempt to Assert the false proposition.");
             //AddClause(new Clause(1, 0, new[] {l.SignedIndex}));
-            switch (l)
+            switch (literal)
             {
                 case Proposition p:
                     SetPredeterminedValue(p, true, SATVariable.DeterminationState.Fixed);
@@ -455,7 +506,7 @@ namespace CatSAT
                     break;
 
                 default:
-                    throw new InvalidOperationException($"Unknown literal type: {l.GetType().Name}");
+                    throw new InvalidOperationException($"Unknown literal type: {literal.GetType().Name}");
             }
         }
 
@@ -472,41 +523,62 @@ namespace CatSAT
             SATVariables[index] = v;
         }
 
-        public void Assert(Implication i)
+        /// <summary>
+        /// Asserts that the head must be true in any solution in which the body is true
+        /// Assertions are immutable: they cannot be changed or reset
+        /// Assertions cannot be edded after the first call to Solve()
+        /// </summary>
+        /// <param name="implication">Implication that must be true in any solution</param>
+        /// <exception cref="InvalidOperationException">When the Problem has already been solved once</exception>
+        public void Assert(Implication implication)
         {
-            var h = i.Head;
+            var h = implication.Head;
             if (h is Proposition p && p.IsConstant)
             {
                 if (!(bool)p)
-                    AddClause(CompileNegatedConjunction(i.Body));
+                    AddClause(CompileNegatedConjunction(implication.Body));
                 // Otherwise h is always true, so don't bother adding a clause
                 return;
             }
-            AddClause(CompileImplication(i));
+            AddClause(CompileImplication(implication));
         }
 
-        public void Assert(Rule r)
+        /// <summary>
+        /// Adds a rule to the problem.
+        /// Assertions are immutable: they cannot be changed or reset
+        /// Assertions cannot be edded after the first call to Solve()
+        /// </summary>
+        /// <param name="rule">Rule to add to the problem</param>
+        /// <exception cref="InvalidOperationException">When the Problem has already been solved once</exception>
+        public void Assert(Rule rule)
         {
             if (compilationState == CompilationState.Compiled)
                 throw new InvalidOperationException("Can't add rules after calling Solve().");
 
-            if (r.Head.IsConstant)
+            if (rule.Head.IsConstant)
             {
                 throw new InvalidOperationException("Rule heads cannot be constants.");
             }
 
-            foreach (var d in r.Body.PositiveLiterals)
+            foreach (var d in rule.Body.PositiveLiterals)
                 if (!d.IsConstant)
-                    r.Head.AddDependency(d);
+                    rule.Head.AddDependency(d);
             
-            r.Head.AddRuleBody(r.Body);
+            rule.Head.AddRuleBody(rule.Body);
             compilationState = CompilationState.HaveRules;
         }
 
-        public void Assert(Biconditional b)
+        /// <summary>
+        /// Asserts that in any solution, either the head and body must both be true or both be false
+        /// Assertions are immutable: they cannot be changed or reset
+        /// Assertions cannot be edded after the first call to Solve()
+        /// </summary>
+        /// <param name="equivalence">Equivalence that must be true in any solution</param>
+        /// <exception cref="InvalidOperationException">When the Problem has already been solved once</exception>
+        public void Assert(Biconditional equivalence)
         {
             // Compile the forward implication
-            var disjuncts = DisjunctsFromImplication(b.Head, b.Body);
+            var disjuncts = DisjunctsFromImplication(equivalence.Head, equivalence.Body);
             AddClause(new Clause(1, 0, disjuncts));
 
             // Now compile the backward implication: if the head is true, all the body literals have to be true.
@@ -718,6 +790,7 @@ namespace CatSAT
         /// <typeparam name="T">Type of the domain</typeparam>
         /// <param name="domain">Collection to quantify over</param>
         /// <param name="f">Forms a literal from a domain element</param>
+        // ReSharper disable once UnusedMember.Global
         public void Inconsistent<T>(IEnumerable<T> domain, Func<T, Literal> f)
         {
             Inconsistent(domain.Select(f));
@@ -732,24 +805,45 @@ namespace CatSAT
             AddClause(new Clause(1, 0, lits.Select(l => (short)(-l.SignedIndex)).Distinct().ToArray()));
         }
 
+        /// <summary>
+        /// Bounds on the number of literals in the specified set that must be true
+        /// </summary>
+        /// <typeparam name="T">Type of the domain elements</typeparam>
+        /// <param name="min">Minimum number of literals that must be true in a solution</param>
+        /// <param name="max">Maximum number of literals that may be true in a solution</param>
+        /// <param name="domain">Domain over which to quantify</param>
+        /// <param name="f">Function mapping a domain element to a literal</param>
         public void Quantify<T>(int min, int max, IEnumerable<T> domain, Func<T, Literal> f)
         {
             Quantify(min, max, domain.Select(f));
         }
 
+        /// <summary>
+        /// Bounds on the number of literals in the specified set that must be true
+        /// </summary>
+        /// <param name="min">Minimum number of literals that must be true in a solution</param>
+        /// <param name="max">Maximum number of literals that may be true in a solution</param>
+        /// <param name="literals">Literals being quantified</param>
+        // ReSharper disable once UnusedMember.Global
         public void Quantify(int min, int max, params Literal[] literals)
         {
             Quantify(min, max, (IEnumerable<Literal>)literals);
         }
 
-        public void Quantify(int min, int max, IEnumerable<Literal> enumerator)
+        /// <summary>
+        /// Bounds on the number of literals in the specified set that must be true
+        /// </summary>
+        /// <param name="min">Minimum number of literals that must be true in a solution</param>
+        /// <param name="max">Maximum number of literals that may be true in a solution</param>
+        /// <param name="literals">Literals being quantified</param>
+        public void Quantify(int min, int max, IEnumerable<Literal> literals)
         {
             // TODO: change all this so that max=0 doesn't mean no upper bound; it's turning out ot be a bad design decision.
             if (max > 0 && min > max)
                 throw new ContradictionException(this, "minimum number of disjuncts is more than the maximum number");
             var trueCount = 0;
             var set = new HashSet<Literal>();
-            foreach (var l in enumerator)
+            foreach (var l in literals)
             {
                 if (ReferenceEquals(l, Proposition.True))
                     trueCount++;
@@ -777,102 +871,188 @@ namespace CatSAT
                 Quantify(Math.Max(0, min-trueCount), max==0?0:max-trueCount, set.Select(l => l.SignedIndex).ToArray());
         }
 
-        public void Quantify(int min, int max, short[] disjuncts)
+        internal void Quantify(int min, int max, short[] disjuncts)
         {
             AddClause(new Clause((ushort)min, (ushort)max, disjuncts));
         }
 
+        /// <summary>
+        /// Assert all the literals must be true
+        /// </summary>
+        /// <param name="literals">Literals that must be true</param>
         public void All(params Literal[] literals)
         {
             All((IEnumerable<Literal>)literals);
         }
 
+        /// <summary>
+        /// Assert all the literals must be true
+        /// </summary>
         public void All<T>(IEnumerable<T> domain, Func<T, Literal> f)
         {
             All(domain.Select(f));
         }
 
+        /// <summary>
+        /// Assert all the literals must be true
+        /// </summary>
+        /// <param name="literals">Literals that must be true</param>
         // ReSharper disable once UnusedMember.Global
-        public void All(IEnumerable<Literal> enumerator)
+        public void All(IEnumerable<Literal> literals)
         {
-            var disjuncts = enumerator.Select(l => l.SignedIndex).ToArray();
+            var disjuncts = literals.Select(l => l.SignedIndex).ToArray();
             Quantify(disjuncts.Length, disjuncts.Length, disjuncts);
         }
 
+        /// <summary>
+        /// Asserts at least one of the literals must be true in any solution
+        /// </summary>
+        /// <param name="literals">Literals being quantified</param>
+        // ReSharper disable once UnusedMember.Global
         public void Exists(params Literal[] literals)
         {
             Exists((IEnumerable<Literal>)literals);
         }
 
+        /// <summary>
+        /// Asserts at least one of the literals must be true in any solution
+        /// </summary>
         public void Exists<T>(IEnumerable<T> domain, Func<T, Literal> f)
         {
             Exists(domain.Select(f));
         }
 
+        /// <summary>
+        /// Asserts at least one of the literals must be true in any solution
+        /// </summary>
+        /// <param name="literals">Literals being quantified</param>
         // ReSharper disable once UnusedMember.Global
-        public void Exists(IEnumerable<Literal> enumerator)
+        public void Exists(IEnumerable<Literal> literals)
         {
-            Quantify(1, 0, enumerator);
+            Quantify(1, 0, literals);
         }
 
+        /// <summary>
+        /// Asserts exactly one of the literals must be true in any solution
+        /// </summary>
+        /// <param name="literals">Literals being quantified</param>
         public void Unique(params Literal[] literals)
         {
             Unique((IEnumerable<Literal>)literals);
         }
 
+        /// <summary>
+        /// Asserts exactly one of the literals must be true in any solution
+        /// </summary>
         public void Unique<T>(IEnumerable<T> domain, Func<T, Literal> f)
         {
             Unique(domain.Select(f));
         }
-        public void Unique(IEnumerable<Literal> enumerator)
+        
+        /// <summary>
+        /// Asserts exactly one of the literals must be true in any solution
+        /// </summary>
+        /// <param name="literals">Literals being quantified</param>
+        public void Unique(IEnumerable<Literal> literals)
         {
-            Quantify(1, 1, enumerator);
+            Quantify(1, 1, literals);
         }
 
+        /// <summary>
+        /// Asserts exactly N of the literals must be true in any solution
+        /// </summary>
+        /// <param name="n">Number of literals that must be true</param>
+        /// <param name="literals">Literals being quantified</param>
+        // ReSharper disable once UnusedMember.Global
         public void Exactly(int n, params Literal[] literals)
         {
             Exactly(n, (IEnumerable<Literal>)literals);
         }
 
+        /// <summary>
+        /// Asserts exactly N of the literals must be true in any solution
+        /// </summary>
+        /// <param name="n">Number of literals that must be true</param>
+        /// <param name="domain">Domain over which to quantify</param>
+        /// <param name="f">Function mapping domain element to literal</param>
+        // ReSharper disable once UnusedMember.Global
         public void Exactly<T>(int n, IEnumerable<T> domain, Func<T, Literal> f)
         {
             Exactly(n, domain.Select(f));
         }
 
-        public void Exactly(int n, IEnumerable<Literal> enumerator)
+        /// <summary>
+        /// Asserts exactly N of the literals must be true in any solution
+        /// </summary>
+        /// <param name="n">Number of literals that must be true</param>
+        /// <param name="literals">Literals being quantified</param>
+        public void Exactly(int n, IEnumerable<Literal> literals)
         {
-            Quantify(n, n, enumerator);
+            Quantify(n, n, literals);
         }
 
+        /// <summary>
+        /// Asserts at most N of the literals must be true in any solution
+        /// </summary>
+        /// <param name="n">Maximum number of literals that may be true</param>
+        /// <param name="literals">Literals being quantified</param>
         public void AtMost(int n, params Literal[] literals)
         {
             AtMost(n, (IEnumerable<Literal>)literals);
         }
 
-        public void AtMost(int n, IEnumerable<Literal> enumerator)
+        /// <summary>
+        /// Asserts at most N of the literals must be true in any solution
+        /// </summary>
+        /// <param name="n">Maximum number of literals that may be true</param>
+        /// <param name="literals">Literals being quantified</param>
+        public void AtMost(int n, IEnumerable<Literal> literals)
         {
-            Quantify(0, n, enumerator);
+            Quantify(0, n, literals);
         }
 
+        /// <summary>
+        /// Asserts at most  N of the literals must be true in any solution
+        /// </summary>
+        /// <param name="n">Maximum number of literals that may be true</param>
+        /// <param name="domain">Domain over which to quantify</param>
+        /// <param name="f">Function mapping domain element to literal</param>
         public void AtMost<T>(int n, IEnumerable<T> domain, Func<T, Literal> f)
         {
             AtMost(n, domain.Select(f));
         }
 
+        /// <summary>
+        /// Asserts at least N of the literals must be true in any solution
+        /// </summary>
+        /// <param name="n">Minimum number of literals that must be true</param>
+        /// <param name="literals">Literals being quantified</param>
         public void AtLeast(int n, params Literal[] literals)
         {
             AtLeast(n, (IEnumerable<Literal>)literals);
         }
 
+        /// <summary>
+        /// Asserts at least N of the literals must be true in any solution
+        /// </summary>
+        /// <param name="n">Minimum number of literals that must be true</param>
+        /// <param name="domain">Domain over which to quantify</param>
+        /// <param name="f">Function mapping domain element to literal</param>
+        // ReSharper disable once UnusedMember.Global
         public void AtLeast<T>(int n, IEnumerable<T> domain, Func<T, Literal> f)
         {
             AtLeast(n, domain.Select(f));
         }
 
+        /// <summary>
+        /// Asserts at least N of the literals must be true in any solution
+        /// </summary>
+        /// <param name="literals">Literals being quantified</param>
+        /// <param name="n">Minimum number of literals that must be true</param>
         // ReSharper disable once UnusedMember.Global
-        public void AtLeast(int n, IEnumerable<Literal> enumerator)
+        public void AtLeast(int n, IEnumerable<Literal> literals)
         {
-            Quantify(n, 0, enumerator);
+            Quantify(n, 0, literals);
         }
 #endregion
 
@@ -919,28 +1099,38 @@ namespace CatSAT
             return p;
         }
 
-        public T GetSpecialProposition<T>(object key) where T: SpecialProposition, new()
+        /// <summary>
+        /// Returns the Proposition of with the specified name and type from within the Problem, creating one if necessary.
+        /// You should probably only be using this if you're writing your own theory solver.
+        /// </summary>
+        /// <param name="name">Name of the proposition</param>
+        /// <typeparam name="T">Type of the proposition</typeparam>
+        public T GetSpecialProposition<T>(object name) where T: SpecialProposition, new()
         {
             // It's already in the table
-            if (propositionTable.TryGetValue(key, out Proposition old))
+            if (propositionTable.TryGetValue(name, out Proposition old))
                 return (T)old;
 
             // It's a new proposition
-            var p = new T() { Name = key, Index = (ushort)SATVariables.Count };
+            var p = new T() { Name = name, Index = (ushort)SATVariables.Count };
             p.Initialize(this);
             SATVariables.Add(new SATVariable(p));
-            propositionTable[key] = p;
+            propositionTable[name] = p;
             return p;
         }
 
         private readonly Dictionary<Proposition, Negation> negationTable = new Dictionary<Proposition, Negation>();
 
-        public Negation Negation(Proposition key)
+        /// <summary>
+        /// Returns the (unique) negation literal of this proposition, creating one if necessary.
+        /// </summary>
+        /// <param name="proposition">Proposition to negate</param>
+        public Negation Negation(Proposition proposition)
         {
-            if (negationTable.TryGetValue(key, out Negation p))
+            if (negationTable.TryGetValue(proposition, out Negation p))
                 return p;
-            p = new Negation(key);
-            negationTable[key] = p;
+            p = new Negation(proposition);
+            negationTable[proposition] = p;
             return p;
         }
 
@@ -974,9 +1164,15 @@ namespace CatSAT
             return SATVariables[p.Index].IsPredetermined;
         }
 
-        public bool IsConstant(Literal l)
+        /// <summary>
+        /// True if this is a Literal with a fix truth value across all Problems and Solutions.
+        /// The only constant Literals are Proposition.True, Proposition.False, and their negations.
+        /// </summary>
+        /// <param name="lit"></param>
+        // ReSharper disable once UnusedMember.Global
+        public bool IsConstant(Literal lit)
         {
-            switch (l)
+            switch (lit)
             {
                 case Proposition p:
                     return IsConstant(p);
@@ -993,6 +1189,10 @@ namespace CatSAT
 #region Optimization (unit resolution)
         
 #if NewOptimizer
+        /// <summary>
+        /// Performs unit resolution, aka Boolean constraint propagation aka constant folding on the clauses of the problem.
+        /// </summary>
+        /// <exception cref="ContradictionException">If the optimizer determines the problem is provably unsatisfiable</exception>
         public void Optimize()
         {
             FinishCodeGeneration();
@@ -1256,10 +1456,11 @@ namespace CatSAT
 
 #region Manipulation of predetermined values of variables
         /// <summary>
-        /// Set the truth value of the proposition across all models, or get the predetermined value.
+        /// Gets or sets the predetermined value of the proposition.
         /// </summary>
         /// <param name="p">Proposition to check</param>
         /// <returns>Predetermined value</returns>
+        /// <exception cref="InvalidOperationException">If the proposition has not been given a predetermined value</exception>
         // ReSharper disable once UnusedMember.Global
         public bool this[Proposition p]
         {
@@ -1278,6 +1479,13 @@ namespace CatSAT
             }
         }
 
+        /// <summary>
+        /// Gets or sets the predetermined value of the literal.
+        /// </summary>
+        /// <param name="l">Literalto check</param>
+        /// <returns>Predetermined value</returns>
+        /// <exception cref="InvalidOperationException">If the literal's proposition has not been given a predetermined value</exception>
+        // ReSharper disable once UnusedMember.Global
         public bool this[Literal l]
         {
             get

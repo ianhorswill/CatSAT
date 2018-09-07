@@ -107,6 +107,7 @@ namespace CatSAT
         /// <typeparam name="TProp">Type of Proposition to create</typeparam>
         /// <param name="name">Name of the predicate</param>
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
+        // ReSharper disable once UnusedMember.Global
         public static Func<T, T, TProp> SymmetricPredicateOfType<T, TProp>(string name) 
             where T : IComparable
             where TProp : SpecialProposition, new()
@@ -149,6 +150,7 @@ namespace CatSAT
         /// <typeparam name="T">Argument type</typeparam>
         /// <param name="name">Name of the predicate</param>
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
+        // ReSharper disable once UnusedMember.Global
         public static Func<T, T, Proposition> SymmetricTransitiveRelation<T>(string name) where T : IComparable
         {
             return (arg1, arg2) =>
@@ -201,6 +203,7 @@ namespace CatSAT
         /// <typeparam name="T4">Type for argument 4</typeparam>
         /// <param name="name">Name of the predicate</param>
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
+        // ReSharper disable once UnusedMember.Global
         public static Func<T1, T2, T3, T4, Proposition> Predicate<T1, T2, T3, T4>(string name)
         {
             return (arg1, arg2, arg3, arg4) => Proposition.MakeProposition(new Call(name, arg1, arg2, arg3, arg4));
@@ -216,6 +219,7 @@ namespace CatSAT
         /// <typeparam name="TProp">Type of proposition to return</typeparam>
         /// <param name="name">Name of the predicate</param>
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
+        // ReSharper disable once UnusedMember.Global
         public static Func<T1, T2, T3, T4, TProp> PredicateOfType<T1, T2, T3, T4, TProp>(string name)
             where TProp : SpecialProposition, new()
         {
@@ -233,6 +237,7 @@ namespace CatSAT
         /// <typeparam name="T5">Type for argument 5</typeparam>
         /// <param name="name">Name of the predicate</param>
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
+        // ReSharper disable once UnusedMember.Global
         public static Func<T1, T2, T3, T4, T5, Proposition> Predicate<T1, T2, T3, T4, T5>(string name)
         {
             return (arg1, arg2, arg3, arg4, arg5) => Proposition.MakeProposition(new Call(name, arg1, arg2, arg3, arg4, arg5));
@@ -249,6 +254,7 @@ namespace CatSAT
         /// <typeparam name="TProp">Type of proposition to return</typeparam>
         /// <param name="name">Name of the predicate</param>
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
+        // ReSharper disable once UnusedMember.Global
         public static Func<T1, T2, T3, T4, T5, TProp> PredicateOfType<T1, T2, T3, T4, T5, TProp>(string name)
             where TProp : SpecialProposition, new()
         {
@@ -260,6 +266,7 @@ namespace CatSAT
         /// Make a unary function in the sense of a term generator
         /// </summary>
         /// <param name="name">Name of the function</param>
+        // ReSharper disable once UnusedMember.Global
         public static Func<T1, Call> Function<T1>(string name)
         {
             return (arg1) => new Call(name, arg1);
@@ -269,6 +276,7 @@ namespace CatSAT
         /// Make a binary function in the sense of a term generator
         /// </summary>
         /// <param name="name">Name of the function</param>
+        // ReSharper disable once UnusedMember.Global
         public static Func<T1, T2, Call> Function<T1, T2>(string name)
         {
             return (arg1, arg2) => new Call(name, arg1, arg2);
@@ -278,6 +286,7 @@ namespace CatSAT
         /// Make a 3-argument function in the sense of a term generator
         /// </summary>
         /// <param name="name">Name of the function</param>
+        // ReSharper disable once UnusedMember.Global
         public static Func<T1, T2, T3, Call> Function<T1, T2, T3>(string name)
         {
             return (arg1, arg2, arg3) => new Call(name, arg1, arg2, arg3);
@@ -287,6 +296,7 @@ namespace CatSAT
         /// Make a 4-argument function in the sense of a term generator
         /// </summary>
         /// <param name="name">Name of the function</param>
+        // ReSharper disable once UnusedMember.Global
         public static Func<T1, T2, T3, T4, Call> Function<T1, T2, T3, T4>(string name)
         {
             return (arg1, arg2, arg3, arg4) => new Call(name, arg1, arg2, arg3, arg4);
@@ -296,6 +306,7 @@ namespace CatSAT
         /// Make a 5-argument function in the sense of a term generator
         /// </summary>
         /// <param name="name">Name of the function</param>
+        // ReSharper disable once UnusedMember.Global
         public static Func<T1, T2, T3, T4, T5, Call> Function<T1, T2, T3, T4, T5>(string name)
         {
             return (arg1, arg2, arg3, arg4, arg5) => new Call(name, arg1, arg2, arg3, arg4, arg5);

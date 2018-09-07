@@ -29,21 +29,40 @@ using System.Reflection;
 
 namespace CatSAT
 {
+    /// <summary>
+    /// Implements various extension methods for Problem that are related to Variables.
+    /// Also implements a couple of extensions on solutions, when they make the most sense to include here.
+    /// </summary>
     public static class VariableProblemExtensions
     {
+        /// <summary>
+        /// Make a new CatSAT variable within the problem
+        /// </summary>
+        /// <param name="p">Problem to add the variable to</param>
+        /// <param name="name">Name for the variable</param>
+        /// <param name="t">VariableType (e.g. domain) for the variable</param>
+        /// <param name="condition">Optional literal specifying in what solutions the variable should be defined.</param>
+        /// <returns></returns>
         public static Variable Instantiate(this Problem p, object name, VariableType t, Literal condition = null)
         {
             return t.Instantiate(name, p, condition);
         }
 
+        /// <summary>
+        /// Asserts the specified variables should all have different values in the problem.
+        /// </summary>
+        /// <param name="p">Problem to add the assertion to.</param>
+        /// <param name="vars">Variables that should all be different</param>
+        /// <typeparam name="T">Type of the variable's values</typeparam>
+        /// <exception cref="ArgumentException">When the variables have different domains.</exception>
         public static void AllDifferent<T>(this Problem p, IEnumerable<FDVariable<T>> vars)
         {
             var fdVariables = vars as FDVariable<T>[] ?? vars.ToArray();
             var d = (FDomain<T>)fdVariables.First().Domain;
             foreach (var v in fdVariables)
                 if (v.Domain != d)
-                    throw new ArgumentException($"Variables in AllDifferent() call must have identical domains");
-            foreach (var value in d.Values)
+                    throw new ArgumentException("Variables in AllDifferent() call must have identical domains");
+            foreach (var value in d.Elements)
                 p.AtMost(1, fdVariables.Select(var => var == value));
         }
 
@@ -54,6 +73,7 @@ namespace CatSAT
         /// <param name="p">Problem to solve to get values from</param>
         /// <param name="target">Object to fill in</param>
         /// <param name="bindingFlags">Binding flags for field lookup (defaults to public)</param>
+        // ReSharper disable once UnusedMember.Global
         public static void Populate(this Problem p, object target, BindingFlags bindingFlags = BindingFlags.Public)
         {
             p.Solve().Populate(target, bindingFlags);

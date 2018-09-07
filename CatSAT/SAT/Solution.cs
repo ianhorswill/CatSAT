@@ -96,6 +96,9 @@ namespace CatSAT
             lastFlip = new ushort[problem.Clauses.Count];
         }
 
+        /// <summary>
+        /// A string listing the true propositions in the solution
+        /// </summary>
         public string Model
         {
             // ReSharper disable once UnusedMember.Local
@@ -132,6 +135,9 @@ namespace CatSAT
             }
         }
 
+        /// <summary>
+        /// A string listing the performance statistics of the solver run that generated this solution.
+        /// </summary>
         public string PerformanceStatistics
         {
             get
@@ -207,16 +213,41 @@ namespace CatSAT
         #endregion
 
         #region Quantifiers
+        /// <summary>
+        /// Test if the number of true literals is in the specified range
+        /// </summary>
+        /// <param name="min">Minimum number</param>
+        /// <param name="max">Maximum number</param>
+        /// <param name="domain">Domain over which to quantify</param>
+        /// <param name="f">Function to map domain element to proposition</param>
+        /// <typeparam name="T">Element type of domain</typeparam>
+        /// <returns>True if the right number of elements are true in this solution</returns>
+        // ReSharper disable once UnusedMember.Global
         public bool Quantify<T>(int min, int max, IEnumerable<T> domain, Func<T, Literal> f)
         {
             return Quantify(min, max, domain.Select(f));
         }
 
+        /// <summary>
+        /// Test if the number of true literals is in the specified range
+        /// </summary>
+        /// <param name="min">Minimum number</param>
+        /// <param name="max">Maximum number</param>
+        /// <param name="literals">Literals to test</param>
+        /// <returns>True if the right number of elements are true in this solution</returns>
+        // ReSharper disable once UnusedMember.Global
         public bool Quantify(int min, int max, params Literal[] literals)
         {
             return Quantify(min, max, (IEnumerable<Literal>)literals);
         }
 
+        /// <summary>
+        /// Test if the number of true literals is in the specified range
+        /// </summary>
+        /// <param name="min">Minimum number</param>
+        /// <param name="max">Maximum number</param>
+        /// <param name="literals">Literals to test</param>
+        /// <returns>True if the right number of elements are true in this solution</returns>
         public bool Quantify(int min, int max, IEnumerable<Literal> literals)
         {
             var enumerable = literals as Literal[] ?? literals.ToArray();
@@ -228,111 +259,234 @@ namespace CatSAT
             return c >= min && c <= max;
         }
 
+        /// <summary>
+        /// Returns the number of literals from the specified set that are true in this solution
+        /// </summary>
+        /// <param name="literals">Literals to test</param>
+        /// <returns>Number of literals that are true</returns>
         public int Count(params Literal[] literals)
         {
             return Count((IEnumerable<Literal>)literals);
         }
 
+        /// <summary>
+        /// Returns the number of literals from the specified set that are true in this solution
+        /// </summary>
+        /// <returns>Number of literals that are true</returns>
+        // ReSharper disable once UnusedMember.Global
         public int Count<T>(IEnumerable<T> domain, Func<T, Literal> f)
         {
             return Count(domain.Select(f));
         }
 
+        /// <summary>
+        /// Returns the number of literals from the specified set that are true in this solution
+        /// </summary>
+        /// <param name="literals">Literals to test</param>
+        /// <returns>Number of literals that are true</returns>
         public int Count(IEnumerable<Literal> literals)
         {
             return literals.Count(IsTrue);
         }
 
+        /// <summary>
+        /// Test if all the specified literals are true in this solution
+        /// </summary>
+        /// <param name="literals">Literals to test</param>
+        /// <returns>True if they're all true</returns>
         public bool All(params Literal[] literals)
         {
             return All((IEnumerable<Literal>)literals);
         }
 
+        /// <summary>
+        /// Test if all the specified literals are true in this solution
+        /// </summary>
+        /// <returns>True if they're all true</returns>
         public bool All<T>(IEnumerable<T> domain, Func<T, Literal> f)
         {
             return All(domain.Select(f));
         }
 
+        /// <summary>
+        /// Test if all the specified literals are true in this solution
+        /// </summary>
+        /// <param name="literals">Literals to test</param>
+        /// <returns>True if they're all true</returns>
         public bool All(IEnumerable<Literal> literals)
         {
             var lits = literals.ToArray();
             return Quantify(lits.Length, lits.Length, (IEnumerable<Literal>)lits);
         }
 
+        /// <summary>
+        /// True if at least one literal is true from the specified set
+        /// </summary>
+        /// <param name="literals">Literals to test</param>
+        /// <returns>True if at least one literal is true in this solution</returns>
+        // ReSharper disable once UnusedMember.Global
         public bool Exists(params Literal[] literals)
         {
             return Exists((IEnumerable<Literal>)literals);
         }
 
+        /// <summary>
+        /// True if at least one literal is true from the specified set
+        /// </summary>
+        /// <returns>True if at least one literal is true in this solution</returns>
+        // ReSharper disable once UnusedMember.Global
         public bool Exists<T>(IEnumerable<T> domain, Func<T, Literal> f)
         {
             return Exists(domain.Select(f));
         }
 
+        /// <summary>
+        /// True if at least one literal is true from the specified set
+        /// </summary>
+        /// <param name="literals">Literals to test</param>
+        /// <returns>True if at least one literal is true in this solution</returns>
         // ReSharper disable once UnusedMember.Global
         public bool Exists(IEnumerable<Literal> literals)
         {
             return literals.Any(IsTrue);
         }
 
+        /// <summary>
+        /// True if exactly one literal is true from the specified set
+        /// </summary>
+        /// <param name="literals">Literals to test</param>
+        /// <returns>True if exactly one literal is true in this solution</returns>
+        // ReSharper disable once UnusedMember.Global
         public bool Unique(params Literal[] literals)
         {
             return Unique((IEnumerable<Literal>)literals);
         }
 
+        /// <summary>
+        /// True if exactly one literal is true from the specified set
+        /// </summary>
+        /// <returns>True if exactly one literal is true in this solution</returns>
         public bool Unique<T>(IEnumerable<T> domain, Func<T, Literal> f)
         {
             return Unique(domain.Select(f));
         }
 
+        /// <summary>
+        /// True if exactly one literal is true from the specified set
+        /// </summary>
+        /// <param name="literals">Literals to test</param>
+        /// <returns>True if exactly one literal is true in this solution</returns>
         // ReSharper disable once UnusedMethodReturnValue.Global
         public bool Unique(IEnumerable<Literal> literals)
         {
             return Quantify(1, 1, literals);
         }
 
+        /// <summary>
+        /// True if exactly the specified number of literals are true from the specified set
+        /// </summary>
+        /// <param name="n">Number of elements to test for</param>
+        /// <param name="literals">Literals to test</param>
+        /// <returns>True if exactly the specified number is true in this solution</returns>
+        // ReSharper disable once UnusedMember.Global
         public bool Exactly(int n, params Literal[] literals)
         {
             return Exactly(n, (IEnumerable<Literal>)literals);
         }
 
+        /// <summary>
+        /// True if exactly the specified number of literals are true from the specified set
+        /// </summary>
+        /// <param name="n">Number of elements to test for</param>
+        /// <param name="domain">Domain to quantify over</param>
+        /// <param name="f">Maps a domain element to a literal</param>
+        /// <returns>True if exactly the specified number is true in this solution</returns>
+        // ReSharper disable once UnusedMember.Global
         public bool Exactly<T>(int n, IEnumerable<T> domain, Func<T, Literal> f)
         {
             return Exactly(n, domain.Select(f));
         }
 
+        /// <summary>
+        /// True if exactly the specified number of literals are true from the specified set
+        /// </summary>
+        /// <param name="n">Number of elements to test for</param>
+        /// <param name="literals">Literals to test</param>
+        /// <returns>True if exactly the specified number is true in this solution</returns>
         // ReSharper disable once UnusedMethodReturnValue.Global
         public bool Exactly(int n, IEnumerable<Literal> literals)
         {
             return Quantify(n, n, literals);
         }
 
+        /// <summary>
+        /// True if at most the specified number of literals are true from the specified set
+        /// </summary>
+        /// <param name="n">Number of elements to test for</param>
+        /// <param name="literals">Literals to test</param>
+        /// <returns>True if at most the specified number is true in this solution</returns>
+        // ReSharper disable once UnusedMember.Global
         public bool AtMost(int n, params Literal[] literals)
         {
             return AtMost(n, (IEnumerable<Literal>)literals);
         }
 
+        /// <summary>
+        /// True if at most the specified number of literals are true from the specified set
+        /// </summary>
+        /// <param name="n">Number of elements to test for</param>
+        /// <param name="domain">Domain to quantify over</param>
+        /// <param name="f">Function to map a domain element to a literal</param>
+        /// <returns>True if at most the specified number is true in this solution</returns>
+        // ReSharper disable once UnusedMember.Global
         public bool AtMost<T>(int n, IEnumerable<T> domain, Func<T, Literal> f)
         {
             return AtMost(n, domain.Select(f));
         }
 
+        /// <summary>
+        /// True if at most the specified number of literals are true from the specified set
+        /// </summary>
+        /// <param name="n">Number of elements to test for</param>
+        /// <param name="literals">Literals to test</param>
+        /// <returns>True if at most the specified number is true in this solution</returns>
         // ReSharper disable once UnusedMethodReturnValue.Global
         public bool AtMost(int n, IEnumerable<Literal> literals)
         {
             return Quantify(0, n, literals);
         }
 
+        /// <summary>
+        /// True if at least the specified number of literals are true from the specified set
+        /// </summary>
+        /// <param name="n">Number of elements to test for</param>
+        /// <param name="literals">Literals to test</param>
+        /// <returns>True if at least the specified number is true in this solution</returns>
+        // ReSharper disable once UnusedMember.Global
         public bool AtLeast(int n, params Literal[] literals)
         {
             return AtLeast(n, (IEnumerable<Literal>)literals);
         }
 
+        /// <summary>
+        /// True if at least the specified number of literals are true from the specified set
+        /// </summary>
+        /// <param name="n">Number of elements to test for</param>
+        /// <param name="domain">Domain to quantify over</param>
+        /// <param name="f">Function to map a domain element to a literal</param>
+        /// <returns>True if at least the specified number is true in this solution</returns>
+        // ReSharper disable once UnusedMember.Global
         public bool AtLeast<T>(int n, IEnumerable<T> domain, Func<T, Literal> f)
         {
             return AtLeast(n, domain.Select(f));
         }
 
+        /// <summary>
+        /// True if at least the specified number of literals are true from the specified set
+        /// </summary>
+        /// <param name="n">Number of elements to test for</param>
+        /// <param name="literals">Literals to test</param>
+        /// <returns>True if at least the specified number is true in this solution</returns>
         // ReSharper disable once UnusedMember.Global
         public bool AtLeast(int n, IEnumerable<Literal> literals)
         {

@@ -22,18 +22,30 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-using System;
-
 namespace CatSAT.NonBoolean.SMT.Float
 {
+    /// <summary>
+    /// A domain of single-precision floating-point numbers.
+    /// Domain must be a closed interval.
+    /// </summary>
     public class FloatDomain : Domain<float>
     {
+        /// <summary>
+        /// The upper and lower bounds of the domain
+        /// </summary>
         public readonly Interval Bounds;
+        /// <summary>
+        /// A floating-point domain, specified by upper- and lower-bounds
+        /// </summary>
+        /// <param name="name">Name of the variable</param>
+        /// <param name="lowerBound">Lower bound of the variable</param>
+        /// <param name="upperBound">Upper bound of the variable</param>
         public FloatDomain(string name, float lowerBound, float upperBound) : base(name)
         {
             Bounds = new Interval(lowerBound, upperBound);
         }
 
+        /// <inheritdoc />
         public override Variable Instantiate(object name, Problem p, Literal condition = null)
         {
             return new FloatVariable(name, this, condition, p);

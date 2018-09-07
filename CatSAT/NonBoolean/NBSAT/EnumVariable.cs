@@ -26,8 +26,20 @@ using System.Diagnostics;
 
 namespace CatSAT
 {
+#pragma warning disable 660,661
+    /// <summary>
+    /// A finite-domain variable whose domain is a specified enumerated type
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class EnumVariable<T> : FDVariable<T>
+#pragma warning restore 660,661
     {
+        /// <summary>
+        /// Creates a new EnumVariable.
+        /// Domain need not be specified, because it's implicitly specified by the Enumerated type parameter of the class.
+        /// </summary>
+        /// <param name="name">Name of the variable</param>
+        /// <param name="condition">Condition under which the variable is defined (default always defined)</param>
         public EnumVariable(object name, Literal condition = null) : base(name, EnumDomain<T>.Singleton, condition)
         { }
 
@@ -40,7 +52,8 @@ namespace CatSAT
         public static Literal operator ==(EnumVariable<T> var, T value)
         {
             Debug.Assert((object)var != null, nameof(var) + " != null");
-            return var.valuePropositions[var.domain.IndexOf(value)];
+            // ReSharper disable once PossibleNullReferenceException
+            return var.ValuePropositions[var.domain.IndexOf(value)];
         }
 
         /// <summary>
@@ -52,7 +65,8 @@ namespace CatSAT
         public static Literal operator !=(EnumVariable<T> var, T value)
         {
             Debug.Assert((object)var != null, nameof(var) + " != null");
-            return Language.Not(var.valuePropositions[var.domain.IndexOf(value)]);
+            // ReSharper disable once PossibleNullReferenceException
+            return Language.Not(var.ValuePropositions[var.domain.IndexOf(value)]);
         }
     }
 }

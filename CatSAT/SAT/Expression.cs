@@ -55,11 +55,11 @@ namespace CatSAT
         /// <param name="clauseArray">Array of signed indices for the clause we're writing this to.</param>
         /// <param name="startingPosition">Position to start writing</param>
         /// <returns></returns>
-        public abstract int WriteNegatedSignedIndicesTo(short[] clauseArray, int startingPosition);
+        internal abstract int WriteNegatedSignedIndicesTo(short[] clauseArray, int startingPosition);
 
         /// <summary>
         /// Make a conjunction of two Expressions.
-        /// Performs simple constant folding, e.g. false & p = False, true & p = p.
+        /// Performs simple constant folding, e.g. false and p = False, true and p = p.
         /// </summary>
         public static Expression operator &(Expression left, Expression right)
         {
@@ -94,16 +94,35 @@ namespace CatSAT
     public abstract class Literal : Expression
 #pragma warning restore 660,661
     {
+        /// <summary>
+        /// Coerce a string to a literal
+        /// Returns the proposition with the specified name
+        /// </summary>
+        /// <param name="s">Name of hte proposition</param>
+        /// <returns>The proposition with that naem</returns>
         public static implicit operator Literal(string s)
         {
             return Proposition.MakeProposition(s);
         }
 
+        /// <summary>
+        /// Returns a biconditional rule asserting that the head and body are true in exactly the same models
+        /// </summary>
+        /// <param name="head">Literal that's equivalent to the body</param>
+        /// <param name="body">Literal or conjunction that's equivalent to the head.</param>
+        /// <returns></returns>
         public static Biconditional operator ==(Literal head, Expression body)
         {
             return new Biconditional(head, body);
         }
 
+        /// <summary>
+        /// This is not actually supported
+        /// </summary>
+        /// <param name="head"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public static Biconditional operator !=(Literal head, Expression body)
         {
             throw new NotImplementedException("!= is undefined for CatSAT expressions");
@@ -115,19 +134,32 @@ namespace CatSAT
         /// IMPORTANT: if this is a negation, then the index is negative.  That is, if p has index 2, then
         /// Not(p) has index -2.
         /// </summary>
-        public abstract short SignedIndex { get; }
+        internal abstract short SignedIndex { get; }
 
-        public override int WriteNegatedSignedIndicesTo(short[] clauseArray, int startingPosition)
+        internal override int WriteNegatedSignedIndicesTo(short[] clauseArray, int startingPosition)
         {
             clauseArray[startingPosition] = (short)-SignedIndex;
             return startingPosition + 1;
         }
 
+        /// <summary>
+        /// This syntax is not supported for implications or rules.
+        /// </summary>
+        /// <param name="body"></param>
+        /// <param name="head"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public static Implication operator <(Expression body, Literal head)
         {
             throw new NotImplementedException("Use head <= body for rules");
         }
 
+        /// <summary>
+        /// Returns an implication asserting that the body implied the head, but not vice-versa
+        /// </summary>
+        /// <param name="body">A literal or conjunction of literals</param>
+        /// <param name="head">A literal implied by the body.</param>
+        /// <returns></returns>
         public static Implication operator >(Expression body, Literal head)
         {
             return new Implication(head, body);
@@ -138,6 +170,11 @@ namespace CatSAT
             p.Assert(this);
         }
 
+        /// <summary>
+        /// Coerces a boolean to a Proposition with a fixed truth value
+        /// </summary>
+        /// <param name="b">Boolean</param>
+        /// <returns>Proposition - either Proposition.True or Proposition.False</returns>
         public static implicit operator Literal(bool b)
         {
             return (Proposition) b;
@@ -199,11 +236,21 @@ namespace CatSAT
         /// </summary>
         public bool IsConstant => Index == 0;
 
+        /// <summary>
+        /// True if this proposition's name is a call to the specfied functor name (e.g. predicate name, action name, etc.).
+        /// </summary>
+        /// <param name="functorName">Name to check for</param>
+        // ReSharper disable once UnusedMember.Global
         public bool IsCall(string functorName)
         {
             return Name is Call c && c.Name == functorName;
         }
 
+        /// <summary>
+        /// For propositions whose names are Calls, returns the index'th argument of the call.
+        /// </summary>
+        /// <typeparam name="T">Expected type of the argument</typeparam>
+        /// <param name="index">Argument index</param>
         public T Arg<T>(int index)
         {
             if (Name is Call c)
@@ -217,6 +264,9 @@ namespace CatSAT
             Index = index;
         }
 
+        /// <summary>
+        /// Make a proposition.  Does nothing.
+        /// </summary>
         protected Proposition() { }
 
         /// <summary>
@@ -231,16 +281,26 @@ namespace CatSAT
             return c.Args[n];
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return Name.ToString();
         }
 
+        /// <summary>
+        /// Coerces a string to a proposition.
+        /// Returns the proposition in Problem.Current with the specified name
+        /// </summary>
+        /// <param name="name">Name to search for.</param>
         public static implicit operator Proposition(string name)
         {
             return MakeProposition(name);
         }
 
+        /// <summary>
+        /// Returns the proposition within Problem.Current with the specified name, creating one if necessary.
+        /// </summary>
+        /// <param name="name">Name for the proposition</param>
         public static Proposition MakeProposition(object name)
         {
             return Problem.Current.GetProposition(name);
@@ -262,7 +322,7 @@ namespace CatSAT
         /// <summary>
         /// Position of the Proposition in its Program's Variables[] array and its Solutions' propositions[] array.
         /// </summary>
-        public override short SignedIndex
+        internal override short SignedIndex
         {
             get
             {
@@ -271,11 +331,22 @@ namespace CatSAT
             }
         }
 
+        /// <summary>
+        /// Coerces a boolean to a proposition
+        /// </summary>
+        /// <param name="b">Boolean to check</param>
+        /// <returns>Proposition.True or Proposition.False</returns>
         public static implicit operator Proposition(bool b)
         {
             return b ? True : False;
         }
 
+        /// <summary>
+        /// Coerces a constant proposition (Proposition.True or Proposition.False) to a boolean
+        /// </summary>
+        /// <param name="p">Proposition</param>
+        /// <returns>Proposition's (fixed) truth value</returns>
+        /// <exception cref="ArgumentException">If the proposition isn't Proposition.True or Proposition.False</exception>
         public static explicit operator bool(Proposition p)
         {
             if (!p.IsConstant)
@@ -283,11 +354,24 @@ namespace CatSAT
             return Equals(p, True);
         }
 
+        /// <summary>
+        /// Returns a rule representing that the body justifies the truth of the head
+        /// </summary>
+        /// <param name="head">Proposition that can be justified by the body</param>
+        /// <param name="body">Literal or conjunction of literals that would justify the truth of head.</param>
+        /// <returns></returns>
         public static Rule operator <=(Proposition head, Expression body)
         {
             return new Rule(head, body);
         }
 
+        /// <summary>
+        /// This syntax is not supported.
+        /// </summary>
+        /// <param name="head"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException">This is not supported</exception>
         public static Rule operator >=(Proposition head, Expression body)
         {
             throw new NotImplementedException(">= is undefined for CatSAT expressions");
@@ -334,6 +418,10 @@ namespace CatSAT
     /// </summary>
     public class SpecialProposition : Proposition
     {
+        /// <summary>
+        /// Called automatically after constructor to initialize the special problem instance.
+        /// </summary>
+        /// <param name="p">Problem to which this proposition belongs</param>
         public virtual void Initialize(Problem p) { }
     }
 
@@ -342,14 +430,24 @@ namespace CatSAT
     /// </summary>
     public class Negation : Literal
     {
-        // It's annoying that I have to make this.  I wish I had S-expressions.
+        /// <summary>
+        /// The proposition being negated
+        /// </summary>
         public readonly Proposition Proposition;
 
+        /// <summary>
+        /// Creates a Literal representing the negation of the proposition
+        /// </summary>
+        /// <param name="proposition">Proposition to negate</param>
         public Negation(Proposition proposition)
         {
             Proposition = proposition;
         }
     
+        /// <summary>
+        /// Creates a Literal representing the negation of the proposition
+        /// </summary>
+        /// <param name="p">Proposition to negate</param>
         public static Literal Not(Proposition p)
         {
             if (p.IsConstant)
@@ -359,12 +457,13 @@ namespace CatSAT
             return Problem.Current.Negation(p);
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"!{Proposition}";
         }
 
-        public override short SignedIndex => (short)-Proposition.Index;
+        internal override short SignedIndex => (short)-Proposition.Index;
 
         internal override IEnumerable<Proposition> PositiveLiterals
         {
@@ -381,15 +480,27 @@ namespace CatSAT
     /// </summary>
     public class Implication : Assertable
     {
+        /// <summary>
+        /// The literal implied by the assertion
+        /// </summary>
         public readonly Literal Head;
+        /// <summary>
+        /// The condition under which the head is implied
+        /// </summary>
         public readonly Expression Body;
 
+        /// <summary>
+        /// Creates an expression representing that a given Literal or conjunction of literals implies the specifed literal.
+        /// </summary>
+        /// <param name="head">literal implied by the body</param>
+        /// <param name="body">literal or conjunction that implies the head</param>
         public Implication(Literal head, Expression body)
         {
             Head = head;
             Body = body;
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"{Head} <= {Body}";
@@ -410,15 +521,27 @@ namespace CatSAT
     /// </summary>
     public class Rule : Assertable
     {
+        /// <summary>
+        /// The proposition being concluded by the rule
+        /// </summary>
         public readonly Proposition Head;
+        /// <summary>
+        /// The literal or conjunction that would justify concluding the head.
+        /// </summary>
         public readonly Expression Body;
 
+        /// <summary>
+        /// A rule that states that the head is justified by the body
+        /// </summary>
+        /// <param name="head">proposition that can be concluded from the body</param>
+        /// <param name="body">Literal or conjunction that would justify the head</param>
         public Rule(Proposition head, Expression body)
         {
             Head = head;
             Body = body;
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"{Head} <= {Body}";
@@ -435,15 +558,27 @@ namespace CatSAT
     /// </summary>
     public class Biconditional : Assertable
     {
+        /// <summary>
+        /// Literal stated to be equivalent to the body
+        /// </summary>
         public readonly Literal Head;
+        /// <summary>
+        /// Literal or conjunction stated to be equivalent to the head
+        /// </summary>
         public readonly Expression Body;
 
+        /// <summary>
+        /// An expression stating that the head and body are equivalent (true in the same models)
+        /// </summary>
+        /// <param name="head">literal equivalent to the body</param>
+        /// <param name="body">Literal or conjunction equivalent to the head</param>
         public Biconditional(Literal head, Expression body)
         {
             Head = head;
             Body = body;
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"{Head} == {Body}";
@@ -470,20 +605,29 @@ namespace CatSAT
         /// </summary>
         public readonly Expression Right;
 
+        /// <summary>
+        /// An expression representing the condition in which both left and right are true
+        /// </summary>
+        /// <param name="left">LHS of the conjunction</param>
+        /// <param name="right">RHS of the conjunction</param>
         public Conjunction(Expression left, Expression right)
         {
             Left = left;
             Right = right;
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"{Left} & {Right}";
         }
 
+        /// <summary>
+        /// Number of terms in the conjunction
+        /// </summary>
         public override int Size => Left.Size + Right.Size;
 
-        public override int WriteNegatedSignedIndicesTo(short[] clauseArray, int startingPosition)
+        internal override int WriteNegatedSignedIndicesTo(short[] clauseArray, int startingPosition)
         {
             return Right.WriteNegatedSignedIndicesTo(clauseArray, Left.WriteNegatedSignedIndicesTo(clauseArray, startingPosition));
         }

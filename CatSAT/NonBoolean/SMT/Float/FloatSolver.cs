@@ -38,7 +38,7 @@ namespace CatSAT.NonBoolean.SMT.Float
         // All variables not aliased to other variables by equality assertions.
         private readonly List<FloatVariable> activeVariables = new List<FloatVariable>();
 
-        Queue<Tuple<FloatVariable,bool>> propagationQueue = new Queue<Tuple<FloatVariable, bool>>();
+        private readonly Queue<Tuple<FloatVariable,bool>> propagationQueue = new Queue<Tuple<FloatVariable, bool>>();
 
         public override string Preprocess()
         {

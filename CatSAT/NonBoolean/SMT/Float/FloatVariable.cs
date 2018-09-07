@@ -29,9 +29,13 @@ using CatSAT.NonBoolean.SMT.Float;
 namespace CatSAT
 {
 #pragma warning disable 660,661
+    /// <summary>
+    /// An float-valued SMT variable
+    /// </summary>
     public class FloatVariable : TheoryVariable<float>
 #pragma warning restore 660,661
     {
+        /// <inheritdoc />
         public FloatVariable(object name, FloatDomain d, Literal condition, Problem problem) : base(name, problem, condition)
         {
             FloatDomain = d;
@@ -41,11 +45,22 @@ namespace CatSAT
             floatSolver.Variables.Add(this);
         }
 
+        /// <summary>
+        /// An float-valued SMT variable in the range low to high
+        /// </summary>
+        /// <param name="name">Name for the variable</param>
+        /// <param name="low">Lower bound</param>
+        /// <param name="high">Upper bound</param>
         public FloatVariable(object name, float low, float high)
             : this(name, new FloatDomain(name.ToString(), low, high), null, Problem.Current)
         { }
 
+        /// <summary>
+        /// Domain for the variable
+        /// </summary>
         public readonly FloatDomain FloatDomain;
+
+        /// <inheritdoc />
         public override Domain<float> Domain => FloatDomain;
 
         /// <summary>
@@ -94,6 +109,7 @@ namespace CatSAT
         /// </summary>
         internal readonly int Index;
 
+        /// <inheritdoc />
         public override float Value(Solution s)
         {
             var r = Representative;
@@ -111,16 +127,19 @@ namespace CatSAT
             return false;
         }
 
+        /// <inheritdoc />
         public override float PredeterminedValue()
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc />
         public override void SetPredeterminedValue(float newValue)
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc />
         public override void Reset()
         {
             Bounds = FloatDomain.Bounds;
@@ -164,44 +183,80 @@ namespace CatSAT
             return Bounds.IsNonEmpty;
         }
 
+        /// <summary>
+        /// A proposition representing that the two variables are equal
+        /// </summary>
+        /// <param name="v1">First variable</param>
+        /// <param name="v2">Second variable</param>
         public static Proposition operator ==(FloatVariable v1, FloatVariable v2)
         {
             return Problem.Current.GetSpecialProposition<VariableEquation>(new Call("=", v1, v2));
         }
 
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <param name="v1"></param>
+        /// <param name="v2"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public static Proposition operator !=(FloatVariable v1, FloatVariable v2)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// A proposition representing that the variable is less than OR EQUAL to a constant
+        /// </summary>
+        /// <param name="v">Variable bounded by constant</param>
+        /// <param name="f">Upper bound on the variable</param>
+        /// <returns></returns>
         public static Proposition operator <(FloatVariable v, float f)
         {
             return Problem.Current.GetSpecialProposition<ConstantBound>(new Call("<=", v, f));
         }
 
+        /// <summary>
+        /// A proposition representing that the variable is greater than OR EQUAL to a constant
+        /// </summary>
+        /// <param name="v">Variable bounded by constant</param>
+        /// <param name="f">lower bound on the variable</param>
+        /// <returns></returns>
         public static Proposition operator >(FloatVariable v, float f)
         {
             return Problem.Current.GetSpecialProposition<ConstantBound>(new Call(">=", v, f));
         }
 
+        /// <summary>
+        /// A proposition representing that the one variable is less than OR EQUAL to another
+        /// </summary>
+        /// <param name="v1">Smaller variable</param>
+        /// <param name="v2">Larger variable</param>
+        /// <returns></returns>
         public static Proposition operator <(FloatVariable v1, FloatVariable v2)
         {
             return Problem.Current.GetSpecialProposition<VariableBound>(new Call("<=", v1, v2));
         }
 
+        /// <summary>
+        /// A proposition representing that the one variable is less than OR EQUAL to another
+        /// </summary>
+        /// <param name="v1">Larger variable</param>
+        /// <param name="v2">Smaller variable</param>
+        /// <returns></returns>
         public static Proposition operator >(FloatVariable v1, FloatVariable v2)
         {
             return Problem.Current.GetSpecialProposition<VariableBound>(new Call(">=", v1, v2));
         }
 
-        public void AddUpperBound(FloatVariable bound)
+        internal void AddUpperBound(FloatVariable bound)
         {
             if (UpperVariableBounds == null)
                 UpperVariableBounds = new List<FloatVariable>();
             UpperVariableBounds.Add(bound);
         }
 
-        public void AddLowerBound(FloatVariable bound)
+        internal void AddLowerBound(FloatVariable bound)
         {
             if (LowerVariableBounds == null)
                 LowerVariableBounds = new List<FloatVariable>();

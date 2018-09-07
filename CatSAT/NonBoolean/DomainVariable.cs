@@ -33,6 +33,7 @@ namespace CatSAT
     [DebuggerDisplay("{" + nameof(Name) + "}")]
     public abstract class DomainVariable<T> : Variable
     {
+        /// <inheritdoc />
         protected DomainVariable(object name, Problem problem, Literal condition) : base(name, problem, condition)
         {
         }
@@ -40,6 +41,7 @@ namespace CatSAT
         /// <summary>
         /// Domain specifying the possible values of the variable
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public abstract Domain<T> Domain { get; }
         
         /// <summary>
@@ -49,6 +51,7 @@ namespace CatSAT
         /// <returns>Value of the variable</returns>
         public abstract T Value(Solution s);
 
+        /// <inheritdoc />
         public override object UntypedValue(Solution s)
         {
             return Value(s);
@@ -58,17 +61,20 @@ namespace CatSAT
         /// Returns the value assigned to the variable in the problem, if any
         /// </summary>
         /// <returns>Value of the variable</returns>
+        // ReSharper disable once UnusedMember.Global
         public abstract T PredeterminedValue();
 
         /// <summary>
         /// Fixes the value assigned to the variable in the problem.
         /// </summary>
         /// <param name="newValue"></param>
+        // ReSharper disable once UnusedMember.Global
         public abstract void SetPredeterminedValue(T newValue);
 
         /// <summary>
         /// Removes any predetermined value for the variable
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public abstract void Reset();
     }
 }

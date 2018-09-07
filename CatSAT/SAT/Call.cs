@@ -34,15 +34,28 @@ namespace CatSAT
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + "}")]
     public sealed class Call
     {
+        /// <summary>
+        /// Name of the predicate or other functor being called
+        /// </summary>
         public readonly string Name;
+        /// <summary>
+        /// Arguments
+        /// </summary>
         public readonly object[] Args;
 
+        /// <summary>
+        /// Makes a new "call" object.  This is just an object used to fill in the name field for a proposition that conceptually
+        /// represents the truth of some predicate with some specific arguments
+        /// </summary>
+        /// <param name="name">Name of the predicate or other functor</param>
+        /// <param name="args">Arguments</param>
         public Call(string name, params object[] args)
         {
             Name = name;
             Args = args;
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             var hash = Name.GetHashCode();
@@ -51,6 +64,7 @@ namespace CatSAT
             return hash;
         }
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
         {
             if (obj is Call c)
@@ -67,6 +81,7 @@ namespace CatSAT
             return false;
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             var b = new StringBuilder();

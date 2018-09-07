@@ -31,6 +31,9 @@ namespace CatSAT
     /// </summary>
     public class ContradictionException : Exception
     {
+        /// <summary>
+        /// The Problem containing the contradiction
+        /// </summary>
         public readonly Problem Problem;
 
         internal ContradictionException(Problem problem, Clause clause) : base($"Contradiction found in clause {clause.Decompile(problem)}")

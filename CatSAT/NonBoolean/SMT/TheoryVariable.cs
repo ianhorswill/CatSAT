@@ -24,8 +24,13 @@
 #endregion
 namespace CatSAT
 {
+    /// <summary>
+    /// An SMT variable that's solved for by a special-purpose "theory solver"
+    /// </summary>
+    /// <typeparam name="T">Type over which the theory solver reasons</typeparam>
     public abstract class TheoryVariable<T> : DomainVariable<T>
     {
+        /// <inheritdoc />
         protected TheoryVariable(object name, Problem problem, Literal condition) : base(name, problem, condition)
         { }
     }

@@ -28,12 +28,17 @@ namespace CatSAT
 {
     /// <summary>
     /// Signifies the solver game up.
+    /// This doesn't mean that the problem is necessarily unsatisfiable (contains a contradiction).
+    /// It just means that the solver couldn't find a solution in the alloted time.
     /// </summary>
     public class TimeoutException : Exception
     {
+        /// <summary>
+        /// Problem for which the system couldn't find a solution.
+        /// </summary>
         public readonly Problem Problem;
 
-        public TimeoutException(Problem problem) : base($"Could not find a solution: {problem}")
+        internal TimeoutException(Problem problem) : base($"Could not find a solution: {problem}")
         {
             Problem = problem;
         }

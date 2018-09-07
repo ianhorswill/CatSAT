@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PCGProblem.cs" company="Ian Horswill">
+// <copyright file="Generator.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,9 +28,12 @@ using CatSAT;
 
 namespace PCGToy
 {
-    public static  class Generator
+    /// <summary>
+    /// Utilities for loading PCGToy files.
+    /// </summary>
+    public static class Generator
     {
-        static Dictionary<string,Problem> shared = new Dictionary<string, Problem>();
+        private static readonly Dictionary<string,Problem> Shared = new Dictionary<string, Problem>();
 
         /// <summary>
         /// Returns a Problem object with the specified PCGToy file loaded into it.
@@ -38,11 +41,12 @@ namespace PCGToy
         /// </summary>
         /// <param name="path">Path to PCGToy file</param>
         /// <returns>CatSAT problem containing the generator</returns>
+        // ReSharper disable once UnusedMember.Global
         public static Problem SharedFromFile(string path)
         {
-            if (shared.TryGetValue(path, out Problem p))
+            if (Shared.TryGetValue(path, out Problem p))
                 return p;
-            return shared[path] = FromFile(path);
+            return Shared[path] = FromFile(path);
         }
 
         /// <summary>
@@ -58,6 +62,12 @@ namespace PCGToy
             return p;
         }
 
+        /// <summary>
+        /// Add the information in the PCGToy file to the specified problem.
+        /// </summary>
+        /// <param name="path">File path</param>
+        /// <param name="problem">Problem to add the contents to</param>
+        /// <exception cref="FileFormatException">If the file is not a valid PCGToy file.</exception>
         public static void LoadFromFile(string path, Problem problem)
         {
             Dictionary<string, FDomain<object>> domains = new Dictionary<string, FDomain<object>>();
@@ -109,7 +119,8 @@ namespace PCGToy
                 }
             }
         }
-        public static Literal ConditionFromSExpression(object sexp, Dictionary<string, FDVariable<object>> variables)
+
+        private  static Literal ConditionFromSExpression(object sexp, Dictionary<string, FDVariable<object>> variables)
         {
             bool positive = true;
             if (!(sexp is List<object> condExp)

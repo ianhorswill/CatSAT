@@ -47,11 +47,15 @@ namespace CatSAT
         /// <summary>
         /// Set the seed to the current time (System.DateTime.Now.Ticks)
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public static void SetSeed()
         {
             SetSeed((uint)System.DateTime.Now.Ticks);
         }
 
+        /// <summary>
+        /// Returns a randon uint.
+        /// </summary>
         public static uint Next()
         {
             /* Algorithm "xor" from p. 4 of Marsaglia, "Xorshift RNGs" */
@@ -85,14 +89,6 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// Return a random integer in [0, max)
-        /// </summary>
-        //public static int InRange(int max)
-        //{
-        //    return (int)Next() % max;
-        //}
-
-        /// <summary>
         /// Return a random integer in [min, max]
         /// </summary>
         // ReSharper disable once UnusedMember.Global
@@ -119,6 +115,9 @@ namespace CatSAT
         }
 
 
+        /// <summary>
+        /// Returns a random prime number from a list.
+        /// </summary>
         public static uint Prime()
         {
             return Primes.RandomElement();
@@ -388,6 +387,12 @@ namespace CatSAT
             1657
         };
 
+        /// <summary>
+        /// Returns a random single-precision float in the specified range.
+        /// </summary>
+        /// <param name="min">Minimum value</param>
+        /// <param name="max">Maximum value</param>
+        /// <returns></returns>
         public static float Float(float min, float max)
         {
             double unitInterval = Next() / ((double) uint.MaxValue);

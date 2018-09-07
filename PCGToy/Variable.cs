@@ -36,7 +36,7 @@ namespace PCGToy
 
         public IList<object> DomainValues
         {
-            get => Domain.Values;
+            get => Domain.Elements;
             set
             {
                 Problem.Domains[DomainName] = new FDomain<object>(DomainName, value);

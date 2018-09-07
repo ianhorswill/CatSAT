@@ -28,15 +28,19 @@ using System.Reflection;
 
 namespace CatSAT
 {
+    /// <summary>
+    /// The VariableType of a CompiledStruct
+    /// </summary>
     public class CompiledStructType : VariableType
     {
         private readonly Type type;
-        public CompiledStructType(Type t) : base(t.Name)
+        internal CompiledStructType(Type t) : base(t.Name)
         {
             Debug.Assert(t.IsSubclassOf(typeof(CompiledStruct)));
             type = t;
         }
 
+        /// <inheritdoc />
         public override Variable Instantiate(object name, Problem p, Literal condition = null)
         {
             return (Variable) type.InvokeMember(null, BindingFlags.CreateInstance, null, null,

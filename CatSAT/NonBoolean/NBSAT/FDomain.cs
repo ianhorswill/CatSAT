@@ -33,26 +33,51 @@ namespace CatSAT
     /// <typeparam name="T">Base type of the domain</typeparam>
     public class FDomain<T> : Domain<T>
     {
-        public readonly IList<T> Values;
+        /// <summary>
+        /// The values of the domain
+        /// </summary>
+        public readonly IList<T> Elements;
 
-        public FDomain(string name, params T[] values) : this(name, (IList<T>)values)
+        /// <summary>
+        /// A finite domain with the specified name and domain elements
+        /// </summary>
+        /// <param name="name">NAme to give to the domain</param>
+        /// <param name="elements">Elements of hte domain</param>
+        public FDomain(string name, params T[] elements) : this(name, (IList<T>)elements)
         { }
 
-        public FDomain(string name, IList<T> values) : base(name)
+        /// <summary>
+        /// A finite domain with the specified name and domain elements
+        /// </summary>
+        /// <param name="name">NAme to give to the domain</param>
+        /// <param name="elements">Elements of hte domain</param>
+        public FDomain(string name, IList<T> elements) : base(name)
         {
-            Values = values;
+            Elements = elements;
         }
 
-        public int IndexOf(T value)
+        /// <summary>
+        /// Element number of the specified domain element.
+        /// Elements are numbered 0, 1, ... #elements-1.
+        /// </summary>
+        /// <param name="element">Desired domain element</param>
+        /// <returns>Index of element within the Elements list</returns>
+        /// <exception cref="ArgumentException">If argument isn't a valid domain element</exception>
+        public int IndexOf(T element)
         {
-            var index = Values.IndexOf(value);
+            var index = Elements.IndexOf(element);
             if (index < 0)
-                throw new ArgumentException($"{value} is not an element of the domain {Name}");
+                throw new ArgumentException($"{element} is not an element of the domain {Name}");
             return index;
         }
 
-        public T this[int i] => Values[i];
+        /// <summary>
+        /// Returns the i'th element of the domain.  Elements are numbered from 0.
+        /// </summary>
+        /// <param name="i">Element number</param>
+        public T this[int i] => Elements[i];
 
+        /// <inheritdoc />
         public override Variable Instantiate(object name, Problem p, Literal condition = null)
         {
             // ReSharper disable once ObjectCreationAsStatement
