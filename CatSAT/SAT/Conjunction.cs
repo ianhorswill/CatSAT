@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Expression.cs" company="Ian Horswill">
+// <copyright file="Conjunction.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,49 +27,63 @@ using System.Collections.Generic;
 namespace CatSAT
 {
     /// <summary>
-    /// A propositional expression
+    /// A conjunction of literals.
+    /// Used in rule bodies.
     /// </summary>
-    public abstract class Expression : Assertable
+    public class Conjunction : Expression
     {
         /// <summary>
-        /// Number of literals in the expression
+        /// LHS of the conjunction
         /// </summary>
-        public virtual int Size => 1;
+        public readonly Expression Left;
+        /// <summary>
+        /// RHS of the conjunction
+        /// </summary>
+        public readonly Expression Right;
 
         /// <summary>
-        /// Walk the expression tree and write the indicies of its literals into the specified array.
+        /// An expression representing the condition in which both left and right are true
         /// </summary>
-        /// <param name="clauseArray">Array of signed indices for the clause we're writing this to.</param>
-        /// <param name="startingPosition">Position to start writing</param>
-        /// <returns></returns>
-        internal abstract int WriteNegatedSignedIndicesTo(short[] clauseArray, int startingPosition);
-
-        /// <summary>
-        /// Make a conjunction of two Expressions.
-        /// Performs simple constant folding, e.g. false and p = False, true and p = p.
-        /// </summary>
-        public static Expression operator &(Expression left, Expression right)
+        /// <param name="left">LHS of the conjunction</param>
+        /// <param name="right">RHS of the conjunction</param>
+        public Conjunction(Expression left, Expression right)
         {
-            if (left is Proposition l && l.IsConstant)
-                    return (bool)l ? right : Proposition.False;
-            if (right is Proposition r && r.IsConstant)
-                return (bool)r ? left : Proposition.False;
-            return new Conjunction(left, right);
+            Left = left;
+            Right = right;
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"{Left} & {Right}";
         }
 
         /// <summary>
-        /// Coerce an expression to a boolean
-        /// Will throw an exception unless the expression is really a constant-valued Proposition.
+        /// Number of terms in the conjunction
         /// </summary>
-        /// <param name="b"></param>
-        public static implicit operator Expression(bool b)
+        public override int Size => Left.Size + Right.Size;
+
+        internal override int WriteNegatedSignedIndicesTo(short[] clauseArray, int startingPosition)
         {
-            return (Proposition)b;
+            return Right.WriteNegatedSignedIndicesTo(clauseArray, Left.WriteNegatedSignedIndicesTo(clauseArray, startingPosition));
+        }
+        
+        internal override void Assert(Problem p)
+        {
+            Left.Assert(p);
+            Right.Assert(p);
         }
 
-        /// <summary>
-        /// Find all the non-negated propositions in this Expression.
-        /// </summary>
-        internal abstract IEnumerable<Proposition> PositiveLiterals { get; }
+        internal override IEnumerable<Proposition> PositiveLiterals
+        {
+            get
+            {
+                foreach (var p in Left.PositiveLiterals)
+                    yield return p;
+
+                foreach (var p in Right.PositiveLiterals)
+                    yield return p;
+            }
+        }
     }
 }

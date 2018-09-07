@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="VariableEquation.cs" company="Ian Horswill">
+// <copyright file="Implication.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,18 +22,42 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-namespace CatSAT.NonBoolean.SMT.Float
+namespace CatSAT
 {
-    internal class VariableEquation : FloatProposition
+    /// <summary>
+    /// States that the Body being true forces the Head to be true without placing any constraint on Body.
+    /// </summary>
+    public class Implication : Assertable
     {
-        public override void Initialize(Problem p)
+        /// <summary>
+        /// The literal implied by the assertion
+        /// </summary>
+        public readonly Literal Head;
+        /// <summary>
+        /// The condition under which the head is implied
+        /// </summary>
+        public readonly Expression Body;
+
+        /// <summary>
+        /// Creates an expression representing that a given Literal or conjunction of literals implies the specifed literal.
+        /// </summary>
+        /// <param name="head">literal implied by the body</param>
+        /// <param name="body">literal or conjunction that implies the head</param>
+        public Implication(Literal head, Expression body)
         {
-            base.Initialize(p);
-            var c = (Call)Name;
-            Lhs = (FloatVariable)c.Args[0];
-            Rhs = (FloatVariable)c.Args[1];
+            Head = head;
+            Body = body;
         }
 
-        public FloatVariable Lhs, Rhs;
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"{Head} <= {Body}";
+        }
+
+        internal override void Assert(Problem p)
+        {
+            p.Assert(this);
+        }
     }
 }

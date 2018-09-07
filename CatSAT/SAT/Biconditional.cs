@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="VariableEquation.cs" company="Ian Horswill">
+// <copyright file="Biconditional.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,18 +22,42 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-namespace CatSAT.NonBoolean.SMT.Float
+namespace CatSAT
 {
-    internal class VariableEquation : FloatProposition
+    /// <summary>
+    /// Constrains Head and Body to have the same truth value.
+    /// </summary>
+    public class Biconditional : Assertable
     {
-        public override void Initialize(Problem p)
+        /// <summary>
+        /// Literal stated to be equivalent to the body
+        /// </summary>
+        public readonly Literal Head;
+        /// <summary>
+        /// Literal or conjunction stated to be equivalent to the head
+        /// </summary>
+        public readonly Expression Body;
+
+        /// <summary>
+        /// An expression stating that the head and body are equivalent (true in the same models)
+        /// </summary>
+        /// <param name="head">literal equivalent to the body</param>
+        /// <param name="body">Literal or conjunction equivalent to the head</param>
+        public Biconditional(Literal head, Expression body)
         {
-            base.Initialize(p);
-            var c = (Call)Name;
-            Lhs = (FloatVariable)c.Args[0];
-            Rhs = (FloatVariable)c.Args[1];
+            Head = head;
+            Body = body;
         }
 
-        public FloatVariable Lhs, Rhs;
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"{Head} == {Body}";
+        }
+        
+        internal override void Assert(Problem p)
+        {
+            p.Assert(this);
+        }
     }
 }

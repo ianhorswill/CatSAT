@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="VariableEquation.cs" company="Ian Horswill">
+// <copyright file="Assertable.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,18 +22,16 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-namespace CatSAT.NonBoolean.SMT.Float
+namespace CatSAT
 {
-    internal class VariableEquation : FloatProposition
+    /// <summary>
+    /// Something that can be Assert'ed in a Problem.
+    /// </summary>
+    public abstract class Assertable
     {
-        public override void Initialize(Problem p)
-        {
-            base.Initialize(p);
-            var c = (Call)Name;
-            Lhs = (FloatVariable)c.Args[0];
-            Rhs = (FloatVariable)c.Args[1];
-        }
-
-        public FloatVariable Lhs, Rhs;
+        /// <summary>
+        /// Add this assertion to the Problem
+        /// </summary>
+        internal abstract void Assert(Problem p);
     }
 }

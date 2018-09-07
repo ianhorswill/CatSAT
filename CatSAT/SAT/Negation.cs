@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Expression.cs" company="Ian Horswill">
+// <copyright file="Negation.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,49 +27,52 @@ using System.Collections.Generic;
 namespace CatSAT
 {
     /// <summary>
-    /// A propositional expression
+    /// Represents a negated proposition.
     /// </summary>
-    public abstract class Expression : Assertable
+    public class Negation : Literal
     {
         /// <summary>
-        /// Number of literals in the expression
+        /// The proposition being negated
         /// </summary>
-        public virtual int Size => 1;
+        public readonly Proposition Proposition;
 
         /// <summary>
-        /// Walk the expression tree and write the indicies of its literals into the specified array.
+        /// Creates a Literal representing the negation of the proposition
         /// </summary>
-        /// <param name="clauseArray">Array of signed indices for the clause we're writing this to.</param>
-        /// <param name="startingPosition">Position to start writing</param>
-        /// <returns></returns>
-        internal abstract int WriteNegatedSignedIndicesTo(short[] clauseArray, int startingPosition);
-
-        /// <summary>
-        /// Make a conjunction of two Expressions.
-        /// Performs simple constant folding, e.g. false and p = False, true and p = p.
-        /// </summary>
-        public static Expression operator &(Expression left, Expression right)
+        /// <param name="proposition">Proposition to negate</param>
+        public Negation(Proposition proposition)
         {
-            if (left is Proposition l && l.IsConstant)
-                    return (bool)l ? right : Proposition.False;
-            if (right is Proposition r && r.IsConstant)
-                return (bool)r ? left : Proposition.False;
-            return new Conjunction(left, right);
+            Proposition = proposition;
+        }
+    
+        /// <summary>
+        /// Creates a Literal representing the negation of the proposition
+        /// </summary>
+        /// <param name="p">Proposition to negate</param>
+        public static Literal Not(Proposition p)
+        {
+            if (p.IsConstant)
+            {
+                return (bool)p ? Proposition.False : Proposition.True;
+            }
+            return Problem.Current.Negation(p);
         }
 
-        /// <summary>
-        /// Coerce an expression to a boolean
-        /// Will throw an exception unless the expression is really a constant-valued Proposition.
-        /// </summary>
-        /// <param name="b"></param>
-        public static implicit operator Expression(bool b)
+        /// <inheritdoc />
+        public override string ToString()
         {
-            return (Proposition)b;
+            return $"!{Proposition}";
         }
 
-        /// <summary>
-        /// Find all the non-negated propositions in this Expression.
-        /// </summary>
-        internal abstract IEnumerable<Proposition> PositiveLiterals { get; }
+        internal override short SignedIndex => (short)-Proposition.Index;
+
+        internal override IEnumerable<Proposition> PositiveLiterals
+        {
+            get
+            {
+                // This is a negative literal, not a positive one.
+                yield break;
+            }
+        }
     }
 }

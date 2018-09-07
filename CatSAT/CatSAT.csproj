@@ -48,6 +48,8 @@
     <Compile Include="NonBoolean\SMT\Float\ConstantBound.cs" />
     <Compile Include="NonBoolean\SMT\Float\VariableBound.cs" />
     <Compile Include="NonBoolean\SMT\Float\VariableEquation.cs" />
+    <Compile Include="SAT\Assertable.cs" />
+    <Compile Include="SAT\Biconditional.cs" />
     <Compile Include="SAT\Call.cs" />
     <Compile Include="NonBoolean\Structs\ConditionAttribute.cs" />
     <Compile Include="SAT\Clause.cs" />
@@ -57,10 +59,16 @@
     <Compile Include="NonBoolean\Structs\DomainAttribute.cs" />
     <Compile Include="NonBoolean\NBSAT\EnumDomain.cs" />
     <Compile Include="NonBoolean\NBSAT\EnumVariable.cs" />
+    <Compile Include="SAT\Conjunction.cs" />
     <Compile Include="SAT\Expression.cs" />
     <Compile Include="NonBoolean\NBSAT\FDomain.cs" />
     <Compile Include="NonBoolean\NBSAT\FDVariable.cs" />
     <Compile Include="Fluents\Fluents.cs" />
+    <Compile Include="SAT\Implication.cs" />
+    <Compile Include="SAT\Literal.cs" />
+    <Compile Include="SAT\Negation.cs" />
+    <Compile Include="SAT\Proposition.cs" />
+    <Compile Include="SAT\Rule.cs" />
     <Compile Include="SAT\Solution.cs" />
     <Compile Include="SAT\Language.cs" />
     <Compile Include="SAT\NonTightProblemException.cs" />
@@ -69,6 +77,7 @@
     <Compile Include="NonBoolean\SMT\TheoryProposition.cs" />
     <Compile Include="NonBoolean\SMT\TheorySolver.cs" />
     <Compile Include="NonBoolean\SMT\TheoryVariable.cs" />
+    <Compile Include="SAT\SpecialProposition.cs" />
     <Compile Include="SAT\TimeoutException.cs" />
     <Compile Include="SAT\SATVariable.cs" />
     <Compile Include="SAT\Random.cs" />

@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="VariableEquation.cs" company="Ian Horswill">
+// <copyright file="SpecialProposition.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,18 +22,17 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-namespace CatSAT.NonBoolean.SMT.Float
+namespace CatSAT
 {
-    internal class VariableEquation : FloatProposition
+    /// <summary>
+    /// A proposition that involves specialized processing.
+    /// </summary>
+    public class SpecialProposition : Proposition
     {
-        public override void Initialize(Problem p)
-        {
-            base.Initialize(p);
-            var c = (Call)Name;
-            Lhs = (FloatVariable)c.Args[0];
-            Rhs = (FloatVariable)c.Args[1];
-        }
-
-        public FloatVariable Lhs, Rhs;
+        /// <summary>
+        /// Called automatically after constructor to initialize the special problem instance.
+        /// </summary>
+        /// <param name="p">Problem to which this proposition belongs</param>
+        public virtual void Initialize(Problem p) { }
     }
 }
