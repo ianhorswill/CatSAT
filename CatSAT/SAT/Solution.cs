@@ -815,7 +815,7 @@ namespace CatSAT
             // Initialize propositions[]
             for (var i = 0; i < propositions.Length; i++)
             {
-                propositions[i] = Problem.SATVariables[i].IsPredetermined?Problem.SATVariables[i].PredeterminedValue:Random.Next() % 2 == 0;
+                propositions[i] = Problem.SATVariables[i].IsPredetermined?Problem.SATVariables[i].PredeterminedValue:Problem.SATVariables[i].RandomInitialState;
             }
 
             unsatisfiedClauses.Clear();

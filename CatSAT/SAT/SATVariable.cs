@@ -111,5 +111,10 @@ namespace CatSAT
 
         public bool IsAlwaysTrue => IsPredetermined && PredeterminedValue;
         public bool IsAlwaysFalse => IsPredetermined && !PredeterminedValue;
+
+        /// <summary>
+        /// Randomly chooses an initial state for this SATVariable based on its Proposition's InitialProbability
+        /// </summary>
+        internal bool RandomInitialState => Random.Float(0, 1) <= Proposition.InitialProbability;
     }
 }

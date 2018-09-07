@@ -49,6 +49,12 @@ namespace CatSAT
         /// Distinct Propositions should have distinct Names.
         /// </summary>
         public object Name { get; internal set; }
+
+        /// <summary>
+        /// Probability with which this proposition will be true in the solver's starting guess.
+        /// </summary>
+        public float InitialProbability = 0.5f;
+
         /// <summary>
         /// Position in the Problem's Variables[] array of the Variable that tracks the truth value of
         /// this Proposition, or zero, if this is one of the constants True or False.

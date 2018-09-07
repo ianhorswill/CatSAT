@@ -642,6 +642,8 @@ namespace Tests
             {
                 // Everyone has exactly one parent from within the family (and one from outside)
                 p.Unique(cast, par => parent(child, par));
+                foreach (var par in cast)
+                    parent(child, par).InitialProbability = 0;
                 // Everyone has a generation number
                 p.Unique(childGenerations, g => generation(child, g));
                 p.Assert(
