@@ -52,6 +52,7 @@ namespace CatSAT
 
         /// <summary>
         /// Probability with which this proposition will be true in the solver's starting guess.
+        /// Should be a number in the range [0,1].
         /// </summary>
         public float InitialProbability = 0.5f;
 
