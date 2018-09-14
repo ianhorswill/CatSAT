@@ -113,21 +113,24 @@ namespace Tests
         [TestMethod]
         public void CallEqualTest()
         {
-            Assert.AreEqual(new Call("foo", 1, 2), new Call("foo", 1, 2));
+            var p = new Problem();
+            Assert.AreEqual(Call.FromArgs(Problem.Current, "foo", 1, 2), Call.FromArgs(Problem.Current, "foo", 1, 2));
         }
 
         [TestMethod]
         public void CallHashTest()
         {
-            Assert.AreEqual(new Call("foo", 1, 2).GetHashCode(), new Call("foo", 1, 2).GetHashCode());
+            var p = new Problem();
+            Assert.AreEqual(Call.FromArgs(Problem.Current, "foo", 1, 2).GetHashCode(), Call.FromArgs(Problem.Current, "foo", 1, 2).GetHashCode());
         }
 
         [TestMethod]
         public void CallNotEqualTest()
         {
-            Assert.AreNotEqual(new Call("foo", 1, 2), new Call("bar", 1, 2));
-            Assert.AreNotEqual(new Call("foo", 1, 2), new Call("foo", 0, 2));
-            Assert.AreNotEqual(new Call("foo", 1, 2), new Call("foo", 1, 0));
+            var p = new Problem();
+            Assert.AreNotEqual(Call.FromArgs(Problem.Current, "foo", 1, 2), Call.FromArgs(Problem.Current, "bar", 1, 2));
+            Assert.AreNotEqual(Call.FromArgs(Problem.Current, "foo", 1, 2), Call.FromArgs(Problem.Current, "foo", 0, 2));
+            Assert.AreNotEqual(Call.FromArgs(Problem.Current, "foo", 1, 2), Call.FromArgs(Problem.Current, "foo", 1, 0));
         }
 
         [TestMethod]
@@ -626,7 +629,7 @@ namespace Tests
             var parent = Predicate<int, int>("parent");
             // Interestingly, this doesn't seem to speed things up.
             //Func<int, int, Proposition> parent = (child, par) =>
-            //    child > par ? p.GetProposition(new Call("parent", child, par)) : false;
+            //    child > par ? p.GetProposition(Call.FromArgs(Problem.Current, "parent", child, par)) : false;
 
             // Make of person # who is person number -who
             int Mate(int who) => -who;

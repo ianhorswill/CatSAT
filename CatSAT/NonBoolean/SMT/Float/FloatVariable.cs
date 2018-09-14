@@ -190,7 +190,7 @@ namespace CatSAT
         /// <param name="v2">Second variable</param>
         public static Proposition operator ==(FloatVariable v1, FloatVariable v2)
         {
-            return Problem.Current.GetSpecialProposition<VariableEquation>(new Call("=", v1, v2));
+            return Problem.Current.GetSpecialProposition<VariableEquation>(Call.FromArgs(Problem.Current, "=", v1, v2));
         }
 
         /// <summary>
@@ -213,7 +213,7 @@ namespace CatSAT
         /// <returns></returns>
         public static Proposition operator <(FloatVariable v, float f)
         {
-            return Problem.Current.GetSpecialProposition<ConstantBound>(new Call("<=", v, f));
+            return Problem.Current.GetSpecialProposition<ConstantBound>(Call.FromArgs(Problem.Current, "<=", v, f));
         }
 
         /// <summary>
@@ -224,7 +224,7 @@ namespace CatSAT
         /// <returns></returns>
         public static Proposition operator >(FloatVariable v, float f)
         {
-            return Problem.Current.GetSpecialProposition<ConstantBound>(new Call(">=", v, f));
+            return Problem.Current.GetSpecialProposition<ConstantBound>(Call.FromArgs(Problem.Current, ">=", v, f));
         }
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace CatSAT
         /// <returns></returns>
         public static Proposition operator <(FloatVariable v1, FloatVariable v2)
         {
-            return Problem.Current.GetSpecialProposition<VariableBound>(new Call("<=", v1, v2));
+            return Problem.Current.GetSpecialProposition<VariableBound>(Call.FromArgs(Problem.Current, "<=", v1, v2));
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace CatSAT
         /// <returns></returns>
         public static Proposition operator >(FloatVariable v1, FloatVariable v2)
         {
-            return Problem.Current.GetSpecialProposition<VariableBound>(new Call(">=", v1, v2));
+            return Problem.Current.GetSpecialProposition<VariableBound>(Call.FromArgs(Problem.Current, ">=", v1, v2));
         }
 
         internal void AddUpperBound(FloatVariable bound)

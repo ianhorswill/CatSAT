@@ -273,7 +273,19 @@ namespace CatSAT
         /// Number of timesteps in history, if fluents are used.
         /// </summary>
         public int TimeHorizon=-1;
+
+        /// <summary>
+        /// Hashtable of Call.TrieNodes holding all the different Calls used in this Problem.
+        /// This is used to keep from having to constantly allocate new Call objects and then look them up in a hash table
+        /// to get the canonical ones. 
+        /// </summary>
+        internal readonly Dictionary<string, Call.TrieNode> CallTries = new Dictionary<string, Call.TrieNode>();
         
+        /// <summary>
+        /// The Propositions in the Problem.
+        /// </summary>
+        private readonly Dictionary<object, Proposition> propositionTable = new Dictionary<object, Proposition>();
+
         /// <summary>
         /// The Variables in the Problem.
         /// There is one Variable for each Proposition.  And the Solution assigns a truth value to that 
@@ -1057,8 +1069,6 @@ namespace CatSAT
 #endregion
 
 #region Mapping between Literals objects and Variables
-        private readonly Dictionary<object, Proposition> propositionTable = new Dictionary<object, Proposition>();
-
         /// <summary>
         /// True if the problem has a proposition with the specified name
         /// </summary>

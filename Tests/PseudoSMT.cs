@@ -225,22 +225,22 @@ namespace Tests
 
             public static Proposition operator >(SMTVar a, SMTVar b)
             {
-                return SMTProposition(new Call(">", a, b));
+                return SMTProposition(Call.FromArgs(Problem.Current, ">", a, b));
             }
 
             public static Proposition operator >(SMTVar a, float bound)
             {
-                return SMTProposition(new Call(">", a, bound));
+                return SMTProposition(Call.FromArgs(Problem.Current, ">", a, bound));
             }
 
             public static Proposition operator <(SMTVar a, SMTVar b)
             {
-                return SMTProposition(new Call("<", a, b));
+                return SMTProposition(Call.FromArgs(Problem.Current, "<", a, b));
             }
 
             public static Proposition operator <(SMTVar a, float bound)
             {
-                return SMTProposition(new Call("<", a, bound));
+                return SMTProposition(Call.FromArgs(Problem.Current, "<", a, bound));
             }
 
             private static Proposition SMTProposition(Call call)

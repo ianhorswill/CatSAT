@@ -39,7 +39,7 @@ namespace CatSAT
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
         public static Func<T1, Proposition> Predicate<T1>(string name)
         {
-            return arg1 => Proposition.MakeProposition(new Call(name, arg1));
+            return arg1 => Proposition.MakeProposition(Call.FromArgs(Problem.Current, name, arg1));
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace CatSAT
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
         public static Func<T1, T2, Proposition> Predicate<T1, T2>(string name)
         {
-            return (arg1, arg2) => Proposition.MakeProposition(new Call(name, arg1, arg2));
+            return (arg1, arg2) => Proposition.MakeProposition(Call.FromArgs(Problem.Current, name, arg1, arg2));
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace CatSAT
         public static Func<T1, TProp> PredicateOfType<T1,TProp>(string name) where TProp : SpecialProposition, new()
         {
             var problem = Problem.Current;
-            return arg1 => problem.GetSpecialProposition<TProp>(new Call(name, arg1));
+            return arg1 => problem.GetSpecialProposition<TProp>(Call.FromArgs(Problem.Current, name, arg1));
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace CatSAT
             where TProp: SpecialProposition, new()
         {
             var problem = Problem.Current;
-            return (arg1, arg2) => problem.GetSpecialProposition<TProp>(new Call(name, arg1, arg2));
+            return (arg1, arg2) => problem.GetSpecialProposition<TProp>(Call.FromArgs(Problem.Current, name, arg1, arg2));
         }
 
         /// <summary>
@@ -94,8 +94,8 @@ namespace CatSAT
             return (arg1, arg2) =>
             {
                 if (arg1.CompareTo(arg2) > 0)
-                    return Proposition.MakeProposition(new Call(name, arg2, arg1));
-                return Proposition.MakeProposition(new Call(name, arg1, arg2));
+                    return Proposition.MakeProposition(Call.FromArgs(Problem.Current, name, arg2, arg1));
+                return Proposition.MakeProposition(Call.FromArgs(Problem.Current, name, arg1, arg2));
             };
         }
 
@@ -116,8 +116,8 @@ namespace CatSAT
             return (arg1, arg2) =>
             {
                 if (arg1.CompareTo(arg2) > 0)
-                    return problem.GetSpecialProposition<TProp>(new Call(name, arg2, arg1));
-                return problem.GetSpecialProposition<TProp>(new Call(name, arg1, arg2));
+                    return problem.GetSpecialProposition<TProp>(Call.FromArgs(Problem.Current, name, arg2, arg1));
+                return problem.GetSpecialProposition<TProp>(Call.FromArgs(Problem.Current, name, arg1, arg2));
             };
         }
 
@@ -138,8 +138,8 @@ namespace CatSAT
             return (arg1, arg2, arg3) =>
             {
                 if (arg1.CompareTo(arg2) > 0)
-                    return problem.GetSpecialProposition<TProp>(new Call(name, arg2, arg1, arg3));
-                return problem.GetSpecialProposition<TProp>(new Call(name, arg1, arg2, arg3));
+                    return problem.GetSpecialProposition<TProp>(Call.FromArgs(Problem.Current, name, arg2, arg1, arg3));
+                return problem.GetSpecialProposition<TProp>(Call.FromArgs(Problem.Current, name, arg1, arg2, arg3));
             };
         }
 
@@ -157,11 +157,11 @@ namespace CatSAT
             {
                 var diff = arg1.CompareTo(arg2);
                 if (diff > 0)
-                    return Proposition.MakeProposition(new Call(name, arg2, arg1));
+                    return Proposition.MakeProposition(Call.FromArgs(Problem.Current, name, arg2, arg1));
                 if (diff == 0)
                     return Proposition.True;
                 // diff < 0
-                return Proposition.MakeProposition(new Call(name, arg1, arg2));
+                return Proposition.MakeProposition(Call.FromArgs(Problem.Current, name, arg1, arg2));
             };
         }
 
@@ -175,7 +175,7 @@ namespace CatSAT
         /// <returns>The predicate object, i.e. a function from arguments to Propositions</returns>
         public static Func<T1, T2, T3, Proposition> Predicate<T1, T2, T3>(string name)
         {
-            return (arg1, arg2, arg3) => Proposition.MakeProposition(new Call(name, arg1, arg2, arg3));
+            return (arg1, arg2, arg3) => Proposition.MakeProposition(Call.FromArgs(Problem.Current, name, arg1, arg2, arg3));
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace CatSAT
             where TProp : SpecialProposition, new()
         {
             var problem = Problem.Current;
-            return (arg1, arg2, arg3) => problem.GetSpecialProposition<TProp>(new Call(name, arg1, arg2, arg3));
+            return (arg1, arg2, arg3) => problem.GetSpecialProposition<TProp>(Call.FromArgs(Problem.Current, name, arg1, arg2, arg3));
         }
 
         /// <summary>
@@ -206,7 +206,7 @@ namespace CatSAT
         // ReSharper disable once UnusedMember.Global
         public static Func<T1, T2, T3, T4, Proposition> Predicate<T1, T2, T3, T4>(string name)
         {
-            return (arg1, arg2, arg3, arg4) => Proposition.MakeProposition(new Call(name, arg1, arg2, arg3, arg4));
+            return (arg1, arg2, arg3, arg4) => Proposition.MakeProposition(Call.FromArgs(Problem.Current, name, arg1, arg2, arg3, arg4));
         }
 
         /// <summary>
@@ -224,7 +224,7 @@ namespace CatSAT
             where TProp : SpecialProposition, new()
         {
             var problem = Problem.Current;
-            return (arg1, arg2, arg3, arg4) => problem.GetSpecialProposition<TProp>(new Call(name, arg1, arg2, arg3, arg4));
+            return (arg1, arg2, arg3, arg4) => problem.GetSpecialProposition<TProp>(Call.FromArgs(Problem.Current, name, arg1, arg2, arg3, arg4));
         }
 
         /// <summary>
@@ -240,7 +240,7 @@ namespace CatSAT
         // ReSharper disable once UnusedMember.Global
         public static Func<T1, T2, T3, T4, T5, Proposition> Predicate<T1, T2, T3, T4, T5>(string name)
         {
-            return (arg1, arg2, arg3, arg4, arg5) => Proposition.MakeProposition(new Call(name, arg1, arg2, arg3, arg4, arg5));
+            return (arg1, arg2, arg3, arg4, arg5) => Proposition.MakeProposition(Call.FromArgs(Problem.Current, name, arg1, arg2, arg3, arg4, arg5));
         }
 
         /// <summary>
@@ -259,7 +259,7 @@ namespace CatSAT
             where TProp : SpecialProposition, new()
         {
             var problem = Problem.Current;
-            return (arg1, arg2, arg3, arg4, arg5) => problem.GetSpecialProposition<TProp>(new Call(name, arg1, arg2, arg3, arg4, arg5));
+            return (arg1, arg2, arg3, arg4, arg5) => problem.GetSpecialProposition<TProp>(Call.FromArgs(Problem.Current, name, arg1, arg2, arg3, arg4, arg5));
         }
 
         /// <summary>
@@ -269,7 +269,7 @@ namespace CatSAT
         // ReSharper disable once UnusedMember.Global
         public static Func<T1, Call> Function<T1>(string name)
         {
-            return (arg1) => new Call(name, arg1);
+            return (arg1) => Call.FromArgs(Problem.Current, name, arg1);
         }
 
         /// <summary>
@@ -279,7 +279,7 @@ namespace CatSAT
         // ReSharper disable once UnusedMember.Global
         public static Func<T1, T2, Call> Function<T1, T2>(string name)
         {
-            return (arg1, arg2) => new Call(name, arg1, arg2);
+            return (arg1, arg2) => Call.FromArgs(Problem.Current, name, arg1, arg2);
         }
 
         /// <summary>
@@ -289,7 +289,7 @@ namespace CatSAT
         // ReSharper disable once UnusedMember.Global
         public static Func<T1, T2, T3, Call> Function<T1, T2, T3>(string name)
         {
-            return (arg1, arg2, arg3) => new Call(name, arg1, arg2, arg3);
+            return (arg1, arg2, arg3) => Call.FromArgs(Problem.Current, name, arg1, arg2, arg3);
         }
 
         /// <summary>
@@ -299,7 +299,7 @@ namespace CatSAT
         // ReSharper disable once UnusedMember.Global
         public static Func<T1, T2, T3, T4, Call> Function<T1, T2, T3, T4>(string name)
         {
-            return (arg1, arg2, arg3, arg4) => new Call(name, arg1, arg2, arg3, arg4);
+            return (arg1, arg2, arg3, arg4) => Call.FromArgs(Problem.Current, name, arg1, arg2, arg3, arg4);
         }
 
         /// <summary>
@@ -309,7 +309,7 @@ namespace CatSAT
         // ReSharper disable once UnusedMember.Global
         public static Func<T1, T2, T3, T4, T5, Call> Function<T1, T2, T3, T4, T5>(string name)
         {
-            return (arg1, arg2, arg3, arg4, arg5) => new Call(name, arg1, arg2, arg3, arg4, arg5);
+            return (arg1, arg2, arg3, arg4, arg5) => Call.FromArgs(Problem.Current, name, arg1, arg2, arg3, arg4, arg5);
         }
 
         /// <summary>

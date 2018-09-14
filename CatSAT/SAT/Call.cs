@@ -22,6 +22,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
+
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
@@ -43,13 +45,122 @@ namespace CatSAT
         /// </summary>
         public readonly object[] Args;
 
+        // Static buffers used for FromArgs to keep from having to allocate the vararg
+        static readonly object[] ArgBuffer1 = new object[1];
+        static readonly object[] ArgBuffer2 = new object[2];
+        static readonly object[] ArgBuffer3 = new object[3];
+        static readonly object[] ArgBuffer4 = new object[4];
+        static readonly object[] ArgBuffer5 = new object[5];
+
+        /// <summary>
+        /// Find the (unique) Call object with the specified name and args in the specified problem.
+        /// </summary>
+        /// <param name="p">Problem to get the call for</param>
+        /// <param name="name">Name of the predicate being called</param>
+        /// <param name="arg1">Argument of the predicate</param>
+        public static Call FromArgs(Problem p, string name, object arg1)
+        {
+            ArgBuffer1[0] = arg1;
+            return FromArgArray(p, name, ArgBuffer1);
+        }
+
+        /// <summary>
+        /// Find the (unique) Call object with the specified name and args in the specified problem.
+        /// </summary>
+        /// <param name="p">Problem to get the call for</param>
+        /// <param name="name">Name of the predicate being called</param>
+        /// <param name="arg1">Argument of the predicate</param>
+        /// <param name="arg2">Argument of the predicate</param>
+        public static Call FromArgs(Problem p, string name, object arg1, object arg2)
+        {
+            ArgBuffer2[0] = arg1;
+            ArgBuffer2[1] = arg2;
+            return FromArgArray(p, name, ArgBuffer2);
+        }
+
+        /// <summary>
+        /// Find the (unique) Call object with the specified name and args in the specified problem.
+        /// </summary>
+        /// <param name="p">Problem to get the call for</param>
+        /// <param name="name">Name of the predicate being called</param>
+        /// <param name="arg1">Argument of the predicate</param>
+        /// <param name="arg2">Argument of the predicate</param>
+        /// <param name="arg3">Argument of the predicate</param>
+        public static Call FromArgs(Problem p, string name, object arg1, object arg2, object arg3)
+        {
+            ArgBuffer3[0] = arg1;
+            ArgBuffer3[1] = arg2;
+            ArgBuffer3[2] = arg3;
+            return FromArgArray(p, name, ArgBuffer3);
+        }
+
+        /// <summary>
+        /// Find the (unique) Call object with the specified name and args in the specified problem.
+        /// </summary>
+        /// <param name="p">Problem to get the call for</param>
+        /// <param name="name">Name of the predicate being called</param>
+        /// <param name="arg1">Argument of the predicate</param>
+        /// <param name="arg2">Argument of the predicate</param>
+        /// <param name="arg3">Argument of the predicate</param>
+        /// <param name="arg4">Argument of the predicate</param>
+        public static Call FromArgs(Problem p, string name, object arg1, object arg2, object arg3, object arg4)
+        {
+            ArgBuffer4[0] = arg1;
+            ArgBuffer4[1] = arg2;
+            ArgBuffer4[2] = arg3;
+            ArgBuffer4[3] = arg4;
+            return FromArgArray(p, name, ArgBuffer4);
+        }
+
+        /// <summary>
+        /// Find the (unique) Call object with the specified name and args in the specified problem.
+        /// </summary>
+        /// <param name="p">Problem to get the call for</param>
+        /// <param name="name">Name of the predicate being called</param>
+        /// <param name="arg1">Argument of the predicate</param>
+        /// <param name="arg2">Argument of the predicate</param>
+        /// <param name="arg3">Argument of the predicate</param>
+        /// <param name="arg4">Argument of the predicate</param>
+        /// <param name="arg5">Argument of the predicate</param>
+        public static Call FromArgs(Problem p, string name, object arg1, object arg2, object arg3, object arg4, object arg5)
+        {
+            ArgBuffer5[0] = arg1;
+            ArgBuffer5[1] = arg2;
+            ArgBuffer5[2] = arg3;
+            ArgBuffer5[3] = arg4;
+            ArgBuffer5[4] = arg5;
+            return FromArgArray(p, name, ArgBuffer5);
+        }
+
+        /// <summary>
+        /// Find the (unique) Call object with the specified name and args in the specified problem.
+        /// </summary>
+        /// <param name="p">Problem to get the call for</param>
+        /// <param name="name">Name of the predicate being called</param>
+        /// <param name="args">Arguments of the predicate</param>
+        public static Call FromArgArray(Problem p, string name, params object[] args)
+        {
+            return GetTrieRoot(p, name).CallWithArgs(name, args);
+        }
+
+        /// <summary>
+        /// Return the root node of the trie for all calls to the specified name in the specified problem.
+        /// </summary>
+        private static TrieNode GetTrieRoot(Problem problem, string name)
+        {
+            if (problem.CallTries.TryGetValue(name, out var root))
+                return root;
+            return problem.CallTries[name] = new TrieNode();
+        }
+
+
         /// <summary>
         /// Makes a new "call" object.  This is just an object used to fill in the name field for a proposition that conceptually
         /// represents the truth of some predicate with some specific arguments
         /// </summary>
         /// <param name="name">Name of the predicate or other functor</param>
         /// <param name="args">Arguments</param>
-        public Call(string name, params object[] args)
+        private Call(string name, object[] args)
         {
             Name = name;
             Args = args;
@@ -102,5 +213,46 @@ namespace CatSAT
         }
 
         private string DebuggerDisplay => ToString();
+
+        internal class TrieNode
+        {
+            public Call Call;
+            public Dictionary<object, TrieNode> Children;
+
+            internal Call CallWithArgs(string name, object[] args)
+            {
+                var n = FindNode(args);
+                if (n.Call != null)
+                    return n.Call;
+                // Make a new call object; we clone the array on the assumption that it's one of the static buffers.
+                return n.Call = new Call(name, (object[])args.Clone());
+            }
+
+            internal TrieNode FindNode(object[] args)
+            {
+                var node = this;
+                foreach (var arg in args)
+                    node = node.Lookup(arg);
+
+                return node;
+            }
+
+            /// <summary>
+            /// Look up one level of the Trie.
+            /// Returns the child with specified key, creating one if needed.
+            /// </summary>
+            /// <param name="key">Next arg to look up</param>
+            /// <returns>Child with the specified key</returns>
+            private TrieNode Lookup(object key)
+            {
+                if (Children == null)
+                    Children = new Dictionary<object, TrieNode>();
+                if (Children.TryGetValue(key, out TrieNode result))
+                {
+                    return result;
+                }
+                return Children[key] = new TrieNode();
+            }
+        }
     }
 }
