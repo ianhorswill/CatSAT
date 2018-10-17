@@ -51,6 +51,10 @@
     <Compile Include="NonBoolean\SMT\Float\ConstantBound.cs" />
     <Compile Include="NonBoolean\SMT\Float\VariableBound.cs" />
     <Compile Include="NonBoolean\SMT\Float\VariableEquation.cs" />
+    <Compile Include="NonBoolean\SMT\MenuVariables\Menu.cs" />
+    <Compile Include="NonBoolean\SMT\MenuVariables\MenuProposition.cs" />
+    <Compile Include="NonBoolean\SMT\MenuVariables\MenuSolver.cs" />
+    <Compile Include="NonBoolean\SMT\MenuVariables\MenuVariable.cs" />
     <Compile Include="SAT\Assertable.cs" />
     <Compile Include="SAT\Biconditional.cs" />
     <Compile Include="SAT\Call.cs" />

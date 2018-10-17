@@ -152,8 +152,7 @@ namespace CatSAT
                 return root;
             return problem.CallTries[name] = new TrieNode();
         }
-
-
+        
         /// <summary>
         /// Makes a new "call" object.  This is just an object used to fill in the name field for a proposition that conceptually
         /// represents the truth of some predicate with some specific arguments
