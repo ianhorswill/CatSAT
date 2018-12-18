@@ -24,6 +24,9 @@
 #endregion
 namespace CatSAT.NonBoolean.SMT.Float
 {
+    /// <summary>
+    /// Represents the constraint that one variable is greater than or equal to another
+    /// </summary>
     class VariableBound : FloatProposition
     {
         public override void Initialize(Problem p)
@@ -34,10 +37,24 @@ namespace CatSAT.NonBoolean.SMT.Float
             Rhs = (FloatVariable)c.Args[1];
         }
 
-        public FloatVariable Lhs, Rhs;
+        /// <summary>
+        /// The left-hand variable of hte constraint
+        /// </summary>
+        public FloatVariable Lhs;
 
+        /// <summary>
+        /// The right-hand variable of hte constraint
+        /// </summary>
+        public FloatVariable Rhs;
+
+        /// <summary>
+        /// The constraint is Lhs l.t.e. Rhs rather than the other way around
+        /// </summary>
         public bool IsUpper => Operator == "<=";
 
+        /// <summary>
+        /// The relation of the constraint (e.g. less-than-equal)
+        /// </summary>
         private string Operator => ((Call) Name).Name;
     }
 }

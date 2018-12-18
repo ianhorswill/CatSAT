@@ -26,6 +26,10 @@ using System.Diagnostics;
 
 namespace CatSAT.NonBoolean.SMT.Float
 {
+    /// <summary>
+    /// The constraint that a variable is bounded above/below by a constant
+    /// The specific constraint is: Variable Operator Bound
+    /// </summary>
     [DebuggerDisplay("{Variable.Name} {Operator} {Bound}")]
     class ConstantBound : FloatProposition
     {
@@ -38,10 +42,22 @@ namespace CatSAT.NonBoolean.SMT.Float
             (IsUpper?Variable.UpperConstantBounds:Variable.LowerConstantBounds).Add(this);
         }
 
+        /// <summary>
+        /// The variable being bounded
+        /// </summary>
         public FloatVariable Variable;
+        /// <summary>
+        /// The value bounding the variable
+        /// </summary>
         public float Bound;
+        /// <summary>
+        /// This is an upper bound on the variable
+        /// </summary>
         public bool IsUpper => Operator == "<=";
 
+        /// <summary>
+        /// The relation between the Variable, on the left, and the Bound on the right.
+        /// </summary>
         private string Operator => ((Call) Name).Name;
     }
 }

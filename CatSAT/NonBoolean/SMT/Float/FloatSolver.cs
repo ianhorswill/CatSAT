@@ -35,11 +35,15 @@ namespace CatSAT.NonBoolean.SMT.Float
         internal readonly List<FloatProposition> Propositions = new List<FloatProposition>();
         // All variables
         internal readonly List<FloatVariable> Variables = new List<FloatVariable>();
-        // All variables not aliased to other variables by equality assertions.
-        private readonly List<FloatVariable> activeVariables = new List<FloatVariable>();
+        // Representatives of the equivalence classes of FloatVariables
+        private readonly List<FloatVariable> representatives = new List<FloatVariable>();
 
         private readonly Queue<Tuple<FloatVariable,bool>> propagationQueue = new Queue<Tuple<FloatVariable, bool>>();
 
+        /// <summary>
+        /// Add clauses that follow from user-defined bounds, e.g. from transitivity.
+        /// </summary>
+        /// <returns></returns>
         public override string Preprocess()
         {
             void PreprecessBounds(List<ConstantBound> constraints, int sign)
@@ -64,16 +68,45 @@ namespace CatSAT.NonBoolean.SMT.Float
             return null;
         }
 
+        /// <summary>
+        /// Try to find values for the FloatVariables that are consistent with the true constraints.
+        /// </summary>
+        /// <param name="s">Model providing truth values for constraints</param>
+        /// <returns>True if variable values found successfully</returns>
         public override bool Solve(Solution s)
         {
-            foreach (var v in Variables) v.Reset();
+            ResetAll();
+            FindEquivalenceClasses(s);
 
-            foreach (var p in Propositions)
+            if (!FindSolutionBounds(s)) 
+                // Constraints are contradictory
+                return false;
+
+            // Repeatedly attempt to sample a solution
+            for (int i = 0; i < MaxTries; i++)
             {
-                if (p is VariableEquation e && s[e])
-                    FloatVariable.Equate(e.Lhs, e.Rhs);
+                if (TrySample())
+                    // Success
+                    return true;
+
+                // Failed; restore bounds on variables to the values bound by FindSolutionBounds()
+                foreach (var v in representatives)
+                    v.Bounds = v.SolutionBounds;
             }
 
+            // We tried several samples and failed
+            return false;
+        }
+
+        /// <summary>
+        /// Find the tightest bounds we can for each representative given the model.
+        /// Save these bounds in SolutionBounds field of each variable
+        /// </summary>
+        /// <param name="s">Model against which to compute bounds</param>
+        /// <returns>False if constraints in this model are contradictory</returns>
+        private bool FindSolutionBounds(Solution s)
+        {
+            // Apply all constant bounds that apply in this model
             foreach (var v in Variables)
             {
                 var r = v.Representative;
@@ -96,9 +129,8 @@ namespace CatSAT.NonBoolean.SMT.Float
                     }
             }
 
-            activeVariables.Clear();
-            activeVariables.AddRange(Variables.Where(v=> (object)v == (object)v.Representative));
 
+            // Apply all variable bounds that apply in this model
             foreach (var p in Propositions)
             {
                 if (p is VariableBound b && s[b])
@@ -118,9 +150,10 @@ namespace CatSAT.NonBoolean.SMT.Float
                 }
             }
 
+            // Propagate to fixpoint
             propagationQueue.Clear();
 
-            foreach (var v in activeVariables)
+            foreach (var v in representatives)
             {
                 propagationQueue.Enqueue(new Tuple<FloatVariable, bool>(v, true));
                 propagationQueue.Enqueue(new Tuple<FloatVariable, bool>(v, false));
@@ -129,25 +162,42 @@ namespace CatSAT.NonBoolean.SMT.Float
             if (!PropagateUpdates()) return false;
 
             // Save bounds
-            foreach (var v in activeVariables)
+            foreach (var v in representatives)
                 v.SolutionBounds = v.Bounds;
 
-            for (int i = 0; i < MaxTries; i++)
-            {
-                if (TrySample()) return true;
+            return true;
+        }
 
-                // Restore bounds
-                foreach (var v in activeVariables)
-                    v.Bounds = v.SolutionBounds;
+        /// <summary>
+        /// Find the equivalence classes of variables in this model
+        /// </summary>
+        /// <param name="s">Boolean model against which to compute equivalence classes</param>
+        private void FindEquivalenceClasses(Solution s)
+        {
+            // Alias vars that are equated in this model
+            foreach (var p in Propositions)
+            {
+                if (p is VariableEquation e && s[e])
+                    FloatVariable.Equate(e.Lhs, e.Rhs);
             }
 
-            // We tried several samples and failed
-            return false;
+            // We can now focus on just the representatives of each equivalence class of variables
+            // and ignore the rest.
+            representatives.Clear();
+            representatives.AddRange(Variables.Where(v => (object) v == (object) v.Representative));
+        }
+
+        /// <summary>
+        /// Reset bounds on all variables to their initial values
+        /// </summary>
+        private void ResetAll()
+        {
+            foreach (var v in Variables) v.Reset();
         }
 
         private bool TrySample()
         {
-            foreach (var v in activeVariables)
+            foreach (var v in representatives)
             {
                 v.PickRandom(propagationQueue);
                 if (!PropagateUpdates()) return false;
