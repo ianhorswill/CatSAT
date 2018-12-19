@@ -1,0 +1,613 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class Fluents
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class Fluents
+   ">
+    <meta name="generator" content="docfx 2.39.1.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="CatSAT.Fluents">
+  
+  
+  <h1 id="CatSAT_Fluents" data-uid="CatSAT.Fluents" class="text-break">Class Fluents
+  </h1>
+  <div class="markdown level0 summary"><p>Implements propositions and predicates that vary with time.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">Fluents</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="CatSAT.html">CatSAT</a></h6>
+  <h6><strong>Assembly</strong>: CatSAT.dll</h6>
+  <h5 id="CatSAT_Fluents_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static class Fluents</code></pre>
+  </div>
+  <h3 id="fields">Fields
+  </h3>
+  
+  
+  <h4 id="CatSAT_Fluents_Activate" data-uid="CatSAT.Fluents.Activate">Activate</h4>
+  <div class="markdown level1 summary"><p>A higher-order predicate representing that the specified fluent instantiation is activated at a specified timepoint.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly Func&lt;Fluents.FluentInstantiation, Proposition&gt; Activate</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<a class="xref" href="CatSAT.Fluents.FluentInstantiation.html">Fluents.FluentInstantiation</a>, <a class="xref" href="CatSAT.Proposition.html">Proposition</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="CatSAT_Fluents_Deactivate" data-uid="CatSAT.Fluents.Deactivate">Deactivate</h4>
+  <div class="markdown level1 summary"><p>A higher-order predicate representing that the specified fluent instantiation is deactivated at a specified timepoint.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly Func&lt;Fluents.FluentInstantiation, Proposition&gt; Deactivate</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<a class="xref" href="CatSAT.Fluents.FluentInstantiation.html">Fluents.FluentInstantiation</a>, <a class="xref" href="CatSAT.Proposition.html">Proposition</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  
+  
+  <a id="CatSAT_Fluents_ActionTimePoints_" data-uid="CatSAT.Fluents.ActionTimePoints*"></a>
+  <h4 id="CatSAT_Fluents_ActionTimePoints" data-uid="CatSAT.Fluents.ActionTimePoints">ActionTimePoints</h4>
+  <div class="markdown level1 summary"><p>All timepoints in the time horizon of the current problem, except the last one</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;int&gt; ActionTimePoints { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<span class="xref">System.Int32</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Fluents_TimeHorizon_" data-uid="CatSAT.Fluents.TimeHorizon*"></a>
+  <h4 id="CatSAT_Fluents_TimeHorizon" data-uid="CatSAT.Fluents.TimeHorizon">TimeHorizon</h4>
+  <div class="markdown level1 summary"><p>Time horizon of the current problem.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static int TimeHorizon { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Fluents_TimePoints_" data-uid="CatSAT.Fluents.TimePoints*"></a>
+  <h4 id="CatSAT_Fluents_TimePoints" data-uid="CatSAT.Fluents.TimePoints">TimePoints</h4>
+  <div class="markdown level1 summary"><p>Timepoints in the time horizon of the current problem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;int&gt; TimePoints { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<span class="xref">System.Int32</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  
+  
+  <a id="CatSAT_Fluents_Fluent_" data-uid="CatSAT.Fluents.Fluent*"></a>
+  <h4 id="CatSAT_Fluents_Fluent_System_String_CatSAT_Problem_System_Boolean_System_Boolean_" data-uid="CatSAT.Fluents.Fluent(System.String,CatSAT.Problem,System.Boolean,System.Boolean)">Fluent(String, Problem, Boolean, Boolean)</h4>
+  <div class="markdown level1 summary"><p>Makes a fluent, i.e. a time-varying proposition.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Func&lt;int, Fluents.FluentInstantiation&gt; Fluent(string name, Problem problem = null, bool requireActivationSupport = true, bool requireDeactivationSupport = true)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>Name of the fluent</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="CatSAT.Problem.html">Problem</a></td>
+        <td><span class="parametername">problem</span></td>
+        <td><p>Problem to add it to</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">requireActivationSupport</span></td>
+        <td><p>If true, only activate the fluent when the activation is supported by a Rule</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">requireDeactivationSupport</span></td>
+        <td><p>If true, only deactivate the fluent when the deactivation is suppered by a Rule.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Fluents.FluentInstantiation.html">Fluents.FluentInstantiation</a>&gt;</td>
+        <td><p>The new fluent</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Fluents_Fluent_" data-uid="CatSAT.Fluents.Fluent*"></a>
+  <h4 id="CatSAT_Fluents_Fluent__1_System_String_System_Collections_Generic_ICollection___0__CatSAT_Problem_System_Boolean_System_Boolean_" data-uid="CatSAT.Fluents.Fluent``1(System.String,System.Collections.Generic.ICollection{``0},CatSAT.Problem,System.Boolean,System.Boolean)">Fluent&lt;T&gt;(String, ICollection&lt;T&gt;, Problem, Boolean, Boolean)</h4>
+  <div class="markdown level1 summary"><p>Creates a fluent predicate over the specified domain</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Func&lt;T, int, Fluents.FluentInstantiation&gt; Fluent&lt;T&gt;(string name, ICollection&lt;T&gt; domain, Problem problem = null, bool requireActivationSupport = true, bool requireDeactivationSupport = true)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>Name of the fluent</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.ICollection</span>&lt;T&gt;</td>
+        <td><span class="parametername">domain</span></td>
+        <td><p>Domain for the fluent</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="CatSAT.Problem.html">Problem</a></td>
+        <td><span class="parametername">problem</span></td>
+        <td><p>Problem to add it to</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">requireActivationSupport</span></td>
+        <td><p>If true, only activate the fluent when the activation is supported by a Rule</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">requireDeactivationSupport</span></td>
+        <td><p>If true, only deactivate the fluent when the deactivation is suppered by a Rule.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Fluents.FluentInstantiation.html">Fluents.FluentInstantiation</a>&gt;</td>
+        <td><p>The new fluent</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p>Element type of the domain</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Fluents_Fluent_" data-uid="CatSAT.Fluents.Fluent*"></a>
+  <h4 id="CatSAT_Fluents_Fluent__2_System_String_System_Collections_Generic_ICollection___0__System_Collections_Generic_ICollection___1__CatSAT_Problem_System_Boolean_System_Boolean_" data-uid="CatSAT.Fluents.Fluent``2(System.String,System.Collections.Generic.ICollection{``0},System.Collections.Generic.ICollection{``1},CatSAT.Problem,System.Boolean,System.Boolean)">Fluent&lt;T1, T2&gt;(String, ICollection&lt;T1&gt;, ICollection&lt;T2&gt;, Problem, Boolean, Boolean)</h4>
+  <div class="markdown level1 summary"><p>Creates a fluent predicate, with two arguments besides the timepoint, over the specified domain</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Func&lt;T1, T2, int, Fluents.FluentInstantiation&gt; Fluent&lt;T1, T2&gt;(string name, ICollection&lt;T1&gt; domain1, ICollection&lt;T2&gt; domain2, Problem problem = null, bool requireActivationSupport = true, bool requireDeactivationSupport = true)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>Name of the fluent</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.ICollection</span>&lt;T1&gt;</td>
+        <td><span class="parametername">domain1</span></td>
+        <td><p>Domain for the fluent&apos;s first argument</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.ICollection</span>&lt;T2&gt;</td>
+        <td><span class="parametername">domain2</span></td>
+        <td><p>Domain for the fluent&apos;s second argument</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="CatSAT.Problem.html">Problem</a></td>
+        <td><span class="parametername">problem</span></td>
+        <td><p>Problem to add it to</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">requireActivationSupport</span></td>
+        <td><p>If true, only activate the fluent when the activation is supported by a Rule</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">requireDeactivationSupport</span></td>
+        <td><p>If true, only deactivate the fluent when the deactivation is suppered by a Rule.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T2, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Fluents.FluentInstantiation.html">Fluents.FluentInstantiation</a>&gt;</td>
+        <td><p>The new fluent</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td><p>Element type of domain1</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="parametername">T2</span></td>
+        <td><p>Element type of domain2</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Fluents_SymmetricFluent_" data-uid="CatSAT.Fluents.SymmetricFluent*"></a>
+  <h4 id="CatSAT_Fluents_SymmetricFluent__1_System_String_System_Collections_Generic_ICollection___0__CatSAT_Problem_System_Boolean_System_Boolean_" data-uid="CatSAT.Fluents.SymmetricFluent``1(System.String,System.Collections.Generic.ICollection{``0},CatSAT.Problem,System.Boolean,System.Boolean)">SymmetricFluent&lt;T&gt;(String, ICollection&lt;T&gt;, Problem, Boolean, Boolean)</h4>
+  <div class="markdown level1 summary"><p>Creates a fluent predicate over the specified domain, with two symmatric arguments, besides the timepoint.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Func&lt;T, T, int, Fluents.FluentInstantiation&gt; SymmetricFluent&lt;T&gt;(string name, ICollection&lt;T&gt; domain, Problem problem = null, bool requireActivationSupport = true, bool requireDeactivationSupport = true)
+    where T : IComparable</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>Name of the fluent</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.ICollection</span>&lt;T&gt;</td>
+        <td><span class="parametername">domain</span></td>
+        <td><p>Domain for the fluent</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="CatSAT.Problem.html">Problem</a></td>
+        <td><span class="parametername">problem</span></td>
+        <td><p>Problem to add it to</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">requireActivationSupport</span></td>
+        <td><p>If true, only activate the fluent when the activation is supported by a Rule</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">requireDeactivationSupport</span></td>
+        <td><p>If true, only deactivate the fluent when the deactivation is suppered by a Rule.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, T, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Fluents.FluentInstantiation.html">Fluents.FluentInstantiation</a>&gt;</td>
+        <td><p>The new fluent</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p>Element type of the domain</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

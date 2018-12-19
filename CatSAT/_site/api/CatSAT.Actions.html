@@ -1,0 +1,1453 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class Actions
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class Actions
+   ">
+    <meta name="generator" content="docfx 2.39.1.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="CatSAT.Actions">
+  
+  
+  <h1 id="CatSAT_Actions" data-uid="CatSAT.Actions" class="text-break">Class Actions
+  </h1>
+  <div class="markdown level0 summary"><p>Represents an action that can modify a fluent
+Actions are functions that map time points, and optionally other arguments to propositions representing that
+that action has occurred at that time.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">Actions</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="CatSAT.html">CatSAT</a></h6>
+  <h6><strong>Assembly</strong>: CatSAT.dll</h6>
+  <h5 id="CatSAT_Actions_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static class Actions</code></pre>
+  </div>
+  <h3 id="methods">Methods
+  </h3>
+  
+  
+  <a id="CatSAT_Actions_Action_" data-uid="CatSAT.Actions.Action*"></a>
+  <h4 id="CatSAT_Actions_Action_System_String_" data-uid="CatSAT.Actions.Action(System.String)">Action(String)</h4>
+  <div class="markdown level1 summary"><p>Creates a new atomic action within a CatSAT Problem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Func&lt;int, Actions.ActionInstantiation&gt; Action(string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>Name of the action</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><p>The action</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Action_" data-uid="CatSAT.Actions.Action*"></a>
+  <h4 id="CatSAT_Actions_Action__1_System_String_System_Collections_Generic_ICollection___0__" data-uid="CatSAT.Actions.Action``1(System.String,System.Collections.Generic.ICollection{``0})">Action&lt;T1&gt;(String, ICollection&lt;T1&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates a new atomic action within a CatSAT Problem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Func&lt;T1, int, Actions.ActionInstantiation&gt; Action&lt;T1&gt;(string name, ICollection&lt;T1&gt; domain1)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>Name of the action</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.ICollection</span>&lt;T1&gt;</td>
+        <td><span class="parametername">domain1</span></td>
+        <td><p>Domain for first argument</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><p>The action</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Action_" data-uid="CatSAT.Actions.Action*"></a>
+  <h4 id="CatSAT_Actions_Action__2_System_String_System_Collections_Generic_ICollection___0__System_Collections_Generic_ICollection___1__" data-uid="CatSAT.Actions.Action``2(System.String,System.Collections.Generic.ICollection{``0},System.Collections.Generic.ICollection{``1})">Action&lt;T1, T2&gt;(String, ICollection&lt;T1&gt;, ICollection&lt;T2&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates a new atomic action within a CatSAT Problem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Func&lt;T1, T2, int, Actions.ActionInstantiation&gt; Action&lt;T1, T2&gt;(string name, ICollection&lt;T1&gt; domain1, ICollection&lt;T2&gt; domain2)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>Name of the action</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.ICollection</span>&lt;T1&gt;</td>
+        <td><span class="parametername">domain1</span></td>
+        <td><p>Domain for first argument</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.ICollection</span>&lt;T2&gt;</td>
+        <td><span class="parametername">domain2</span></td>
+        <td><p>Domain for second argument</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T2, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><p>The action</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="parametername">T2</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Adds_" data-uid="CatSAT.Actions.Adds*"></a>
+  <h4 id="CatSAT_Actions_Adds_System_Func_System_Int32_CatSAT_Actions_ActionInstantiation__System_Func_System_Int32_CatSAT_Fluents_FluentInstantiation__" data-uid="CatSAT.Actions.Adds(System.Func{System.Int32,CatSAT.Actions.ActionInstantiation},System.Func{System.Int32,CatSAT.Fluents.FluentInstantiation})">Adds(Func&lt;Int32, Actions.ActionInstantiation&gt;, Func&lt;Int32, Fluents.FluentInstantiation&gt;)</h4>
+  <div class="markdown level1 summary"><p>Asserts the specified action activates the specified fluent</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void Adds(Func&lt;int, Actions.ActionInstantiation&gt; action, Func&lt;int, Fluents.FluentInstantiation&gt; effect)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">action</span></td>
+        <td><p>Action that changes the fluent</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Fluents.FluentInstantiation.html">Fluents.FluentInstantiation</a>&gt;</td>
+        <td><span class="parametername">effect</span></td>
+        <td><p>Fluent being activated</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Adds_" data-uid="CatSAT.Actions.Adds*"></a>
+  <h4 id="CatSAT_Actions_Adds__1_System_Func___0___0_System_Int32_CatSAT_Actions_SymmetricActionInstantiation__System_Func___0___0_System_Int32_CatSAT_Fluents_FluentInstantiation__" data-uid="CatSAT.Actions.Adds``1(System.Func{``0,``0,System.Int32,CatSAT.Actions.SymmetricActionInstantiation},System.Func{``0,``0,System.Int32,CatSAT.Fluents.FluentInstantiation})">Adds&lt;T1&gt;(Func&lt;T1, T1, Int32, Actions.SymmetricActionInstantiation&gt;, Func&lt;T1, T1, Int32, Fluents.FluentInstantiation&gt;)</h4>
+  <div class="markdown level1 summary"><p>Asserts the specified action activates the specified fluent</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void Adds&lt;T1&gt;(Func&lt;T1, T1, int, Actions.SymmetricActionInstantiation&gt; action, Func&lt;T1, T1, int, Fluents.FluentInstantiation&gt; effect)
+    where T1 : IComparable</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.SymmetricActionInstantiation.html">Actions.SymmetricActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">action</span></td>
+        <td><p>Action that changes the fluent</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Fluents.FluentInstantiation.html">Fluents.FluentInstantiation</a>&gt;</td>
+        <td><span class="parametername">effect</span></td>
+        <td><p>Fluent being activated</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Adds_" data-uid="CatSAT.Actions.Adds*"></a>
+  <h4 id="CatSAT_Actions_Adds__1_System_Func___0_System_Int32_CatSAT_Actions_ActionInstantiation__System_Func___0_System_Int32_CatSAT_Fluents_FluentInstantiation__" data-uid="CatSAT.Actions.Adds``1(System.Func{``0,System.Int32,CatSAT.Actions.ActionInstantiation},System.Func{``0,System.Int32,CatSAT.Fluents.FluentInstantiation})">Adds&lt;T1&gt;(Func&lt;T1, Int32, Actions.ActionInstantiation&gt;, Func&lt;T1, Int32, Fluents.FluentInstantiation&gt;)</h4>
+  <div class="markdown level1 summary"><p>Asserts the specified action activates the specified fluent</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void Adds&lt;T1&gt;(Func&lt;T1, int, Actions.ActionInstantiation&gt; action, Func&lt;T1, int, Fluents.FluentInstantiation&gt; effect)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">action</span></td>
+        <td><p>Action that changes the fluent</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Fluents.FluentInstantiation.html">Fluents.FluentInstantiation</a>&gt;</td>
+        <td><span class="parametername">effect</span></td>
+        <td><p>Fluent being activated</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Adds_" data-uid="CatSAT.Actions.Adds*"></a>
+  <h4 id="CatSAT_Actions_Adds__2_System_Func___0___1_System_Int32_CatSAT_Actions_ActionInstantiation__System_Func___0___1_System_Int32_CatSAT_Fluents_FluentInstantiation__" data-uid="CatSAT.Actions.Adds``2(System.Func{``0,``1,System.Int32,CatSAT.Actions.ActionInstantiation},System.Func{``0,``1,System.Int32,CatSAT.Fluents.FluentInstantiation})">Adds&lt;T1, T2&gt;(Func&lt;T1, T2, Int32, Actions.ActionInstantiation&gt;, Func&lt;T1, T2, Int32, Fluents.FluentInstantiation&gt;)</h4>
+  <div class="markdown level1 summary"><p>Asserts the specified action activates the specified fluent</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void Adds&lt;T1, T2&gt;(Func&lt;T1, T2, int, Actions.ActionInstantiation&gt; action, Func&lt;T1, T2, int, Fluents.FluentInstantiation&gt; effect)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T2, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">action</span></td>
+        <td><p>Action that changes the fluent</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T2, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Fluents.FluentInstantiation.html">Fluents.FluentInstantiation</a>&gt;</td>
+        <td><span class="parametername">effect</span></td>
+        <td><p>Fluent being activated</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="parametername">T2</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Deletes_" data-uid="CatSAT.Actions.Deletes*"></a>
+  <h4 id="CatSAT_Actions_Deletes_System_Func_System_Int32_CatSAT_Actions_ActionInstantiation__System_Func_System_Int32_CatSAT_Fluents_FluentInstantiation__" data-uid="CatSAT.Actions.Deletes(System.Func{System.Int32,CatSAT.Actions.ActionInstantiation},System.Func{System.Int32,CatSAT.Fluents.FluentInstantiation})">Deletes(Func&lt;Int32, Actions.ActionInstantiation&gt;, Func&lt;Int32, Fluents.FluentInstantiation&gt;)</h4>
+  <div class="markdown level1 summary"><p>Asserts the specified action deactivates the specified fluent</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void Deletes(Func&lt;int, Actions.ActionInstantiation&gt; action, Func&lt;int, Fluents.FluentInstantiation&gt; effect)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">action</span></td>
+        <td><p>Action that changes the fluent</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Fluents.FluentInstantiation.html">Fluents.FluentInstantiation</a>&gt;</td>
+        <td><span class="parametername">effect</span></td>
+        <td><p>Fluent being deactivated</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Deletes_" data-uid="CatSAT.Actions.Deletes*"></a>
+  <h4 id="CatSAT_Actions_Deletes__1_System_Func___0___0_System_Int32_CatSAT_Actions_SymmetricActionInstantiation__System_Func___0___0_System_Int32_CatSAT_Fluents_FluentInstantiation__" data-uid="CatSAT.Actions.Deletes``1(System.Func{``0,``0,System.Int32,CatSAT.Actions.SymmetricActionInstantiation},System.Func{``0,``0,System.Int32,CatSAT.Fluents.FluentInstantiation})">Deletes&lt;T1&gt;(Func&lt;T1, T1, Int32, Actions.SymmetricActionInstantiation&gt;, Func&lt;T1, T1, Int32, Fluents.FluentInstantiation&gt;)</h4>
+  <div class="markdown level1 summary"><p>Asserts the specified action deactivates the specified fluent</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void Deletes&lt;T1&gt;(Func&lt;T1, T1, int, Actions.SymmetricActionInstantiation&gt; action, Func&lt;T1, T1, int, Fluents.FluentInstantiation&gt; effect)
+    where T1 : IComparable</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.SymmetricActionInstantiation.html">Actions.SymmetricActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">action</span></td>
+        <td><p>Action that changes the fluent</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Fluents.FluentInstantiation.html">Fluents.FluentInstantiation</a>&gt;</td>
+        <td><span class="parametername">effect</span></td>
+        <td><p>Fluent being deactivated</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Deletes_" data-uid="CatSAT.Actions.Deletes*"></a>
+  <h4 id="CatSAT_Actions_Deletes__1_System_Func___0_System_Int32_CatSAT_Actions_ActionInstantiation__System_Func___0_System_Int32_CatSAT_Fluents_FluentInstantiation__" data-uid="CatSAT.Actions.Deletes``1(System.Func{``0,System.Int32,CatSAT.Actions.ActionInstantiation},System.Func{``0,System.Int32,CatSAT.Fluents.FluentInstantiation})">Deletes&lt;T1&gt;(Func&lt;T1, Int32, Actions.ActionInstantiation&gt;, Func&lt;T1, Int32, Fluents.FluentInstantiation&gt;)</h4>
+  <div class="markdown level1 summary"><p>Asserts the specified action deactivates the specified fluent</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void Deletes&lt;T1&gt;(Func&lt;T1, int, Actions.ActionInstantiation&gt; action, Func&lt;T1, int, Fluents.FluentInstantiation&gt; effect)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">action</span></td>
+        <td><p>Action that changes the fluent</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Fluents.FluentInstantiation.html">Fluents.FluentInstantiation</a>&gt;</td>
+        <td><span class="parametername">effect</span></td>
+        <td><p>Fluent being deactivated</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Deletes_" data-uid="CatSAT.Actions.Deletes*"></a>
+  <h4 id="CatSAT_Actions_Deletes__2_System_Func___0___1_System_Int32_CatSAT_Actions_ActionInstantiation__System_Func___0___1_System_Int32_CatSAT_Fluents_FluentInstantiation__" data-uid="CatSAT.Actions.Deletes``2(System.Func{``0,``1,System.Int32,CatSAT.Actions.ActionInstantiation},System.Func{``0,``1,System.Int32,CatSAT.Fluents.FluentInstantiation})">Deletes&lt;T1, T2&gt;(Func&lt;T1, T2, Int32, Actions.ActionInstantiation&gt;, Func&lt;T1, T2, Int32, Fluents.FluentInstantiation&gt;)</h4>
+  <div class="markdown level1 summary"><p>Asserts the specified action deactivates the specified fluent</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void Deletes&lt;T1, T2&gt;(Func&lt;T1, T2, int, Actions.ActionInstantiation&gt; action, Func&lt;T1, T2, int, Fluents.FluentInstantiation&gt; effect)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T2, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">action</span></td>
+        <td><p>Action that changes the fluent</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T2, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Fluents.FluentInstantiation.html">Fluents.FluentInstantiation</a>&gt;</td>
+        <td><span class="parametername">effect</span></td>
+        <td><p>Fluent being deactivated</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="parametername">T2</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Instances_" data-uid="CatSAT.Actions.Instances*"></a>
+  <h4 id="CatSAT_Actions_Instances_System_Func_System_Int32_CatSAT_Actions_ActionInstantiation__System_Int32_" data-uid="CatSAT.Actions.Instances(System.Func{System.Int32,CatSAT.Actions.ActionInstantiation},System.Int32)">Instances(Func&lt;Int32, Actions.ActionInstantiation&gt;, Int32)</h4>
+  <div class="markdown level1 summary"><p>Enumeration of all possible instances of action at the specified timepoint</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;Actions.ActionInstantiation&gt; Instances(Func&lt;int, Actions.ActionInstantiation&gt; a, int t)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">a</span></td>
+        <td><p>Action</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">t</span></td>
+        <td><p>Timepoint</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><p>Instances</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Instances_" data-uid="CatSAT.Actions.Instances*"></a>
+  <h4 id="CatSAT_Actions_Instances__1_System_Func___0___0_System_Int32_CatSAT_Actions_SymmetricActionInstantiation__System_Int32_" data-uid="CatSAT.Actions.Instances``1(System.Func{``0,``0,System.Int32,CatSAT.Actions.SymmetricActionInstantiation},System.Int32)">Instances&lt;T1&gt;(Func&lt;T1, T1, Int32, Actions.SymmetricActionInstantiation&gt;, Int32)</h4>
+  <div class="markdown level1 summary"><p>Enumeration of all possible instances of action at the specified timepoint</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;Actions.SymmetricActionInstantiation&gt; Instances&lt;T1&gt;(Func&lt;T1, T1, int, Actions.SymmetricActionInstantiation&gt; a, int t)
+    where T1 : IComparable</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.SymmetricActionInstantiation.html">Actions.SymmetricActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">a</span></td>
+        <td><p>Action</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">t</span></td>
+        <td><p>Timepoint</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="CatSAT.Actions.SymmetricActionInstantiation.html">Actions.SymmetricActionInstantiation</a>&gt;</td>
+        <td><p>Instances</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Instances_" data-uid="CatSAT.Actions.Instances*"></a>
+  <h4 id="CatSAT_Actions_Instances__1_System_Func___0_System_Int32_CatSAT_Actions_ActionInstantiation__System_Int32_" data-uid="CatSAT.Actions.Instances``1(System.Func{``0,System.Int32,CatSAT.Actions.ActionInstantiation},System.Int32)">Instances&lt;T1&gt;(Func&lt;T1, Int32, Actions.ActionInstantiation&gt;, Int32)</h4>
+  <div class="markdown level1 summary"><p>Enumeration of all possible instances of action at the specified timepoint</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;Actions.ActionInstantiation&gt; Instances&lt;T1&gt;(Func&lt;T1, int, Actions.ActionInstantiation&gt; a, int t)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">a</span></td>
+        <td><p>Action</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">t</span></td>
+        <td><p>Timepoint</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><p>Instances</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Instances_" data-uid="CatSAT.Actions.Instances*"></a>
+  <h4 id="CatSAT_Actions_Instances__2_System_Func___0___1_System_Int32_CatSAT_Actions_ActionInstantiation__System_Int32_" data-uid="CatSAT.Actions.Instances``2(System.Func{``0,``1,System.Int32,CatSAT.Actions.ActionInstantiation},System.Int32)">Instances&lt;T1, T2&gt;(Func&lt;T1, T2, Int32, Actions.ActionInstantiation&gt;, Int32)</h4>
+  <div class="markdown level1 summary"><p>Enumeration of all possible instances of action at the specified timepoint</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;Actions.ActionInstantiation&gt; Instances&lt;T1, T2&gt;(Func&lt;T1, T2, int, Actions.ActionInstantiation&gt; a, int t)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T2, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">a</span></td>
+        <td><p>Action</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">t</span></td>
+        <td><p>Timepoint</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><p>Instances</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="parametername">T2</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_MapDomain_" data-uid="CatSAT.Actions.MapDomain*"></a>
+  <h4 id="CatSAT_Actions_MapDomain__2_System_Func___0___0_System_Int32_CatSAT_Actions_SymmetricActionInstantiation__System_Func___0___0___1__" data-uid="CatSAT.Actions.MapDomain``2(System.Func{``0,``0,System.Int32,CatSAT.Actions.SymmetricActionInstantiation},System.Func{``0,``0,``1})">MapDomain&lt;T1, TOut&gt;(Func&lt;T1, T1, Int32, Actions.SymmetricActionInstantiation&gt;, Func&lt;T1, T1, TOut&gt;)</h4>
+  <div class="markdown level1 summary"><p>Maps function over the domain of the action</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;TOut&gt; MapDomain&lt;T1, TOut&gt;(Func&lt;T1, T1, int, Actions.SymmetricActionInstantiation&gt; a, Func&lt;T1, T1, TOut&gt; f)
+    where T1 : IComparable</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.SymmetricActionInstantiation.html">Actions.SymmetricActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">a</span></td>
+        <td><p>Action over whose domain to map</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T1, TOut&gt;</td>
+        <td><span class="parametername">f</span></td>
+        <td><p>Function to apply to the domain</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;TOut&gt;</td>
+        <td><p>Stream of results of the function on the domain elements</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td><p>Type of the action&apos;s arguments</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="parametername">TOut</span></td>
+        <td><p>Result type of the function</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_MapDomain_" data-uid="CatSAT.Actions.MapDomain*"></a>
+  <h4 id="CatSAT_Actions_MapDomain__2_System_Func___0_System_Int32_CatSAT_Actions_ActionInstantiation__System_Func___0___1__" data-uid="CatSAT.Actions.MapDomain``2(System.Func{``0,System.Int32,CatSAT.Actions.ActionInstantiation},System.Func{``0,``1})">MapDomain&lt;T1, TOut&gt;(Func&lt;T1, Int32, Actions.ActionInstantiation&gt;, Func&lt;T1, TOut&gt;)</h4>
+  <div class="markdown level1 summary"><p>Maps function over the domain of the action</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;TOut&gt; MapDomain&lt;T1, TOut&gt;(Func&lt;T1, int, Actions.ActionInstantiation&gt; a, Func&lt;T1, TOut&gt; f)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">a</span></td>
+        <td><p>Action over whose domain to map</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, TOut&gt;</td>
+        <td><span class="parametername">f</span></td>
+        <td><p>Function to apply to the domain</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;TOut&gt;</td>
+        <td><p>Stream of results of the function on the domain elements</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td><p>Type of the action&apos;s argument</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="parametername">TOut</span></td>
+        <td><p>Result type of the function</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_MapDomain_" data-uid="CatSAT.Actions.MapDomain*"></a>
+  <h4 id="CatSAT_Actions_MapDomain__3_System_Func___0___1_System_Int32_CatSAT_Actions_ActionInstantiation__System_Func___0___1___2__" data-uid="CatSAT.Actions.MapDomain``3(System.Func{``0,``1,System.Int32,CatSAT.Actions.ActionInstantiation},System.Func{``0,``1,``2})">MapDomain&lt;T1, T2, TOut&gt;(Func&lt;T1, T2, Int32, Actions.ActionInstantiation&gt;, Func&lt;T1, T2, TOut&gt;)</h4>
+  <div class="markdown level1 summary"><p>Maps function over the domain of the action</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEnumerable&lt;TOut&gt; MapDomain&lt;T1, T2, TOut&gt;(Func&lt;T1, T2, int, Actions.ActionInstantiation&gt; a, Func&lt;T1, T2, TOut&gt; f)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T2, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">a</span></td>
+        <td><p>Action over whose domain to map</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T2, TOut&gt;</td>
+        <td><span class="parametername">f</span></td>
+        <td><p>Function to apply to the domain</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;TOut&gt;</td>
+        <td><p>Stream of results of the function on the domain elements</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td><p>Type of the action&apos;s argument</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="parametername">T2</span></td>
+        <td><p>Type of the action&apos;s second argument</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="parametername">TOut</span></td>
+        <td><p>Result type of the function</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Precondition_" data-uid="CatSAT.Actions.Precondition*"></a>
+  <h4 id="CatSAT_Actions_Precondition_System_Func_System_Int32_CatSAT_Actions_ActionInstantiation__System_Func_System_Int32_CatSAT_Proposition__" data-uid="CatSAT.Actions.Precondition(System.Func{System.Int32,CatSAT.Actions.ActionInstantiation},System.Func{System.Int32,CatSAT.Proposition})">Precondition(Func&lt;Int32, Actions.ActionInstantiation&gt;, Func&lt;Int32, Proposition&gt;)</h4>
+  <div class="markdown level1 summary"><p>Asserts that the specified fluent is a precondition of the action</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void Precondition(Func&lt;int, Actions.ActionInstantiation&gt; action, Func&lt;int, Proposition&gt; precondition)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">action</span></td>
+        <td><p>Action</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Proposition.html">Proposition</a>&gt;</td>
+        <td><span class="parametername">precondition</span></td>
+        <td><p>Fluent that must be true at a given timepoint for the action to be runnable.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Precondition_" data-uid="CatSAT.Actions.Precondition*"></a>
+  <h4 id="CatSAT_Actions_Precondition__1_System_Func___0___0_System_Int32_CatSAT_Actions_SymmetricActionInstantiation__System_Func___0___0_System_Int32_CatSAT_Literal__" data-uid="CatSAT.Actions.Precondition``1(System.Func{``0,``0,System.Int32,CatSAT.Actions.SymmetricActionInstantiation},System.Func{``0,``0,System.Int32,CatSAT.Literal})">Precondition&lt;T1&gt;(Func&lt;T1, T1, Int32, Actions.SymmetricActionInstantiation&gt;, Func&lt;T1, T1, Int32, Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>Asserts that the specified fluent is a precondition of the action</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void Precondition&lt;T1&gt;(Func&lt;T1, T1, int, Actions.SymmetricActionInstantiation&gt; action, Func&lt;T1, T1, int, Literal&gt; precondition)
+    where T1 : IComparable</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.SymmetricActionInstantiation.html">Actions.SymmetricActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">action</span></td>
+        <td><p>Action</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">precondition</span></td>
+        <td><p>Fluent that must be true at a given timepoint for the action to be runnable.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Precondition_" data-uid="CatSAT.Actions.Precondition*"></a>
+  <h4 id="CatSAT_Actions_Precondition__1_System_Func___0_System_Int32_CatSAT_Actions_ActionInstantiation__System_Func___0_System_Int32_CatSAT_Proposition__" data-uid="CatSAT.Actions.Precondition``1(System.Func{``0,System.Int32,CatSAT.Actions.ActionInstantiation},System.Func{``0,System.Int32,CatSAT.Proposition})">Precondition&lt;T1&gt;(Func&lt;T1, Int32, Actions.ActionInstantiation&gt;, Func&lt;T1, Int32, Proposition&gt;)</h4>
+  <div class="markdown level1 summary"><p>Asserts that the specified fluent is a precondition of the action</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void Precondition&lt;T1&gt;(Func&lt;T1, int, Actions.ActionInstantiation&gt; action, Func&lt;T1, int, Proposition&gt; precondition)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">action</span></td>
+        <td><p>Action</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Proposition.html">Proposition</a>&gt;</td>
+        <td><span class="parametername">precondition</span></td>
+        <td><p>Fluent that must be true at a given timepoint for the action to be runnable.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_Precondition_" data-uid="CatSAT.Actions.Precondition*"></a>
+  <h4 id="CatSAT_Actions_Precondition__2_System_Func___0___1_System_Int32_CatSAT_Actions_ActionInstantiation__System_Func___0___1_System_Int32_CatSAT_Literal__" data-uid="CatSAT.Actions.Precondition``2(System.Func{``0,``1,System.Int32,CatSAT.Actions.ActionInstantiation},System.Func{``0,``1,System.Int32,CatSAT.Literal})">Precondition&lt;T1, T2&gt;(Func&lt;T1, T2, Int32, Actions.ActionInstantiation&gt;, Func&lt;T1, T2, Int32, Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>Asserts that the specified fluent is a precondition of the action</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void Precondition&lt;T1, T2&gt;(Func&lt;T1, T2, int, Actions.ActionInstantiation&gt; action, Func&lt;T1, T2, int, Literal&gt; precondition)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T2, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a>&gt;</td>
+        <td><span class="parametername">action</span></td>
+        <td><p>Action</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T1, T2, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">precondition</span></td>
+        <td><p>Fluent that must be true at a given timepoint for the action to be runnable.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T1</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="parametername">T2</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Actions_SymmetricAction_" data-uid="CatSAT.Actions.SymmetricAction*"></a>
+  <h4 id="CatSAT_Actions_SymmetricAction__1_System_String_System_Collections_Generic_ICollection___0__" data-uid="CatSAT.Actions.SymmetricAction``1(System.String,System.Collections.Generic.ICollection{``0})">SymmetricAction&lt;T&gt;(String, ICollection&lt;T&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates a new atomic action within a CatSAT Problem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Func&lt;T, T, int, Actions.SymmetricActionInstantiation&gt; SymmetricAction&lt;T&gt;(string name, ICollection&lt;T&gt; domain)
+    where T : IComparable</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>Name of the action</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.ICollection</span>&lt;T&gt;</td>
+        <td><span class="parametername">domain</span></td>
+        <td><p>Domain for first and second arguments</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, T, <span class="xref">System.Int32</span>, <a class="xref" href="CatSAT.Actions.SymmetricActionInstantiation.html">Actions.SymmetricActionInstantiation</a>&gt;</td>
+        <td><p>The action</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

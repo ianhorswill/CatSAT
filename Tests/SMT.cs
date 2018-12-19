@@ -136,5 +136,23 @@ namespace Tests
                 Console.WriteLine(s.Model);
             }
         }
+
+        [TestMethod]
+        public void SumConstraintTest()
+        {
+            var p = new Problem(nameof(SumConstraintTest));
+            var dom = new FloatDomain("unit", 0, 1);
+            var x = (FloatVariable) dom.Instantiate("x");
+            var y = (FloatVariable) dom.Instantiate("y");
+            //p.Assert("foo");
+            var sum = x + y;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                Assert.IsTrue(sum.Value(s) == x.Value(s)+y.Value(s));
+            }
+        }
     }
 }

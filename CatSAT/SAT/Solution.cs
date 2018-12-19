@@ -512,7 +512,7 @@ namespace CatSAT
         /// <returns>True if a satisfying assignment was found.</returns>
         internal bool Solve()
         {
-            if (propositions.Length == 1)
+            if (propositions.Length == 1 && Problem.TheorySolvers == null)
                 // Trivial problem, since propositions[0] isn't a real proposition.
                 return true;
 

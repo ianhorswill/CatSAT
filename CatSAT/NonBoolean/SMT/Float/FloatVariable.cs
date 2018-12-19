@@ -79,6 +79,8 @@ namespace CatSAT
         internal List<FloatVariable> UpperVariableBounds;
         internal List<FloatVariable> LowerVariableBounds;
 
+        internal List<FunctionalConstraint> FunctionalConstraints;
+
         /// <summary>
         /// Variable to which this is aliased, if any
         /// </summary>
@@ -148,6 +150,12 @@ namespace CatSAT
             LowerVariableBounds?.Clear();
         }
 
+        /// <summary>
+        /// Asserts that variable must be no larger than bound.
+        /// Updates Bounds.Upper if necessary
+        /// </summary>
+        /// <param name="bound">Upper bound on variable</param>
+        /// <returns>True is resulting bounds are consistent</returns>
         internal bool BoundAbove(float bound)
         {
             if (!(bound < Bounds.Upper)) return true;
@@ -155,6 +163,12 @@ namespace CatSAT
             return Bounds.IsNonEmpty;
         }
 
+        /// <summary>
+        /// Asserts that variable must be at least as large as bound.
+        /// Updates Bounds.Lower if necessary
+        /// </summary>
+        /// <param name="bound">Lower bound on variable</param>
+        /// <returns>True is resulting bounds are consistent</returns>
         internal bool BoundBelow(float bound)
         {
             if (!(bound > Bounds.Lower)) return true;
@@ -162,6 +176,13 @@ namespace CatSAT
             return Bounds.IsNonEmpty;
         }
 
+        /// <summary>
+        /// Asserts that variable must be no larger than bound.
+        /// Updates Bounds.Upper and adds variable to propagation queue, if necessary.
+        /// </summary>
+        /// <param name="bound">Upper bound on variable</param>
+        /// <param name="q">Propagation queue</param>
+        /// <returns>True is resulting bounds are consistent</returns>
         internal bool BoundAbove(float bound, Queue<Tuple<FloatVariable,bool>> q)
         {
             if (!(bound < Bounds.Upper)) return true;
@@ -170,16 +191,27 @@ namespace CatSAT
             return Bounds.IsNonEmpty;
         }
 
+        /// <summary>
+        /// Adds the specified (varaible, isupper) task to queue if it is not already present.
+        /// </summary>
         private void EnsurePresent(Queue<Tuple<FloatVariable, bool>> q, Tuple<FloatVariable, bool> task)
         {
             if (q.Contains(task)) return;
             q.Enqueue(task);
         }
 
+        /// <summary>
+        /// Asserts that variable must be no less than bound.
+        /// Updates Bounds.Lower and adds variable to propagation queue, if necessary.
+        /// </summary>
+        /// <param name="bound">Lower bound on variable</param>
+        /// <param name="q">Propagation queue</param>
+        /// <returns>True is resulting bounds are consistent</returns>
         internal bool BoundBelow(float bound, Queue<Tuple<FloatVariable,bool>> q)
         {
             if (!(bound > Bounds.Lower)) return true;
             Bounds.Lower = bound;
+            EnsurePresent(q, new Tuple<FloatVariable, bool>(this, false));
             return Bounds.IsNonEmpty;
         }
 
@@ -249,6 +281,15 @@ namespace CatSAT
             return Problem.Current.GetSpecialProposition<VariableBound>(Call.FromArgs(Problem.Current, ">=", v1, v2));
         }
 
+        public static FloatVariable operator +(FloatVariable v1, FloatVariable v2)
+        {
+            var sum = new FloatVariable($"{v1.Name}+{v2.Name}",
+                v1.FloatDomain.Bounds.Lower+v2.FloatDomain.Bounds.Lower,
+                v1.FloatDomain.Bounds.Upper+v2.FloatDomain.Bounds.Upper);
+            CatSAT.Problem.Current.Assert(new SumConstraint(sum, v1, v2));
+            return sum;
+        }
+
         internal void AddUpperBound(FloatVariable bound)
         {
             if (UpperVariableBounds == null)
@@ -261,6 +302,15 @@ namespace CatSAT
             if (LowerVariableBounds == null)
                 LowerVariableBounds = new List<FloatVariable>();
             LowerVariableBounds.Add(bound);
+        }
+
+        internal void AddFunctionalConstraint(FunctionalConstraint c)
+        {
+            if (FunctionalConstraints == null)
+            {
+                FunctionalConstraints = new List<FunctionalConstraint>();
+            }
+            FunctionalConstraints.Add(c);
         }
     }
 }

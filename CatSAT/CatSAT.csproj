@@ -32,7 +32,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE;PerformanceStatistics</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>3</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
     <DocumentationFile>bin\Release\CatSAT.xml</DocumentationFile>
   </PropertyGroup>
@@ -47,8 +47,10 @@
     <Compile Include="NonBoolean\SMT\Float\FloatProposition.cs" />
     <Compile Include="NonBoolean\SMT\Float\FloatSolver.cs" />
     <Compile Include="NonBoolean\SMT\Float\FloatVariable.cs" />
+    <Compile Include="NonBoolean\SMT\Float\FunctionalConstraint.cs" />
     <Compile Include="NonBoolean\SMT\Float\Interval.cs" />
     <Compile Include="NonBoolean\SMT\Float\ConstantBound.cs" />
+    <Compile Include="NonBoolean\SMT\Float\SumConstraint.cs" />
     <Compile Include="NonBoolean\SMT\Float\VariableBound.cs" />
     <Compile Include="NonBoolean\SMT\Float\VariableEquation.cs" />
     <Compile Include="NonBoolean\SMT\MenuVariables\Menu.cs" />
@@ -95,23 +97,5 @@
     <Compile Include="NonBoolean\VariableProblemExtensions.cs" />
     <Compile Include="NonBoolean\VariableType.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include=".gitignore" />
-    <None Include="api\.gitignore" />
-    <None Include="api\index.md" />
-    <None Include="articles\intro.md" />
-    <None Include="articles\toc.md" />
-    <None Include="docfx.json" />
-    <None Include="index.md" />
-    <None Include="packages.config" />
-    <None Include="toc.yml" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\docfx.console.2.39.1\build\docfx.console.targets" Condition="Exists('..\packages\docfx.console.2.39.1\build\docfx.console.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\docfx.console.2.39.1\build\docfx.console.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\docfx.console.2.39.1\build\docfx.console.targets'))" />
-  </Target>
 </Project>

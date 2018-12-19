@@ -218,6 +218,13 @@ namespace CatSAT.NonBoolean.SMT.Float
                 var v = work.Item1;
                 var isUpper = work.Item2;
 
+                // Propagate functional dependencies
+                if (v.FunctionalConstraints != null)
+                    foreach (var c in v.FunctionalConstraints)
+                        if (!c.Propagate(v, isUpper, propagationQueue))
+                            return false;
+
+                // Propagate variable bounds
                 if (isUpper)
                 {
                     // V's upper bound decreased

@@ -1,0 +1,1951 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class Solution
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class Solution
+   ">
+    <meta name="generator" content="docfx 2.39.1.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="CatSAT.Solution">
+  
+  
+  <h1 id="CatSAT_Solution" data-uid="CatSAT.Solution" class="text-break">Class Solution
+  </h1>
+  <div class="markdown level0 summary"><p>The output of a program; a model satisfying the clauses of the Problem.
+Note: for packaging reasons, this is also where the actual solver code lives,
+rather than in Program.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">Solution</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="CatSAT.html">CatSAT</a></h6>
+  <h6><strong>Assembly</strong>: CatSAT.dll</h6>
+  <h5 id="CatSAT_Solution_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class Solution</code></pre>
+  </div>
+  <h3 id="fields">Fields
+  </h3>
+  
+  
+  <h4 id="CatSAT_Solution_Problem" data-uid="CatSAT.Solution.Problem">Problem</h4>
+  <div class="markdown level1 summary"><p>The Program for which this is a solution.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public readonly Problem Problem</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="CatSAT.Problem.html">Problem</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="CatSAT_Solution_Timeout" data-uid="CatSAT.Solution.Timeout">Timeout</h4>
+  <div class="markdown level1 summary"><p>Number of flips of propositions we can try before we give up and start over.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public readonly int Timeout</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  
+  
+  <a id="CatSAT_Solution_Item_" data-uid="CatSAT.Solution.Item*"></a>
+  <h4 id="CatSAT_Solution_Item_CatSAT_Literal_" data-uid="CatSAT.Solution.Item(CatSAT.Literal)">Item[Literal]</h4>
+  <div class="markdown level1 summary"><p>Test the truth of the specified literal within the model</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool this[Literal l] { get; }</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="CatSAT.Literal.html">Literal</a></td>
+        <td><span class="parametername">l</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Item_" data-uid="CatSAT.Solution.Item*"></a>
+  <h4 id="CatSAT_Solution_Item_CatSAT_Proposition_" data-uid="CatSAT.Solution.Item(CatSAT.Proposition)">Item[Proposition]</h4>
+  <div class="markdown level1 summary"><p>Test the truth of the specified literal within the model</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool this[Proposition p] { get; }</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="CatSAT.Proposition.html">Proposition</a></td>
+        <td><span class="parametername">p</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Item_" data-uid="CatSAT.Solution.Item*"></a>
+  <h4 id="CatSAT_Solution_Item_CatSAT_Variable_" data-uid="CatSAT.Solution.Item(CatSAT.Variable)">Item[Variable]</h4>
+  <div class="markdown level1 summary"><p>Get untyped value of variable</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public object this[Variable v] { get; }</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="CatSAT.Variable.html">Variable</a></td>
+        <td><span class="parametername">v</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Model_" data-uid="CatSAT.Solution.Model*"></a>
+  <h4 id="CatSAT_Solution_Model" data-uid="CatSAT.Solution.Model">Model</h4>
+  <div class="markdown level1 summary"><p>A string listing the true propositions in the solution</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string Model { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_PerformanceStatistics_" data-uid="CatSAT.Solution.PerformanceStatistics*"></a>
+  <h4 id="CatSAT_Solution_PerformanceStatistics" data-uid="CatSAT.Solution.PerformanceStatistics">PerformanceStatistics</h4>
+  <div class="markdown level1 summary"><p>A string listing the performance statistics of the solver run that generated this solution.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string PerformanceStatistics { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_SolveFlips_" data-uid="CatSAT.Solution.SolveFlips*"></a>
+  <h4 id="CatSAT_Solution_SolveFlips" data-uid="CatSAT.Solution.SolveFlips">SolveFlips</h4>
+  <div class="markdown level1 summary"><p>Number of flips required to generate this solution</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int SolveFlips { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_SolveTimeMicroseconds_" data-uid="CatSAT.Solution.SolveTimeMicroseconds*"></a>
+  <h4 id="CatSAT_Solution_SolveTimeMicroseconds" data-uid="CatSAT.Solution.SolveTimeMicroseconds">SolveTimeMicroseconds</h4>
+  <div class="markdown level1 summary"><p>Time taken to generate this solution</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public float SolveTimeMicroseconds { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Single</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  
+  
+  <a id="CatSAT_Solution_All_" data-uid="CatSAT.Solution.All*"></a>
+  <h4 id="CatSAT_Solution_All_CatSAT_Literal___" data-uid="CatSAT.Solution.All(CatSAT.Literal[])">All(Literal[])</h4>
+  <div class="markdown level1 summary"><p>Test if all the specified literals are true in this solution</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool All(params Literal[] literals)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="CatSAT.Literal.html">Literal</a>[]</td>
+        <td><span class="parametername">literals</span></td>
+        <td><p>Literals to test</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if they&apos;re all true</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_All_" data-uid="CatSAT.Solution.All*"></a>
+  <h4 id="CatSAT_Solution_All_System_Collections_Generic_IEnumerable_CatSAT_Literal__" data-uid="CatSAT.Solution.All(System.Collections.Generic.IEnumerable{CatSAT.Literal})">All(IEnumerable&lt;Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>Test if all the specified literals are true in this solution</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool All(IEnumerable&lt;Literal&gt; literals)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">literals</span></td>
+        <td><p>Literals to test</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if they&apos;re all true</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_All_" data-uid="CatSAT.Solution.All*"></a>
+  <h4 id="CatSAT_Solution_All__1_System_Collections_Generic_IEnumerable___0__System_Func___0_CatSAT_Literal__" data-uid="CatSAT.Solution.All``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,CatSAT.Literal})">All&lt;T&gt;(IEnumerable&lt;T&gt;, Func&lt;T, Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>Test if all the specified literals are true in this solution</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool All&lt;T&gt;(IEnumerable&lt;T&gt; domain, Func&lt;T, Literal&gt; f)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;T&gt;</td>
+        <td><span class="parametername">domain</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, <a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">f</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if they&apos;re all true</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_AtLeast_" data-uid="CatSAT.Solution.AtLeast*"></a>
+  <h4 id="CatSAT_Solution_AtLeast_System_Int32_CatSAT_Literal___" data-uid="CatSAT.Solution.AtLeast(System.Int32,CatSAT.Literal[])">AtLeast(Int32, Literal[])</h4>
+  <div class="markdown level1 summary"><p>True if at least the specified number of literals are true from the specified set</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool AtLeast(int n, params Literal[] literals)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">n</span></td>
+        <td><p>Number of elements to test for</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="CatSAT.Literal.html">Literal</a>[]</td>
+        <td><span class="parametername">literals</span></td>
+        <td><p>Literals to test</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if at least the specified number is true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_AtLeast_" data-uid="CatSAT.Solution.AtLeast*"></a>
+  <h4 id="CatSAT_Solution_AtLeast_System_Int32_System_Collections_Generic_IEnumerable_CatSAT_Literal__" data-uid="CatSAT.Solution.AtLeast(System.Int32,System.Collections.Generic.IEnumerable{CatSAT.Literal})">AtLeast(Int32, IEnumerable&lt;Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>True if at least the specified number of literals are true from the specified set</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool AtLeast(int n, IEnumerable&lt;Literal&gt; literals)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">n</span></td>
+        <td><p>Number of elements to test for</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">literals</span></td>
+        <td><p>Literals to test</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if at least the specified number is true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_AtLeast_" data-uid="CatSAT.Solution.AtLeast*"></a>
+  <h4 id="CatSAT_Solution_AtLeast__1_System_Int32_System_Collections_Generic_IEnumerable___0__System_Func___0_CatSAT_Literal__" data-uid="CatSAT.Solution.AtLeast``1(System.Int32,System.Collections.Generic.IEnumerable{``0},System.Func{``0,CatSAT.Literal})">AtLeast&lt;T&gt;(Int32, IEnumerable&lt;T&gt;, Func&lt;T, Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>True if at least the specified number of literals are true from the specified set</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool AtLeast&lt;T&gt;(int n, IEnumerable&lt;T&gt; domain, Func&lt;T, Literal&gt; f)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">n</span></td>
+        <td><p>Number of elements to test for</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;T&gt;</td>
+        <td><span class="parametername">domain</span></td>
+        <td><p>Domain to quantify over</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, <a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">f</span></td>
+        <td><p>Function to map a domain element to a literal</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if at least the specified number is true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_AtMost_" data-uid="CatSAT.Solution.AtMost*"></a>
+  <h4 id="CatSAT_Solution_AtMost_System_Int32_CatSAT_Literal___" data-uid="CatSAT.Solution.AtMost(System.Int32,CatSAT.Literal[])">AtMost(Int32, Literal[])</h4>
+  <div class="markdown level1 summary"><p>True if at most the specified number of literals are true from the specified set</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool AtMost(int n, params Literal[] literals)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">n</span></td>
+        <td><p>Number of elements to test for</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="CatSAT.Literal.html">Literal</a>[]</td>
+        <td><span class="parametername">literals</span></td>
+        <td><p>Literals to test</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if at most the specified number is true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_AtMost_" data-uid="CatSAT.Solution.AtMost*"></a>
+  <h4 id="CatSAT_Solution_AtMost_System_Int32_System_Collections_Generic_IEnumerable_CatSAT_Literal__" data-uid="CatSAT.Solution.AtMost(System.Int32,System.Collections.Generic.IEnumerable{CatSAT.Literal})">AtMost(Int32, IEnumerable&lt;Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>True if at most the specified number of literals are true from the specified set</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool AtMost(int n, IEnumerable&lt;Literal&gt; literals)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">n</span></td>
+        <td><p>Number of elements to test for</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">literals</span></td>
+        <td><p>Literals to test</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if at most the specified number is true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_AtMost_" data-uid="CatSAT.Solution.AtMost*"></a>
+  <h4 id="CatSAT_Solution_AtMost__1_System_Int32_System_Collections_Generic_IEnumerable___0__System_Func___0_CatSAT_Literal__" data-uid="CatSAT.Solution.AtMost``1(System.Int32,System.Collections.Generic.IEnumerable{``0},System.Func{``0,CatSAT.Literal})">AtMost&lt;T&gt;(Int32, IEnumerable&lt;T&gt;, Func&lt;T, Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>True if at most the specified number of literals are true from the specified set</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool AtMost&lt;T&gt;(int n, IEnumerable&lt;T&gt; domain, Func&lt;T, Literal&gt; f)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">n</span></td>
+        <td><p>Number of elements to test for</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;T&gt;</td>
+        <td><span class="parametername">domain</span></td>
+        <td><p>Domain to quantify over</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, <a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">f</span></td>
+        <td><p>Function to map a domain element to a literal</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if at most the specified number is true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Count_" data-uid="CatSAT.Solution.Count*"></a>
+  <h4 id="CatSAT_Solution_Count_CatSAT_Literal___" data-uid="CatSAT.Solution.Count(CatSAT.Literal[])">Count(Literal[])</h4>
+  <div class="markdown level1 summary"><p>Returns the number of literals from the specified set that are true in this solution</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int Count(params Literal[] literals)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="CatSAT.Literal.html">Literal</a>[]</td>
+        <td><span class="parametername">literals</span></td>
+        <td><p>Literals to test</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><p>Number of literals that are true</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Count_" data-uid="CatSAT.Solution.Count*"></a>
+  <h4 id="CatSAT_Solution_Count_System_Collections_Generic_IEnumerable_CatSAT_Literal__" data-uid="CatSAT.Solution.Count(System.Collections.Generic.IEnumerable{CatSAT.Literal})">Count(IEnumerable&lt;Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>Returns the number of literals from the specified set that are true in this solution</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int Count(IEnumerable&lt;Literal&gt; literals)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">literals</span></td>
+        <td><p>Literals to test</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><p>Number of literals that are true</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Count_" data-uid="CatSAT.Solution.Count*"></a>
+  <h4 id="CatSAT_Solution_Count__1_System_Collections_Generic_IEnumerable___0__System_Func___0_CatSAT_Literal__" data-uid="CatSAT.Solution.Count``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,CatSAT.Literal})">Count&lt;T&gt;(IEnumerable&lt;T&gt;, Func&lt;T, Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>Returns the number of literals from the specified set that are true in this solution</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int Count&lt;T&gt;(IEnumerable&lt;T&gt; domain, Func&lt;T, Literal&gt; f)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;T&gt;</td>
+        <td><span class="parametername">domain</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, <a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">f</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><p>Number of literals that are true</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Exactly_" data-uid="CatSAT.Solution.Exactly*"></a>
+  <h4 id="CatSAT_Solution_Exactly_System_Int32_CatSAT_Literal___" data-uid="CatSAT.Solution.Exactly(System.Int32,CatSAT.Literal[])">Exactly(Int32, Literal[])</h4>
+  <div class="markdown level1 summary"><p>True if exactly the specified number of literals are true from the specified set</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Exactly(int n, params Literal[] literals)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">n</span></td>
+        <td><p>Number of elements to test for</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="CatSAT.Literal.html">Literal</a>[]</td>
+        <td><span class="parametername">literals</span></td>
+        <td><p>Literals to test</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if exactly the specified number is true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Exactly_" data-uid="CatSAT.Solution.Exactly*"></a>
+  <h4 id="CatSAT_Solution_Exactly_System_Int32_System_Collections_Generic_IEnumerable_CatSAT_Literal__" data-uid="CatSAT.Solution.Exactly(System.Int32,System.Collections.Generic.IEnumerable{CatSAT.Literal})">Exactly(Int32, IEnumerable&lt;Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>True if exactly the specified number of literals are true from the specified set</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Exactly(int n, IEnumerable&lt;Literal&gt; literals)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">n</span></td>
+        <td><p>Number of elements to test for</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">literals</span></td>
+        <td><p>Literals to test</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if exactly the specified number is true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Exactly_" data-uid="CatSAT.Solution.Exactly*"></a>
+  <h4 id="CatSAT_Solution_Exactly__1_System_Int32_System_Collections_Generic_IEnumerable___0__System_Func___0_CatSAT_Literal__" data-uid="CatSAT.Solution.Exactly``1(System.Int32,System.Collections.Generic.IEnumerable{``0},System.Func{``0,CatSAT.Literal})">Exactly&lt;T&gt;(Int32, IEnumerable&lt;T&gt;, Func&lt;T, Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>True if exactly the specified number of literals are true from the specified set</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Exactly&lt;T&gt;(int n, IEnumerable&lt;T&gt; domain, Func&lt;T, Literal&gt; f)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">n</span></td>
+        <td><p>Number of elements to test for</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;T&gt;</td>
+        <td><span class="parametername">domain</span></td>
+        <td><p>Domain to quantify over</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, <a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">f</span></td>
+        <td><p>Maps a domain element to a literal</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if exactly the specified number is true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Exists_" data-uid="CatSAT.Solution.Exists*"></a>
+  <h4 id="CatSAT_Solution_Exists_CatSAT_Literal___" data-uid="CatSAT.Solution.Exists(CatSAT.Literal[])">Exists(Literal[])</h4>
+  <div class="markdown level1 summary"><p>True if at least one literal is true from the specified set</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Exists(params Literal[] literals)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="CatSAT.Literal.html">Literal</a>[]</td>
+        <td><span class="parametername">literals</span></td>
+        <td><p>Literals to test</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if at least one literal is true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Exists_" data-uid="CatSAT.Solution.Exists*"></a>
+  <h4 id="CatSAT_Solution_Exists_System_Collections_Generic_IEnumerable_CatSAT_Literal__" data-uid="CatSAT.Solution.Exists(System.Collections.Generic.IEnumerable{CatSAT.Literal})">Exists(IEnumerable&lt;Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>True if at least one literal is true from the specified set</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Exists(IEnumerable&lt;Literal&gt; literals)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">literals</span></td>
+        <td><p>Literals to test</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if at least one literal is true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Exists_" data-uid="CatSAT.Solution.Exists*"></a>
+  <h4 id="CatSAT_Solution_Exists__1_System_Collections_Generic_IEnumerable___0__System_Func___0_CatSAT_Literal__" data-uid="CatSAT.Solution.Exists``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,CatSAT.Literal})">Exists&lt;T&gt;(IEnumerable&lt;T&gt;, Func&lt;T, Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>True if at least one literal is true from the specified set</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Exists&lt;T&gt;(IEnumerable&lt;T&gt; domain, Func&lt;T, Literal&gt; f)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;T&gt;</td>
+        <td><span class="parametername">domain</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, <a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">f</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if at least one literal is true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_IsTrue_" data-uid="CatSAT.Solution.IsTrue*"></a>
+  <h4 id="CatSAT_Solution_IsTrue_CatSAT_Literal_" data-uid="CatSAT.Solution.IsTrue(CatSAT.Literal)">IsTrue(Literal)</h4>
+  <div class="markdown level1 summary"><p>Test the truth of the specified literal within the model</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsTrue(Literal l)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="CatSAT.Literal.html">Literal</a></td>
+        <td><span class="parametername">l</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_IsTrue_" data-uid="CatSAT.Solution.IsTrue*"></a>
+  <h4 id="CatSAT_Solution_IsTrue_CatSAT_Proposition_" data-uid="CatSAT.Solution.IsTrue(CatSAT.Proposition)">IsTrue(Proposition)</h4>
+  <div class="markdown level1 summary"><p>Test the truth of the specified proposition within the model</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsTrue(Proposition p)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="CatSAT.Proposition.html">Proposition</a></td>
+        <td><span class="parametername">p</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_IsTrue_" data-uid="CatSAT.Solution.IsTrue*"></a>
+  <h4 id="CatSAT_Solution_IsTrue_System_Int16_" data-uid="CatSAT.Solution.IsTrue(System.Int16)">IsTrue(Int16)</h4>
+  <div class="markdown level1 summary"><p>Test the truth of a literal (positive or negative) in the model.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsTrue(short literal)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int16</span></td>
+        <td><span class="parametername">literal</span></td>
+        <td><p>Index of the literal (negative value = negative literal)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if the literal is true in the model</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_IsTrue_" data-uid="CatSAT.Solution.IsTrue*"></a>
+  <h4 id="CatSAT_Solution_IsTrue_System_UInt16_" data-uid="CatSAT.Solution.IsTrue(System.UInt16)">IsTrue(UInt16)</h4>
+  <div class="markdown level1 summary"><p>Test the truth of a proposition/positive literal</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsTrue(ushort index)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.UInt16</span></td>
+        <td><span class="parametername">index</span></td>
+        <td><p>Index of the proposition</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if the proposition is true in the model</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Quantify_" data-uid="CatSAT.Solution.Quantify*"></a>
+  <h4 id="CatSAT_Solution_Quantify_System_Int32_System_Int32_CatSAT_Literal___" data-uid="CatSAT.Solution.Quantify(System.Int32,System.Int32,CatSAT.Literal[])">Quantify(Int32, Int32, Literal[])</h4>
+  <div class="markdown level1 summary"><p>Test if the number of true literals is in the specified range</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Quantify(int min, int max, params Literal[] literals)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">min</span></td>
+        <td><p>Minimum number</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">max</span></td>
+        <td><p>Maximum number</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="CatSAT.Literal.html">Literal</a>[]</td>
+        <td><span class="parametername">literals</span></td>
+        <td><p>Literals to test</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if the right number of elements are true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Quantify_" data-uid="CatSAT.Solution.Quantify*"></a>
+  <h4 id="CatSAT_Solution_Quantify_System_Int32_System_Int32_System_Collections_Generic_IEnumerable_CatSAT_Literal__" data-uid="CatSAT.Solution.Quantify(System.Int32,System.Int32,System.Collections.Generic.IEnumerable{CatSAT.Literal})">Quantify(Int32, Int32, IEnumerable&lt;Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>Test if the number of true literals is in the specified range</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Quantify(int min, int max, IEnumerable&lt;Literal&gt; literals)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">min</span></td>
+        <td><p>Minimum number</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">max</span></td>
+        <td><p>Maximum number</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">literals</span></td>
+        <td><p>Literals to test</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if the right number of elements are true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Quantify_" data-uid="CatSAT.Solution.Quantify*"></a>
+  <h4 id="CatSAT_Solution_Quantify__1_System_Int32_System_Int32_System_Collections_Generic_IEnumerable___0__System_Func___0_CatSAT_Literal__" data-uid="CatSAT.Solution.Quantify``1(System.Int32,System.Int32,System.Collections.Generic.IEnumerable{``0},System.Func{``0,CatSAT.Literal})">Quantify&lt;T&gt;(Int32, Int32, IEnumerable&lt;T&gt;, Func&lt;T, Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>Test if the number of true literals is in the specified range</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Quantify&lt;T&gt;(int min, int max, IEnumerable&lt;T&gt; domain, Func&lt;T, Literal&gt; f)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">min</span></td>
+        <td><p>Minimum number</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">max</span></td>
+        <td><p>Maximum number</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;T&gt;</td>
+        <td><span class="parametername">domain</span></td>
+        <td><p>Domain over which to quantify</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, <a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">f</span></td>
+        <td><p>Function to map domain element to proposition</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if the right number of elements are true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p>Element type of domain</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Unique_" data-uid="CatSAT.Solution.Unique*"></a>
+  <h4 id="CatSAT_Solution_Unique_CatSAT_Literal___" data-uid="CatSAT.Solution.Unique(CatSAT.Literal[])">Unique(Literal[])</h4>
+  <div class="markdown level1 summary"><p>True if exactly one literal is true from the specified set</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Unique(params Literal[] literals)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="CatSAT.Literal.html">Literal</a>[]</td>
+        <td><span class="parametername">literals</span></td>
+        <td><p>Literals to test</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if exactly one literal is true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Unique_" data-uid="CatSAT.Solution.Unique*"></a>
+  <h4 id="CatSAT_Solution_Unique_System_Collections_Generic_IEnumerable_CatSAT_Literal__" data-uid="CatSAT.Solution.Unique(System.Collections.Generic.IEnumerable{CatSAT.Literal})">Unique(IEnumerable&lt;Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>True if exactly one literal is true from the specified set</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Unique(IEnumerable&lt;Literal&gt; literals)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">literals</span></td>
+        <td><p>Literals to test</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if exactly one literal is true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="CatSAT_Solution_Unique_" data-uid="CatSAT.Solution.Unique*"></a>
+  <h4 id="CatSAT_Solution_Unique__1_System_Collections_Generic_IEnumerable___0__System_Func___0_CatSAT_Literal__" data-uid="CatSAT.Solution.Unique``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,CatSAT.Literal})">Unique&lt;T&gt;(IEnumerable&lt;T&gt;, Func&lt;T, Literal&gt;)</h4>
+  <div class="markdown level1 summary"><p>True if exactly one literal is true from the specified set</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Unique&lt;T&gt;(IEnumerable&lt;T&gt; domain, Func&lt;T, Literal&gt; f)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;T&gt;</td>
+        <td><span class="parametername">domain</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, <a class="xref" href="CatSAT.Literal.html">Literal</a>&gt;</td>
+        <td><span class="parametername">f</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if exactly one literal is true in this solution</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="extensionmethods">Extension Methods</h3>
+  <div>
+      <a class="xref" href="CatSAT.VariableProblemExtensions.html#CatSAT_VariableProblemExtensions_Populate_CatSAT_Solution_System_Object_System_Reflection_BindingFlags_">VariableProblemExtensions.Populate(Solution, Object, BindingFlags)</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,272 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Namespace CatSAT
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Namespace CatSAT
+   ">
+    <meta name="generator" content="docfx 2.39.1.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="CatSAT">
+  
+  <h1 id="CatSAT" data-uid="CatSAT" class="text-break">Namespace CatSAT
+  </h1>
+  <div class="markdown level0 summary"></div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="markdown level0 remarks"></div>
+    <h3 id="classes">Classes
+  </h3>
+      <h4><a class="xref" href="CatSAT.Actions.html">Actions</a></h4>
+      <section><p>Represents an action that can modify a fluent
+Actions are functions that map time points, and optionally other arguments to propositions representing that
+that action has occurred at that time.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Actions.ActionInstantiation.html">Actions.ActionInstantiation</a></h4>
+      <section><p>Represents an application of an action to a specific set of arguments at a specific point in time</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Actions.SymmetricActionInstantiation.html">Actions.SymmetricActionInstantiation</a></h4>
+      <section><p>Represents an application of an action to a specifc set of arguments at a specifc point in time</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Assertable.html">Assertable</a></h4>
+      <section><p>Something that can be Assert&apos;ed in a Problem.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Biconditional.html">Biconditional</a></h4>
+      <section><p>Constrains Head and Body to have the same truth value.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Call.html">Call</a></h4>
+      <section><p>Represents a call to a predicate or function with specific arguments.
+This gets used as the name of the Proposition that the predicate returns when you call it.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.CompiledStruct.html">CompiledStruct</a></h4>
+      <section><p>A CatSAT variable whose value is a normal C# class whose fields are automatically filled in by CatSAT.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.CompiledStructType.html">CompiledStructType</a></h4>
+      <section><p>The VariableType of a CompiledStruct</p>
+</section>
+      <h4><a class="xref" href="CatSAT.ConditionAttribute.html">ConditionAttribute</a></h4>
+      <section><p>An attribute representing that the Variable to which it is attached is only defined in solutions for which the specified variable has the specified value.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Conjunction.html">Conjunction</a></h4>
+      <section><p>A conjunction of literals.
+Used in rule bodies.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.ContradictionException.html">ContradictionException</a></h4>
+      <section><p>Signifies the Problem contains a contradiction</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Domain-1.html">Domain&lt;T&gt;</a></h4>
+      <section><p>Base class for domains of Variables.
+A Domain defines the set of possible values of a Variable.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.DomainAttribute.html">DomainAttribute</a></h4>
+      <section><p>Annotates a Variable-valued field in a CompiledStruct to specify its domain</p>
+</section>
+      <h4><a class="xref" href="CatSAT.DomainVariable-1.html">DomainVariable&lt;T&gt;</a></h4>
+      <section><p>Base class for typed, non-Boolean variables, either for NBSAT or for SMT</p>
+</section>
+      <h4><a class="xref" href="CatSAT.EnumDomain-1.html">EnumDomain&lt;T&gt;</a></h4>
+      <section><p>A domain whose values are the values of an enumerated type.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.EnumVariable-1.html">EnumVariable&lt;T&gt;</a></h4>
+      <section><p>A finite-domain variable whose domain is a specified enumerated type</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Expression.html">Expression</a></h4>
+      <section><p>A propositional expression</p>
+</section>
+      <h4><a class="xref" href="CatSAT.FDomain-1.html">FDomain&lt;T&gt;</a></h4>
+      <section><p>A finite domain defined by a list.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.FDVariable-1.html">FDVariable&lt;T&gt;</a></h4>
+      <section><p>A finite domain variable.
+FDVariables use an &quot;eager&quot; implementation, meaning there&apos;s one proposition in the Problem for every possible value of the variable.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.FloatVariable.html">FloatVariable</a></h4>
+      <section><p>An float-valued SMT variable</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Fluents.html">Fluents</a></h4>
+      <section><p>Implements propositions and predicates that vary with time.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Fluents.FluentInstantiation.html">Fluents.FluentInstantiation</a></h4>
+      <section><p>A proposition representing a specific instantiation of a fluid, i.e. the fluid with a particular set of arguments
+at a particular timepoint.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Implication.html">Implication</a></h4>
+      <section><p>States that the Body being true forces the Head to be true without placing any constraint on Body.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Language.html">Language</a></h4>
+      <section><p>Definitions for embedded solver language.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Literal.html">Literal</a></h4>
+      <section><p>Represents a Proposition or a Negation.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Member.html">Member</a></h4>
+      <section><p>Represents CatSAT Variable that to be added to all instances of a given CatSAT Struct.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Negation.html">Negation</a></h4>
+      <section><p>Represents a negated proposition.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.NonTightProblemException.html">NonTightProblemException</a></h4>
+      <section><p>Signifies that a problem contains a circular definition.
+That is, it contains a proposition that can be inferred from itself.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Problem.html">Problem</a></h4>
+      <section><p>A logic program.
+Contains a set of prositions, rules for the propositions, and general clauses.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Proposition.html">Proposition</a></h4>
+      <section><p>Represents an unnegated proposition, independent of its value in a given solution.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Random.html">Random</a></h4>
+      <section><p>A fast RNG</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Rule.html">Rule</a></h4>
+      <section><p>States that Body is a possible justification for the truth of Head.
+This is different from an implication.  An implication says that Body being true forces Head to be true
+and nothing more.  A rule gives the Head completion semantics.  It says that the Body being true forces 
+the Head to be true, but also says that the Head being true forces at least one of its rule bodies to be
+true.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Solution.html">Solution</a></h4>
+      <section><p>The output of a program; a model satisfying the clauses of the Problem.
+Note: for packaging reasons, this is also where the actual solver code lives,
+rather than in Program.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.SpecialProposition.html">SpecialProposition</a></h4>
+      <section><p>A proposition that involves specialized processing.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Struct.html">Struct</a></h4>
+      <section><p>The VariableType (essentially the domain) for CatSAT variables containing other variables</p>
+</section>
+      <h4><a class="xref" href="CatSAT.StructVar.html">StructVar</a></h4>
+      <section><p>A CatSAT Variable that constains over Variables</p>
+</section>
+      <h4><a class="xref" href="CatSAT.TheoryProposition.html">TheoryProposition</a></h4>
+      <section><p>Base class of all propositions used by TheorySolvers.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.TheorySolver.html">TheorySolver</a></h4>
+      <section><p>A special purpose solver used to find values of TheoryVariables after the main SAT solver has found a partial model.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.TheoryVariable-1.html">TheoryVariable&lt;T&gt;</a></h4>
+      <section><p>An SMT variable that&apos;s solved for by a special-purpose &quot;theory solver&quot;</p>
+</section>
+      <h4><a class="xref" href="CatSAT.TimeoutException.html">TimeoutException</a></h4>
+      <section><p>Signifies the solver game up.
+This doesn&apos;t mean that the problem is necessarily unsatisfiable (contains a contradiction).
+It just means that the solver couldn&apos;t find a solution in the alloted time.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Variable.html">Variable</a></h4>
+      <section><p>Base class for non-Boolean variables</p>
+</section>
+      <h4><a class="xref" href="CatSAT.VariableProblemExtensions.html">VariableProblemExtensions</a></h4>
+      <section><p>Implements various extension methods for Problem that are related to Variables.
+Also implements a couple of extensions on solutions, when they make the most sense to include here.</p>
+</section>
+      <h4><a class="xref" href="CatSAT.VariableType.html">VariableType</a></h4>
+      <section><p>Base class of all &quot;types&quot; of CatSAT variables.
+VariableType is a generalization of domains that includes things like the types of CatSAT Structs,
+that don&apos;t really look like domains.</p>
+</section>
+    <h3 id="structs">Structs
+  </h3>
+      <h4><a class="xref" href="CatSAT.Interval.html">Interval</a></h4>
+      <section><p>A closed inteval over the single-precision floating-point numbers</p>
+</section>
+      <h4><a class="xref" href="CatSAT.Problem.TimingData.html">Problem.TimingData</a></h4>
+      <section><p>Statistics for a single performance measurement</p>
+</section>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>
