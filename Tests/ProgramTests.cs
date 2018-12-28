@@ -22,6 +22,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
+
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CatSAT;
 
@@ -44,6 +46,24 @@ namespace Tests
         {
             new Problem("Empty program test").Solve();
             Assert.IsTrue(true);
+        }
+
+        [TestMethod]
+        public void ConjunctionTest()
+        {
+            var prob = new Problem("ConjunctionTest");
+            var p = (Proposition) "p";
+            var q = (Proposition) "q";
+            Assert.IsTrue(ReferenceEquals(p, prob.Conjunction(p, p)));
+            var conj = prob.Conjunction(p, q);
+            var reverseConj = prob.Conjunction(q, p);
+            Assert.IsTrue(ReferenceEquals(conj, reverseConj));
+            for (int i = 0; i < 100; i++)
+            {
+                var s = prob.Solve();
+                Console.WriteLine(s.Model);
+                Assert.IsTrue(s[conj] == (s[p] & s[q]));
+            }
         }
     }
 }

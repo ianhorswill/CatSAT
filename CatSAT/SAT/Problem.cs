@@ -370,6 +370,42 @@ namespace CatSAT
             return solver;
         }
 
+        /// <summary>
+        /// Add a new variable to the problem
+        /// </summary>
+        /// <param name="v"></param>
+        internal void AddVariable(Variable v)
+        {
+            if (variables == null)
+                variables = new List<Variable>() { v };
+            else
+                variables.Add(v);
+        }
+
+        /// <summary>
+        /// Get a Literal that is true iff both arguments are true.
+        /// If called twice with the same arguments, returns the same result.
+        /// </summary>
+        public Literal Conjunction(Literal a, Literal b)
+        {
+            if (ReferenceEquals(a, b))
+                return a;
+
+            if (a.SignedIndex > b.SignedIndex)
+                return Conjunction(b, a);
+
+            var name = Call.FromArgs(this, "&", a, b);
+            var alreadyDefined = propositionTable.ContainsKey(name);
+            var conjunction = GetProposition(name);
+            if (!alreadyDefined)
+            {
+                AddClause(Not(a), Not(b), conjunction);
+                AddClause(Not(conjunction), a);
+                AddClause(Not(conjunction), b);
+            }
+            return conjunction;
+        }
+
 #endregion
 
 #region Clause management
@@ -429,19 +465,6 @@ namespace CatSAT
         }
         #endregion
 
-        #region Variable management
-        /// <summary>
-        /// Add a new variable to the problem
-        /// </summary>
-        /// <param name="v"></param>
-        internal void AddVariable(Variable v)
-        {
-            if (variables == null)
-                variables = new List<Variable>() { v };
-            else
-                variables.Add(v);
-        }
-        #endregion
 
         /// <summary>
         /// Return a Solution to the Problem.
@@ -1068,7 +1091,7 @@ namespace CatSAT
         }
 #endregion
 
-#region Mapping between Literals objects and Variables
+#region Mapping between Literals objects and SATVariables
         /// <summary>
         /// True if the problem has a proposition with the specified name
         /// </summary>
