@@ -82,7 +82,15 @@ namespace CatSAT
         internal List<FloatVariable> UpperVariableBounds;
         internal List<FloatVariable> LowerVariableBounds;
 
-        internal List<FunctionalConstraint> FunctionalConstraints;
+        /// <summary>
+        /// All functional constraints applying to this variable
+        /// </summary>
+        internal List<FunctionalConstraint> AllFunctionalConstraints;
+
+        /// <summary>
+        /// Functional constraints that apply in this solution
+        /// </summary>
+        internal List<FunctionalConstraint> ActiveFunctionalConstraints;
 
         /// <summary>
         /// Variable to which this is aliased, if any
@@ -117,6 +125,8 @@ namespace CatSAT
         /// <inheritdoc />
         public override float Value(Solution s)
         {
+            if (!IsDefinedIn(s))
+                throw new InvalidOperationException($"Variable {Name} is not defined in this solution.");
             var r = Representative;
             if (r.Bounds.IsUnique)
                 return r.Bounds.Lower;
@@ -150,6 +160,7 @@ namespace CatSAT
             equivalence = null;
             UpperVariableBounds?.Clear();
             LowerVariableBounds?.Clear();
+            ActiveFunctionalConstraints?.Clear();
         }
 
         /// <summary>
@@ -376,7 +387,7 @@ namespace CatSAT
         /// </summary>
         public static FloatVariable operator +(FloatVariable v1, FloatVariable v2)
         {
-
+            // TODO: make sum be undefined when inputs are undefined
             var sum = new FloatVariable($"{v1.Name}+{v2.Name}",
                 v1.FloatDomain.Bounds.Lower+v2.FloatDomain.Bounds.Lower,
                 v1.FloatDomain.Bounds.Upper+v2.FloatDomain.Bounds.Upper);
@@ -389,6 +400,7 @@ namespace CatSAT
         /// </summary>
         public static FloatVariable operator *(FloatVariable v1, FloatVariable v2)
         {
+            // TODO: make product be undefined when inputs are undefined
             var range = v1.FloatDomain.Bounds * v2.FloatDomain.Bounds;
             var product = new FloatVariable($"{v1.Name}*{v2.Name}", range.Lower, range.Upper);
             Problem.Current.Assert(Problem.Current.GetSpecialProposition<ProductConstraint>(Call.FromArgs(Problem.Current, "IsProduct", product, v1, v2)));
@@ -411,11 +423,19 @@ namespace CatSAT
 
         internal void AddFunctionalConstraint(FunctionalConstraint c)
         {
-            if (FunctionalConstraints == null)
+            if (AllFunctionalConstraints == null)
             {
-                FunctionalConstraints = new List<FunctionalConstraint>();
+                AllFunctionalConstraints = new List<FunctionalConstraint>();
             }
-            FunctionalConstraints.Add(c);
+            AllFunctionalConstraints.Add(c);
+        }
+
+        internal void AddActiveFunctionalConstraint(FunctionalConstraint f)
+        {
+            if (ActiveFunctionalConstraints == null)
+                ActiveFunctionalConstraints = new List<FunctionalConstraint>();
+            if (!ActiveFunctionalConstraints.Contains(f))
+                ActiveFunctionalConstraints.Add(f);
         }
     }
 }

@@ -77,6 +77,7 @@ namespace CatSAT.NonBoolean.SMT.Float
         {
             ResetAll();
             FindEquivalenceClasses(s);
+            FindActiveFunctionalConstraints(s);
 
             if (!FindSolutionBounds(s)) 
                 // Constraints are contradictory
@@ -97,6 +98,41 @@ namespace CatSAT.NonBoolean.SMT.Float
             // We tried several samples and failed
             return false;
         }
+        
+        /// <summary>
+        /// Find the equivalence classes of variables in this model
+        /// </summary>
+        /// <param name="s">Boolean model against which to compute equivalence classes</param>
+        private void FindEquivalenceClasses(Solution s)
+        {
+            // Alias vars that are equated in this model
+            foreach (var p in Propositions)
+            {
+                if (p is VariableEquation e && s[e] && e.Lhs.IsDefinedIn(s) && e.Rhs.IsDefinedIn(s))
+                    FloatVariable.Equate(e.Lhs, e.Rhs);
+            }
+
+            // We can now focus on just the representatives of each equivalence class of variables
+            // and ignore the rest.
+            representatives.Clear();
+            representatives.AddRange(Variables.Where(v => v.IsDefinedIn(s) && (object) v == (object) v.Representative));
+        }
+        
+        /// <summary>
+        /// Find all functional constraints that are active in solution and attach them to the
+        /// representatives of their associated variables.
+        /// </summary>
+        private void FindActiveFunctionalConstraints(Solution solution)
+        {
+            foreach (var v in Variables)
+                if (v.AllFunctionalConstraints != null)
+                {
+                    var r = v.Representative;
+                    foreach (var f in v.AllFunctionalConstraints) 
+                        if (f.IsDefinedIn(solution))
+                            r.AddActiveFunctionalConstraint(f);
+                }
+        }
 
         /// <summary>
         /// Find the tightest bounds we can for each representative given the model.
@@ -109,6 +145,9 @@ namespace CatSAT.NonBoolean.SMT.Float
             // Apply all constant bounds that apply in this model
             foreach (var v in Variables)
             {
+                if (!v.IsDefinedIn(s))
+                    continue;
+
                 var r = v.Representative;
 
                 if (!ReferenceEquals(r, v) && (!r.BoundAbove(v.Bounds.Upper) || !r.BoundBelow(v.Bounds.Lower)))
@@ -127,7 +166,7 @@ namespace CatSAT.NonBoolean.SMT.Float
             // Apply all variable bounds that apply in this model
             foreach (var p in Propositions)
             {
-                if (p is VariableBound b && s[b])
+                if (p is VariableBound b && s[b] && b.Lhs.IsDefinedIn(s) && b.Rhs.IsDefinedIn(s))
                 {
                     var l = b.Lhs.Representative;
                     var r = b.Rhs.Representative;
@@ -160,25 +199,6 @@ namespace CatSAT.NonBoolean.SMT.Float
                 v.SolutionBounds = v.Bounds;
 
             return true;
-        }
-
-        /// <summary>
-        /// Find the equivalence classes of variables in this model
-        /// </summary>
-        /// <param name="s">Boolean model against which to compute equivalence classes</param>
-        private void FindEquivalenceClasses(Solution s)
-        {
-            // Alias vars that are equated in this model
-            foreach (var p in Propositions)
-            {
-                if (p is VariableEquation e && s[e])
-                    FloatVariable.Equate(e.Lhs, e.Rhs);
-            }
-
-            // We can now focus on just the representatives of each equivalence class of variables
-            // and ignore the rest.
-            representatives.Clear();
-            representatives.AddRange(Variables.Where(v => (object) v == (object) v.Representative));
         }
 
         /// <summary>
@@ -215,8 +235,8 @@ namespace CatSAT.NonBoolean.SMT.Float
                 var isUpper = work.Item2;
 
                 // Propagate functional dependencies
-                if (v.FunctionalConstraints != null)
-                    foreach (var c in v.FunctionalConstraints)
+                if (v.ActiveFunctionalConstraints != null)
+                    foreach (var c in v.ActiveFunctionalConstraints)
                         if (!c.Propagate(v, isUpper, propagationQueue))
                             return false;
 

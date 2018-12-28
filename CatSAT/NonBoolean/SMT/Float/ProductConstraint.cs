@@ -65,5 +65,10 @@ namespace CatSAT.NonBoolean.SMT.Float
             return Result.NarrowTo(lhs.Bounds * rhs.Bounds, q)
                    && other.NarrowTo(Result.Bounds / changed.Bounds, q);
         }
+
+        public override bool IsDefinedIn(Solution s)
+        {
+            return s[this] && Result.IsDefinedIn(s) && lhs.IsDefinedIn(s) && rhs.IsDefinedIn(s);
+        }
     }
 }

@@ -26,6 +26,7 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CatSAT;
 using CatSAT.NonBoolean.SMT.Float;
+using static CatSAT.Language;
 
 namespace Tests
 {
@@ -207,6 +208,99 @@ namespace Tests
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
                 Assert.IsTrue(Math.Abs(square.Value(s) - x.Value(s)*x.Value(s)) < 0.00001f);
+            }
+        }
+
+        /// <summary>
+        /// Test that FloatVariables that aren't supposed to be defined actually aren't defined.
+        /// </summary>
+        [TestMethod, ExpectedException(typeof(InvalidOperationException))]
+        public void UndefinedFloatVarTest()
+        {
+            var p = new Problem("test");
+            var dom = new FloatDomain("signed unit", -1, 1);
+            var prop = (Proposition) "prop";
+            var x = new FloatVariable("x", dom, prop, p);
+            p.Assert(Not(prop));
+            Solution s = null;
+            for (int i = 0; i < 100; i++)
+            {
+                s = p.Solve();
+                Console.WriteLine(s.Model);
+                Assert.IsFalse(s[prop]);
+                Assert.IsFalse(x.IsDefinedIn(s));
+            }
+            Console.WriteLine(x.Value(s));
+        }
+
+        /// <summary>
+        /// Check that if a defined var is equated to an undefined var, the equation has no effect
+        /// </summary>
+        [TestMethod]
+        public void UndefinedFloatVarEquationHasNoEffectTest()
+        {
+            var p = new Problem("test");
+            var dom = new FloatDomain("signed unit", -1, 1);
+            var prop = (Proposition) "prop";
+            var x = new FloatVariable("x", dom, prop, p);
+            var y = (FloatVariable) dom.Instantiate("y");
+            p.Assert(Not(prop));
+            p.Assert(x == y);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Assert.IsFalse(x.IsDefinedIn(s));
+                Assert.IsTrue(y.IsDefinedIn(s));
+                Assert.IsFalse(ReferenceEquals(x.Representative, y.Representative));
+            }
+        }
+
+        /// <summary>
+        /// Check that if a defined var is bounded by an undefined var, the bound has no effect
+        /// </summary>
+        [TestMethod]
+        public void UndefinedFloatVarBoundHasNoEffectTest()
+        {
+            var p = new Problem("test");
+            var dom = new FloatDomain("signed unit", -1, 1);
+            var prop = (Proposition) "prop";
+            var x = new FloatVariable("x", dom, prop, p);
+            var y = (FloatVariable) dom.Instantiate("y");
+            p.Assert(Not(prop));
+            p.Assert(x > y);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Assert.IsFalse(x.IsDefinedIn(s));
+                Assert.IsTrue(y.IsDefinedIn(s));
+                Assert.IsTrue(ReferenceEquals(y, y.Representative));
+                Assert.IsTrue(y.UpperVariableBounds == null);
+            }
+        }
+
+        /// <summary>
+        /// Check that if a defined var is functionally constrained by an undefined var, the constraint has no effect
+        /// </summary>
+        [TestMethod]
+        public void UndefinedFloatVarFunctionalConstraintHasNoEffectTest()
+        {
+            var p = new Problem("test");
+            var dom = new FloatDomain("signed unit", -1, 1);
+            var prop = (Proposition) "prop";
+            var x = new FloatVariable("x", dom, prop, p);
+            var y = (FloatVariable) dom.Instantiate("y");
+            var sum = x + y;
+
+            p.Assert(Not(prop));
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Assert.IsFalse(x.IsDefinedIn(s));
+                Assert.IsTrue(y.IsDefinedIn(s));
+                Assert.IsTrue(ReferenceEquals(y, y.Representative));
+                Assert.IsTrue(y.ActiveFunctionalConstraints == null);
             }
         }
     }

@@ -81,5 +81,10 @@ namespace CatSAT.NonBoolean.SMT.Float
                        && other.BoundAbove(Result.Bounds.Upper - changed.Bounds.Lower, q);
             }
         }
+
+        public override bool IsDefinedIn(Solution s)
+        {
+            return s[this] && Result.IsDefinedIn(s) && lhs.IsDefinedIn(s) && rhs.IsDefinedIn(s);
+        }
     }
 }

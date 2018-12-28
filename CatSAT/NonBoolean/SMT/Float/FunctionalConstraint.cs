@@ -52,5 +52,13 @@ namespace CatSAT.NonBoolean.SMT.Float
         /// <param name="q">Propagation queue from solver</param>
         /// <returns></returns>
         public abstract bool Propagate(FloatVariable changed, bool isUpper, Queue<Tuple<FloatVariable,bool>> q);
+
+        /// <summary>
+        /// True when the constraint is valid in the solution.
+        /// This requires that all its variables be defined.
+        /// </summary>
+        /// <param name="s">Solution to check</param>
+        /// <returns>True if the constraint is valid in the solution and all its variables are defined.</returns>
+        public abstract bool IsDefinedIn(Solution s);
     }
 }
