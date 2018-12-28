@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FunctionalConstraint.cs" company="Ian Horswill">
+// <copyright file="ProductConstraint.cs" company="Ian Horswill">
 // Copyright (C) 2018 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,33 +24,46 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace CatSAT.NonBoolean.SMT.Float
 {
     /// <summary>
-    /// Base class for constraints such as SumConstraint.
-    /// Represents the constraint that Result = f(args) for some f and args
+    /// Represents the constraint that Result = lhs * rhs
     /// </summary>
-    abstract class FunctionalConstraint : FloatProposition
+    class ProductConstraint : FunctionalConstraint
     {
         /// <summary>
-        /// The 
+        /// The left-hand argument to *
         /// </summary>
-        protected FloatVariable Result;
+        private FloatVariable lhs;
+        /// <summary>
+        /// The right-hand argument to *
+        /// </summary>
+        private FloatVariable rhs;
 
         public override void Initialize(Problem p)
         {
+            var c = (Call)Name;
+            Result = (FloatVariable)c.Args[0];
+            lhs = (FloatVariable)c.Args[1];
+            rhs = (FloatVariable)c.Args[2];
+            lhs.AddFunctionalConstraint(this);
+            rhs.AddFunctionalConstraint(this);
             base.Initialize(p);
-            Result.AddFunctionalConstraint(this);
         }
 
-        /// <summary>
-        /// Called when the bounds on a variable involved in this constraint have changed
-        /// </summary>
-        /// <param name="changed">Variable whose bound has changed</param>
-        /// <param name="isUpper">True if the variable's upper bound lowered, or false if its lower bound increased.</param>
-        /// <param name="q">Propagation queue from solver</param>
-        /// <returns></returns>
-        public abstract bool Propagate(FloatVariable changed, bool isUpper, Queue<Tuple<FloatVariable,bool>> q);
+        public override bool Propagate(FloatVariable changed, bool isUpper, Queue<Tuple<FloatVariable,bool>> q)
+        {
+            if (ReferenceEquals(changed, Result))
+                return lhs.NarrowTo(Result.Bounds / rhs.Bounds, q)
+                       && rhs.NarrowTo(Result.Bounds / lhs.Bounds, q);
+            
+            // It was lhs or rhs that changed.
+            Debug.Assert(ReferenceEquals(changed, lhs) || ReferenceEquals(changed, rhs));
+            FloatVariable other = ReferenceEquals(changed, lhs) ? rhs : lhs;
+            return Result.NarrowTo(lhs.Bounds * rhs.Bounds, q)
+                   && other.NarrowTo(Result.Bounds / changed.Bounds, q);
+        }
     }
 }

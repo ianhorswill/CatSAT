@@ -22,11 +22,15 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
+using System;
+using System.Diagnostics;
+
 namespace CatSAT
 {
     /// <summary>
-    /// A closed inteval over the single-precision floating-point numbers
+    /// A closed interval over the single-precision floating-point numbers
     /// </summary>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + "}")]
     public struct Interval
     {
         /// <summary>
@@ -39,6 +43,11 @@ namespace CatSAT
             Lower = lowerBound;
             Upper = upperBound;
         }
+
+        /// <summary>
+        /// An interval representing all possible float values
+        /// </summary>
+        public static readonly Interval AllValues = new Interval(float.NegativeInfinity, float.PositiveInfinity);
 
         /// <summary>
         /// Lower bound
@@ -64,24 +73,80 @@ namespace CatSAT
         /// </summary>
         public bool IsUnique => Upper == Lower;
 
-        ///// <summary>
-        ///// Lower the upper bound to the specified value, if it isn't already lower
-        ///// </summary>
-        ///// <param name="upper">New bound</param>
-        //public void BoundAbove(float upper)
-        //{
-        //    if (upper < Upper)
-        //        Upper = upper;
-        //}
+        /// <summary>
+        /// True if interval includes positive, negative, and zero values
+        /// </summary>
+        public bool CrossesZero => Lower < 0 && Upper > 0;
 
-        ///// <summary>
-        ///// Raise the lower bound to the specified value if it isn't already higher
-        ///// </summary>
-        ///// <param name="lower">New bound</param>
-        //public void BoundBelow(float lower)
-        //{
-        //    if (lower > Lower)
-        //        Lower = lower;
-        //}
+        /// <summary>
+        /// Interval contains value
+        /// </summary>
+        public bool Contains(float value)
+        {
+            return Lower <= value && value <= Upper;
+        }
+
+        /// <summary>
+        /// The interval product of two intervals
+        /// </summary>
+        public static Interval operator*(Interval a, Interval b)
+        {
+            return new Interval(ProductMin(a, b), ProductMax(a, b));
+        }
+
+        /// <summary>
+        /// The interval quotient of two intervals.
+        /// IMPORTANT: if the denominator crosses zero, the set-theoretic quotient is not an interval.
+        /// This operator then returns the whole real line as the interval.  Sorry.
+        /// </summary>
+        public static Interval operator/(Interval a, Interval b)
+        {
+            // ReSharper disable CompareOfFloatsByEqualityOperator
+            if (b.Lower == 0)
+            {
+                if (b.Upper == 0)
+                    return AllValues;
+                return new Interval(Math.Min(a.Upper / b.Upper, a.Lower / b.Upper), float.PositiveInfinity);
+            }
+
+            if (b.Upper == 0)
+                // ReSharper restore CompareOfFloatsByEqualityOperator
+                return new Interval(float.NegativeInfinity, Math.Max(a.Lower / b.Lower, a.Upper / b.Lower));
+
+            if (b.Contains(0))
+                return AllValues;
+
+            return new Interval(
+                Min(a.Lower / b.Lower, a.Upper / b.Upper, a.Lower / b.Upper, a.Upper / b.Lower),
+                Max(a.Lower / b.Lower, a.Upper / b.Upper, a.Lower / b.Upper, a.Upper / b.Lower));
+        }
+
+        static float ProductMin(Interval a, Interval b)
+        {
+            return Min(a.Upper * b.Upper, a.Upper * b.Lower, a.Lower * b.Upper, a.Lower * b.Lower);
+        }
+
+        static float ProductMax(Interval a, Interval b)
+        {
+            return Max(a.Upper * b.Upper, a.Upper * b.Lower, a.Lower * b.Upper, a.Lower * b.Lower);
+        }
+
+        static float Min(float a, float b, float c, float d)
+        {
+            return Math.Min(Math.Min(a, b), Math.Min(c, d));
+        }
+
+        static float Max(float a, float b, float c, float d)
+        {
+            return Math.Max(Math.Max(a, b), Math.Max(c, d));
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"[{Lower},{Upper}]";
+        }
+
+        private string DebuggerDisplay => ToString();
     }
 }

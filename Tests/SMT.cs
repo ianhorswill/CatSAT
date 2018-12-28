@@ -70,6 +70,8 @@ namespace Tests
         }
 
         [TestMethod]
+        // ReSharper disable once IdentifierTypo
+        // ReSharper disable once InconsistentNaming
         public void PSMTNPCStatTest()
         {
             var p = new Problem("NPC stats");
@@ -151,7 +153,60 @@ namespace Tests
             {
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
-                Assert.IsTrue(sum.Value(s) == x.Value(s)+y.Value(s));
+                Assert.IsTrue(Math.Abs(sum.Value(s) - (x.Value(s)+y.Value(s))) < 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void UnsignedProductTest()
+        {
+            var p = new Problem(nameof(UnsignedProductTest));
+            var dom = new FloatDomain("unit", 0, 1);
+            var x = (FloatVariable) dom.Instantiate("x");
+            var y = (FloatVariable) dom.Instantiate("y");
+            //p.Assert("foo");
+            var product = x * y;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                Assert.IsTrue(Math.Abs(product.Value(s) - x.Value(s)*y.Value(s)) < 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void SignedProductTest()
+        {
+            var p = new Problem(nameof(SignedProductTest));
+            var dom = new FloatDomain("signed unit", -1, 1);
+            var x = (FloatVariable) dom.Instantiate("x");
+            var y = (FloatVariable) dom.Instantiate("y");
+            //p.Assert("foo");
+            var product = x * y;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                Assert.IsTrue(Math.Abs(product.Value(s) - x.Value(s)*y.Value(s)) < 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void NaiveSquareTest()
+        {
+            var p = new Problem(nameof(NaiveSquareTest));
+            var dom = new FloatDomain("signed unit", -1, 1);
+            var x = (FloatVariable) dom.Instantiate("x");
+            //p.Assert("foo");
+            var square = x * x;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                Assert.IsTrue(Math.Abs(square.Value(s) - x.Value(s)*x.Value(s)) < 0.00001f);
             }
         }
     }

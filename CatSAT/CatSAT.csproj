@@ -50,6 +50,7 @@
     <Compile Include="NonBoolean\SMT\Float\FunctionalConstraint.cs" />
     <Compile Include="NonBoolean\SMT\Float\Interval.cs" />
     <Compile Include="NonBoolean\SMT\Float\ConstantBound.cs" />
+    <Compile Include="NonBoolean\SMT\Float\ProductConstraint.cs" />
     <Compile Include="NonBoolean\SMT\Float\SumConstraint.cs" />
     <Compile Include="NonBoolean\SMT\Float\VariableBound.cs" />
     <Compile Include="NonBoolean\SMT\Float\VariableEquation.cs" />

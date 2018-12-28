@@ -35,6 +35,10 @@ namespace CatSAT
     {
 #if XORSHIFT
         private static uint state = 234923840;
+        /// <summary>
+        /// Performs a random coin flip.
+        /// </summary>
+        public static bool Boolean => (Next() & 1) != 0;
 
         /// <summary>
         /// Set the seed to a specified value.
@@ -95,6 +99,15 @@ namespace CatSAT
         public static uint InRange(uint min, uint max)
         {
             return min + Next() % (max - min + 1);
+        }
+
+        /// <summary>
+        /// Return a random integer in [min, max]
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static int InRange(int min, int max)
+        {
+            return (int)(min + Next() % (max - min + 1));
         }
 
         /// <summary>
@@ -397,6 +410,24 @@ namespace CatSAT
         {
             double unitInterval = Next() / ((double) uint.MaxValue);
             return min + (max - min) * (float) unitInterval;
+        }
+
+        /// <summary>
+        /// Randomly permutes list in place
+        /// </summary>
+        public static void Shuffle<T>(List<T> list)
+        {
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                Swap(list, i, InRange(0, i - 1));
+            }
+        }
+
+        private static void Swap<T>(List<T> list, int i, int j)
+        {
+            var temp = list[i];
+            list[i] = list[j];
+            list[j] = temp;
         }
     }
 }

@@ -112,6 +112,7 @@ namespace CatSAT
 
         internal Proposition(object name, ushort index)
         {
+            Debug.Assert(name != null);
             Name = name;
             Index = index;
         }

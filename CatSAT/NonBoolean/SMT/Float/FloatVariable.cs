@@ -24,6 +24,8 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using CatSAT.NonBoolean.SMT.Float;
 
 namespace CatSAT
@@ -32,6 +34,7 @@ namespace CatSAT
     /// <summary>
     /// An float-valued SMT variable
     /// </summary>
+    [DebuggerDisplay("{Name}={DebugValueString}")]
     public class FloatVariable : TheoryVariable<float>
 #pragma warning restore 660,661
     {
@@ -87,7 +90,7 @@ namespace CatSAT
         private FloatVariable equivalence;
 
         /// <summary>
-        /// Representative of this variable's equivalance class.
+        /// Representative of this variable's equivalence class.
         /// This will be the variable itself, unless it has been aliased to something else by
         /// == proposition
         /// </summary>
@@ -120,13 +123,12 @@ namespace CatSAT
             throw new InvalidOperationException($"Variable {Name} has not been narrowed to a unique value.");
         }
 
+        private string DebugValueString => Bounds.IsUnique ? Bounds.Lower.ToString(CultureInfo.InvariantCulture) : Bounds.ToString();
+
         internal bool PickRandom(Queue<Tuple<FloatVariable,bool>> q)
         {
             var f = Random.Float(Bounds.Lower, Bounds.Upper);
-            if (BoundAbove(f, q))
-                if (BoundBelow(f, q))
-                    return true;
-            return false;
+            return BoundAbove(f, q) && BoundBelow(f, q);
         }
 
         /// <inheritdoc />
@@ -192,7 +194,95 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// Adds the specified (varaible, isupper) task to queue if it is not already present.
+        /// Assert that variable is in the specified interval.
+        /// Updates Bounds and adds variable to propagation queue, if necessary. 
+        /// </summary>
+        /// <param name="i">Bounding interval</param>
+        /// <param name="q">Propagation queue</param>
+        /// <returns>True if resulting bounds are consistent</returns>
+        public bool NarrowTo(Interval i, Queue<Tuple<FloatVariable, bool>> q)
+        {
+            return BoundAbove(i.Upper, q) && BoundBelow(i.Lower, q);
+        }
+
+//        public bool NarrowToQuotient(Interval numerator, Interval denominator, Queue<Tuple<FloatVariable, bool>> q)
+//        {
+//            if (denominator.IsZero)
+//                // Denominator is [0,0], so quotient is the empty set unless numerator contains zero
+//                return numerator.ContainsZero;
+
+//            if (numerator.IsZero)
+//            {
+//                if (!denominator.ContainsZero)
+//                    // Quotient is [0,0].
+//                    if (!NarrowTo(new Interval(0,0), q))
+//                        return false;
+//                // Denominator contains zero so quotient can be any value.
+//                return true;
+//            }
+
+//            if (!denominator.ContainsZero)
+//                return NarrowTo(numerator * denominator.Reciprocal, q);
+
+//            // Denominator contains zero, so there are three cases: crossing zero, [0, b], and [a, 0]
+
+//// ReSharper disable CompareOfFloatsByEqualityOperator
+//            if (denominator.Lower == 0)
+//// ReSharper restore CompareOfFloatsByEqualityOperator
+//            {
+//                // Non-negative denominator
+//                if (numerator.Upper <= 0)
+//                    return NarrowTo(new Interval(float.NegativeInfinity, numerator.Upper / denominator.Upper), q);
+
+//                if (numerator.Lower >= 0)
+//                    return NarrowTo(new Interval(numerator.Lower / denominator.Upper, float.PositiveInfinity), q);
+//                // Numerator crosses zero, so quotient is all the Reals, so can't narrow interval.
+//                return true;
+//            }
+
+//// ReSharper disable CompareOfFloatsByEqualityOperator
+//            if (denominator.Upper == 0)
+//// ReSharper restore CompareOfFloatsByEqualityOperator
+//            {
+//                // Non-positive denominator
+//                if (numerator.Upper <= 0)
+//                    return NarrowTo(new Interval(numerator.Upper / denominator.Lower, float.PositiveInfinity), q);
+
+//                if (numerator.Lower >= 0)
+//                    return NarrowTo(new Interval(float.NegativeInfinity, numerator.Lower / denominator.Lower), q);
+//                // Numerator crosses zero, so quotient is all the Reals, so can't narrow interval.
+//                return true;
+//            }
+
+//            if (numerator.Upper < 0)
+//            {
+//                // Strictly negative
+//                var lowerHalf = new Interval(float.NegativeInfinity, numerator.Upper / denominator.Upper);
+//                var upperHalf = new Interval(numerator.Upper / denominator.Lower, float.PositiveInfinity);
+//                return NarrowToUnion(lowerHalf, upperHalf, q);
+//            }
+
+//            // Denominator crosses zero
+//            if (numerator.Lower > 0)
+//            {
+//                // Strictly positive
+//                var lowerHalf = new Interval(float.NegativeInfinity, numerator.Lower / denominator.Lower);
+//                var upperHalf = new Interval(numerator.Lower / denominator.Upper, float.PositiveInfinity);
+
+//                return NarrowToUnion(lowerHalf, upperHalf, q);
+//            }
+
+//            // Numerator contains zero, so quotient is all the Reals, so can't narrow interval.
+//            return true;
+//        }
+
+//        public bool NarrowToUnion(Interval a, Interval b, Queue<Tuple<FloatVariable, bool>> q)
+//        {
+//            return NarrowTo(Interval.UnionOfIntersections(Bounds, a, b), q);
+//        }
+
+        /// <summary>
+        /// Adds the specified (variable, IsUpper) task to queue if it is not already present.
         /// </summary>
         private void EnsurePresent(Queue<Tuple<FloatVariable, bool>> q, Tuple<FloatVariable, bool> task)
         {
@@ -281,13 +371,28 @@ namespace CatSAT
             return Problem.Current.GetSpecialProposition<VariableBound>(Call.FromArgs(Problem.Current, ">=", v1, v2));
         }
 
+        /// <summary>
+        /// A FloatVariable constrained to be the sum of two other FloatVariables
+        /// </summary>
         public static FloatVariable operator +(FloatVariable v1, FloatVariable v2)
         {
+
             var sum = new FloatVariable($"{v1.Name}+{v2.Name}",
                 v1.FloatDomain.Bounds.Lower+v2.FloatDomain.Bounds.Lower,
                 v1.FloatDomain.Bounds.Upper+v2.FloatDomain.Bounds.Upper);
-            CatSAT.Problem.Current.Assert(new SumConstraint(sum, v1, v2));
+            Problem.Current.Assert(Problem.Current.GetSpecialProposition<SumConstraint>(Call.FromArgs(Problem.Current, "IsSum", sum, v1, v2)));
             return sum;
+        }
+
+        /// <summary>
+        /// A FloatVariable constrained to be the product of two other FloatVariables
+        /// </summary>
+        public static FloatVariable operator *(FloatVariable v1, FloatVariable v2)
+        {
+            var range = v1.FloatDomain.Bounds * v2.FloatDomain.Bounds;
+            var product = new FloatVariable($"{v1.Name}*{v2.Name}", range.Lower, range.Upper);
+            Problem.Current.Assert(Problem.Current.GetSpecialProposition<ProductConstraint>(Call.FromArgs(Problem.Current, "IsProduct", product, v1, v2)));
+            return product;
         }
 
         internal void AddUpperBound(FloatVariable bound)

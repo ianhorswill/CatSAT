@@ -115,18 +115,12 @@ namespace CatSAT.NonBoolean.SMT.Float
                     return false;
 
                 foreach (var b in v.UpperConstantBounds)
-                    if (s[b])
-                    {
-                        if (r.BoundAbove(b.Bound)) break;
+                    if (s[b] && !r.BoundAbove(b.Bound))
                         return false;
-                    }
 
                 foreach (var b in v.LowerConstantBounds)
-                    if (s[b])
-                    {
-                        if (r.BoundBelow(b.Bound)) break;
+                    if (s[b] && !r.BoundBelow(b.Bound))
                         return false;
-                    }
             }
 
 
@@ -197,10 +191,12 @@ namespace CatSAT.NonBoolean.SMT.Float
 
         private bool TrySample()
         {
+            Random.Shuffle(representatives);
             foreach (var v in representatives)
             {
                 v.PickRandom(propagationQueue);
-                if (!PropagateUpdates()) return false;
+                if (!PropagateUpdates()) 
+                    return false;
             }
 
             return true;
@@ -232,11 +228,9 @@ namespace CatSAT.NonBoolean.SMT.Float
                         continue;
 
                     foreach (var dependent in v.LowerVariableBounds)
-                    {
                         // So dependent's upper bound may have decreased
                         if (!dependent.BoundAbove(v.Bounds.Upper, propagationQueue))
                             return false;
-                    }
                 }
                 else
                 {
@@ -245,11 +239,9 @@ namespace CatSAT.NonBoolean.SMT.Float
                         continue;
 
                     foreach (var dependent in v.UpperVariableBounds)
-                    {
                         // So dependent's lower bound may have decreased
                         if (!dependent.BoundBelow(v.Bounds.Lower, propagationQueue))
                             return false;
-                    }
                 }
             }
             return true;
