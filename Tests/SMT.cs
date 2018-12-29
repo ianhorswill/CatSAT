@@ -293,6 +293,8 @@ namespace Tests
             var y = (FloatVariable) dom.Instantiate("y");
             var sum = x + y;
 
+            Assert.IsTrue(ReferenceEquals(prop, sum.Condition));
+
             p.Assert(Not(prop));
             for (int i = 0; i < 100; i++)
             {
@@ -300,7 +302,34 @@ namespace Tests
                 Assert.IsFalse(x.IsDefinedIn(s));
                 Assert.IsTrue(y.IsDefinedIn(s));
                 Assert.IsTrue(ReferenceEquals(y, y.Representative));
+                Assert.IsFalse(sum.IsDefinedIn(s));
                 Assert.IsTrue(y.ActiveFunctionalConstraints == null);
+            }
+        }
+
+        /// <summary>
+        /// Check that a sum is defined iff its inputs are defined, and that when it is defined it
+        /// is in fact the sum.
+        /// </summary>
+        [TestMethod]
+        public void SumConditionTest()
+        {
+            var prog = new Problem("test");
+            var dom = new FloatDomain("signed unit", -1, 1);
+            var p = (Proposition) "p";
+            var x = (FloatVariable) dom.Instantiate("x", prog, p);
+            var q = (Proposition) "q";
+            var y = (FloatVariable) dom.Instantiate("y", prog, q);
+            var sum = x + y;
+            Assert.IsTrue(ReferenceEquals(sum.Condition, prog.Conjunction(p, q)));
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = prog.Solve();
+                Console.WriteLine(s.Model);
+                Assert.AreEqual(sum.IsDefinedIn(s), x.IsDefinedIn(s) & y.IsDefinedIn(s));
+                if (sum.IsDefinedIn(s))
+                    Assert.IsTrue(Math.Abs(sum.Value(s) - (x.Value(s) + y.Value(s))) < 0.00001f);
             }
         }
     }

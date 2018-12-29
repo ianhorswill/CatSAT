@@ -60,5 +60,18 @@ namespace CatSAT.NonBoolean.SMT.Float
         /// <param name="s">Solution to check</param>
         /// <returns>True if the constraint is valid in the solution and all its variables are defined.</returns>
         public abstract bool IsDefinedIn(Solution s);
+
+        /// <summary>
+        /// Returns a condition (i.e. Literal or null) that is defined when both argument
+        /// conditions are defined.
+        /// </summary>
+        internal static Literal CombineConditions(Literal a, Literal b)
+        {
+            if (ReferenceEquals(a, null))
+                return b;
+            if (ReferenceEquals(b, null))
+                return a;
+            return Problem.Current.Conjunction(a, b);
+        }
     }
 }

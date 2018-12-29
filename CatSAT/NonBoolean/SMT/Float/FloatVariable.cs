@@ -59,6 +59,17 @@ namespace CatSAT
         { }
 
         /// <summary>
+        /// An float-valued SMT variable in the range low to high
+        /// </summary>
+        /// <param name="name">Name for the variable</param>
+        /// <param name="low">Lower bound</param>
+        /// <param name="high">Upper bound</param>
+        /// <param name="condition">Condition under which the variable is defined</param>
+        public FloatVariable(object name, float low, float high, Literal condition)
+            : this(name, new FloatDomain(name.ToString(), low, high), condition, Problem.Current)
+        { }
+
+        /// <summary>
         /// Domain for the variable
         /// </summary>
         public readonly FloatDomain FloatDomain;
@@ -390,7 +401,8 @@ namespace CatSAT
             // TODO: make sum be undefined when inputs are undefined
             var sum = new FloatVariable($"{v1.Name}+{v2.Name}",
                 v1.FloatDomain.Bounds.Lower+v2.FloatDomain.Bounds.Lower,
-                v1.FloatDomain.Bounds.Upper+v2.FloatDomain.Bounds.Upper);
+                v1.FloatDomain.Bounds.Upper+v2.FloatDomain.Bounds.Upper,
+                FunctionalConstraint.CombineConditions(v1.Condition, v2.Condition));
             Problem.Current.Assert(Problem.Current.GetSpecialProposition<SumConstraint>(Call.FromArgs(Problem.Current, "IsSum", sum, v1, v2)));
             return sum;
         }
@@ -402,7 +414,8 @@ namespace CatSAT
         {
             // TODO: make product be undefined when inputs are undefined
             var range = v1.FloatDomain.Bounds * v2.FloatDomain.Bounds;
-            var product = new FloatVariable($"{v1.Name}*{v2.Name}", range.Lower, range.Upper);
+            var product = new FloatVariable($"{v1.Name}*{v2.Name}", range.Lower, range.Upper,
+                FunctionalConstraint.CombineConditions(v1.Condition, v2.Condition));
             Problem.Current.Assert(Problem.Current.GetSpecialProposition<ProductConstraint>(Call.FromArgs(Problem.Current, "IsProduct", product, v1, v2)));
             return product;
         }
