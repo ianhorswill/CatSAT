@@ -1,7 +1,7 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="FloatVariable.cs" company="Ian Horswill">
-// Copyright (C) 2018 Ian Horswill
+// Copyright (C) 2018, 2019 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in the
@@ -398,7 +398,6 @@ namespace CatSAT
         /// </summary>
         public static FloatVariable operator +(FloatVariable v1, FloatVariable v2)
         {
-            // TODO: make sum be undefined when inputs are undefined
             var sum = new FloatVariable($"{v1.Name}+{v2.Name}",
                 v1.FloatDomain.Bounds.Lower+v2.FloatDomain.Bounds.Lower,
                 v1.FloatDomain.Bounds.Upper+v2.FloatDomain.Bounds.Upper,
@@ -412,12 +411,27 @@ namespace CatSAT
         /// </summary>
         public static FloatVariable operator *(FloatVariable v1, FloatVariable v2)
         {
-            // TODO: make product be undefined when inputs are undefined
             var range = v1.FloatDomain.Bounds * v2.FloatDomain.Bounds;
             var product = new FloatVariable($"{v1.Name}*{v2.Name}", range.Lower, range.Upper,
                 FunctionalConstraint.CombineConditions(v1.Condition, v2.Condition));
             Problem.Current.Assert(Problem.Current.GetSpecialProposition<ProductConstraint>(Call.FromArgs(Problem.Current, "IsProduct", product, v1, v2)));
             return product;
+        }
+
+        /// <summary>
+        /// A FloatVariable constrained to be the product of another FloatVariable and a constant
+        /// </summary>
+        public static FloatVariable operator *(float c, FloatVariable v)
+        {
+            return MonotoneFunctionConstraint.MonotoneFunction($"*{c}", x => x * c, y => y / c, c > 0, v);
+        }
+        
+        /// <summary>
+        /// A FloatVariable constrained to be the product of another FloatVariable and a constant
+        /// </summary>
+        public static FloatVariable operator *(FloatVariable v, float c)
+        {
+            return c * v;
         }
 
         internal void AddUpperBound(FloatVariable bound)

@@ -27,6 +27,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CatSAT;
 using CatSAT.NonBoolean.SMT.Float;
 using static CatSAT.Language;
+using Random = CatSAT.Random;
 
 namespace Tests
 {
@@ -155,6 +156,27 @@ namespace Tests
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
                 Assert.IsTrue(Math.Abs(sum.Value(s) - (x.Value(s)+y.Value(s))) < 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void ConstantProductConstraintTest()
+        {
+            for (int j = 0; j < 100; j++)
+            {
+                var p = new Problem(nameof(ConstantProductConstraintTest));
+                var dom = new FloatDomain("signed unit", -1, 1);
+                var x = (FloatVariable) dom.Instantiate("x");
+                var c = Random.Float(-100, 100);
+
+                var product = c * x;
+
+                for (int i = 0; i < 100; i++)
+                {
+                    var s = p.Solve();
+                    Console.WriteLine(s.Model);
+                    Assert.IsTrue(Math.Abs(product.Value(s) / (x.Value(s)) - c) < 0.0001f);
+                }
             }
         }
 

@@ -1,7 +1,7 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Call.cs" company="Ian Horswill">
-// Copyright (C) 2018 Ian Horswill
+// Copyright (C) 2018, 2019 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in the
