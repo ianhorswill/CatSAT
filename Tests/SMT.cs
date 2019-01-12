@@ -23,6 +23,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CatSAT;
 using CatSAT.NonBoolean.SMT.Float;
@@ -138,6 +139,44 @@ namespace Tests
                     Assert.IsTrue(charisma.Value(s) >= intel.Value(s));
 
                 Console.WriteLine(s.Model);
+            }
+        }
+
+        [TestMethod]
+        public void GeneralSumConstraintTest()
+        {
+            var p = new Problem(nameof(GeneralSumConstraintTest));
+            var dom = new FloatDomain("unit", -1, 1);
+            var vars = new FloatVariable[10];
+            for (int i = 0 ; i < vars.Length; i++)
+                vars[i] = (FloatVariable) dom.Instantiate("x"+i);
+            var sum = FloatVariable.Sum(vars);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                var realSum = vars.Select(v => v.Value(s)).Sum();
+                Assert.IsTrue(Math.Abs(sum.Value(s) - realSum) < 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void AverageConstraintTest()
+        {
+            var p = new Problem(nameof(AverageConstraintTest));
+            var dom = new FloatDomain("unit", -1, 1);
+            var vars = new FloatVariable[10];
+            for (int i = 0 ; i < vars.Length; i++)
+                vars[i] = (FloatVariable) dom.Instantiate("x"+i);
+            var average = FloatVariable.Average(vars);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                var avg = vars.Select(v => v.Value(s)).Average();
+                Assert.IsTrue(Math.Abs(average.Value(s) - avg) < 0.00001f);
             }
         }
 

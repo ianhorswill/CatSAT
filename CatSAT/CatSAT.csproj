@@ -48,11 +48,12 @@
     <Compile Include="NonBoolean\SMT\Float\FloatSolver.cs" />
     <Compile Include="NonBoolean\SMT\Float\FloatVariable.cs" />
     <Compile Include="NonBoolean\SMT\Float\FunctionalConstraint.cs" />
+    <Compile Include="NonBoolean\SMT\Float\GeneralSumConstraint.cs" />
     <Compile Include="NonBoolean\SMT\Float\Interval.cs" />
     <Compile Include="NonBoolean\SMT\Float\ConstantBound.cs" />
     <Compile Include="NonBoolean\SMT\Float\MonotoneFunction.cs" />
     <Compile Include="NonBoolean\SMT\Float\ProductConstraint.cs" />
-    <Compile Include="NonBoolean\SMT\Float\SumConstraint.cs" />
+    <Compile Include="NonBoolean\SMT\Float\BinarySumConstraint.cs" />
     <Compile Include="NonBoolean\SMT\Float\VariableBound.cs" />
     <Compile Include="NonBoolean\SMT\Float\VariableEquation.cs" />
     <Compile Include="NonBoolean\SMT\MenuVariables\Menu.cs" />

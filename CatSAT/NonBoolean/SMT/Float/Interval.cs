@@ -44,6 +44,8 @@ namespace CatSAT
             Upper = upperBound;
         }
 
+        public static Interval Zero = new Interval(0,0);
+
         /// <summary>
         /// An interval representing all possible float values
         /// </summary>
@@ -87,7 +89,17 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// The interval product of two intervals
+        /// The interval sum of two intervals.
+        /// This is the interval bounding all possible sums of values taken from the original intervals.
+        /// </summary>
+        public static Interval operator+(Interval a, Interval b)
+        {
+            return new Interval(a.Lower+b.Lower, a.Upper+b.Upper);
+        }
+
+        /// <summary>
+        /// The interval product of two intervals.
+        /// This is the interval bounding all possible products of values taken from the original intervals.
         /// </summary>
         public static Interval operator*(Interval a, Interval b)
         {
@@ -96,6 +108,7 @@ namespace CatSAT
 
         /// <summary>
         /// The interval quotient of two intervals.
+        /// This is the interval bounding all possible quotients of values taken from the original intervals.
         /// IMPORTANT: if the denominator crosses zero, the set-theoretic quotient is not an interval.
         /// This operator then returns the whole real line as the interval.  Sorry.
         /// </summary>

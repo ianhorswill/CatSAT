@@ -31,7 +31,7 @@ namespace CatSAT.NonBoolean.SMT.Float
     /// <summary>
     /// Represents the constraint that Result = lhs + rhs
     /// </summary>
-    class SumConstraint : FunctionalConstraint
+    class BinarySumConstraint : FunctionalConstraint
     {
         /// <summary>
         /// The left-hand argument to +

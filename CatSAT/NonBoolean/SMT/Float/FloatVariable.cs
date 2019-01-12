@@ -402,7 +402,7 @@ namespace CatSAT
                 v1.FloatDomain.Bounds.Lower+v2.FloatDomain.Bounds.Lower,
                 v1.FloatDomain.Bounds.Upper+v2.FloatDomain.Bounds.Upper,
                 FunctionalConstraint.CombineConditions(v1.Condition, v2.Condition));
-            Problem.Current.Assert(Problem.Current.GetSpecialProposition<SumConstraint>(Call.FromArgs(Problem.Current, "IsSum", sum, v1, v2)));
+            Problem.Current.Assert(Problem.Current.GetSpecialProposition<BinarySumConstraint>(Call.FromArgs(Problem.Current, "IsSum", sum, v1, v2)));
             return sum;
         }
 
@@ -432,6 +432,35 @@ namespace CatSAT
         public static FloatVariable operator *(FloatVariable v, float c)
         {
             return c * v;
+        }
+
+        public static FloatVariable Sum(params FloatVariable[] vars)
+        {
+            var domainBounds = Interval.Zero;
+            foreach (var a in vars)
+                domainBounds += a.FloatDomain.Bounds;
+            foreach (var a in vars)
+                if (!ReferenceEquals(a.Condition,null))
+                    throw new ArgumentException("Sum does not support conditioned variables", a.Name.ToString());
+            var sum = new FloatVariable("sum", domainBounds.Lower, domainBounds.Upper, null);
+            Problem.Current.Assert(Problem.Current.GetSpecialProposition<GeneralSumConstraint>(Call.FromArgs(Problem.Current, "IsSum", sum, 1.0f, vars)));
+            return sum;
+        }
+
+        public static FloatVariable Average(params FloatVariable[] vars)
+        {
+            var domainBounds = Interval.Zero;
+            foreach (var a in vars)
+                domainBounds += a.FloatDomain.Bounds;
+            foreach (var a in vars)
+                if (!ReferenceEquals(a.Condition,null))
+                    throw new ArgumentException("Average does not support conditioned variables", a.Name.ToString());
+            var avg = new FloatVariable("average",
+                domainBounds.Lower*1f/vars.Length,
+                domainBounds.Upper*1f/vars.Length,
+                null);
+            Problem.Current.Assert(Problem.Current.GetSpecialProposition<GeneralSumConstraint>(Call.FromArgs(Problem.Current, "IsAverage", avg, 1f/vars.Length, vars)));
+            return avg;
         }
 
         internal void AddUpperBound(FloatVariable bound)

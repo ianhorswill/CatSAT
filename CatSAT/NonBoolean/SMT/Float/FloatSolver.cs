@@ -192,7 +192,8 @@ namespace CatSAT.NonBoolean.SMT.Float
                 propagationQueue.Enqueue(new Tuple<FloatVariable, bool>(v, false));
             }
 
-            if (!PropagateUpdates()) return false;
+            if (!PropagateUpdates()) 
+                return false;
 
             // Save bounds
             foreach (var v in representatives)
