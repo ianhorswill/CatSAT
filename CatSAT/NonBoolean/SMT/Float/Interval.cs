@@ -24,6 +24,7 @@
 #endregion
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace CatSAT
 {
@@ -43,6 +44,12 @@ namespace CatSAT
             Lower = lowerBound;
             Upper = upperBound;
         }
+
+        /// <summary>
+        /// Make an interval consisting of a single value
+        /// </summary>
+        /// <param name="singletonValue">The single value in the interval</param>
+        public Interval(float singletonValue) : this(singletonValue, singletonValue) { }
 
         public static Interval Zero = new Interval(0,0);
 

@@ -143,6 +143,40 @@ namespace Tests
         }
 
         [TestMethod]
+        public void FloatPredeteriminationTest()
+        {
+            var p = new Problem(nameof(GeneralSumConstraintTest));
+            var dom = new FloatDomain("unit", -1, 1);
+            var x = (FloatVariable) dom.Instantiate("x");
+            var y = (FloatVariable) dom.Instantiate("y");
+            y.SetPredeterminedValue(1);
+            var sum = x + y;
+            int spuriousHitCount = 0;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var v = Random.Float(-1, 1);
+                x.SetPredeterminedValue(v);
+                var s = p.Solve();
+                // Should always give us the predetermined value
+                Assert.AreEqual(x.Value(s), v);
+                Assert.AreEqual(sum.Value(s), v+1);
+                if (i % 2 == 0)
+                {
+                    x.Reset();
+                    s = p.Solve();
+                    // Should almost never give us the formerly predetermined value
+                    // ReSharper disable CompareOfFloatsByEqualityOperator
+                    if (x.Value(s) == v || sum.Value(s) == v+1)
+                        // ReSharper restore CompareOfFloatsByEqualityOperator
+                        spuriousHitCount++;
+                }
+            }
+
+            Assert.IsTrue(spuriousHitCount < 3);
+        }
+
+        [TestMethod]
         public void GeneralSumConstraintTest()
         {
             var p = new Problem(nameof(GeneralSumConstraintTest));

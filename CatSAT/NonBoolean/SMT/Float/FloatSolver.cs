@@ -207,7 +207,7 @@ namespace CatSAT.NonBoolean.SMT.Float
         /// </summary>
         private void ResetAll()
         {
-            foreach (var v in Variables) v.Reset();
+            foreach (var v in Variables) v.ResetSolverState();
         }
 
         private bool TrySample()

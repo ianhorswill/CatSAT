@@ -87,6 +87,11 @@ namespace CatSAT
         /// </summary>
         internal Interval Bounds;
 
+        /// <summary>
+        /// The predetermined value for the variable, if any.
+        /// </summary>
+        private float? predeterminedValue;
+
         internal readonly List<ConstantBound> UpperConstantBounds = new List<ConstantBound>();
         internal readonly List<ConstantBound> LowerConstantBounds = new List<ConstantBound>();
 
@@ -155,19 +160,29 @@ namespace CatSAT
         /// <inheritdoc />
         public override float PredeterminedValue()
         {
-            throw new NotImplementedException();
+            if (predeterminedValue == null)
+                throw new InvalidOperationException($"{Name} has no predetermined value");
+            return predeterminedValue.Value;
         }
 
         /// <inheritdoc />
         public override void SetPredeterminedValue(float newValue)
         {
-            throw new NotImplementedException();
+            predeterminedValue = newValue;
         }
 
         /// <inheritdoc />
         public override void Reset()
         {
-            Bounds = FloatDomain.Bounds;
+            predeterminedValue = null;
+        }
+
+        internal void ResetSolverState()
+        {
+            if (predeterminedValue == null)
+                Bounds = FloatDomain.Bounds;
+            else
+                Bounds = new Interval(predeterminedValue.Value);
             equivalence = null;
             UpperVariableBounds?.Clear();
             LowerVariableBounds?.Clear();
