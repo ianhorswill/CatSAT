@@ -85,5 +85,12 @@ namespace CatSAT
                     yield return p;
             }
         }
+
+        /// <inheritdoc />
+        public override void MarkAntecedent()
+        {
+            Left.MarkAntecedent();
+            Right.MarkAntecedent();
+        }
     }
 }

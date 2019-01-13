@@ -50,6 +50,9 @@ namespace CatSAT
         /// </summary>
         public object Name { get; internal set; }
 
+        /// <inheritdoc />
+        public override Proposition BaseProposition => this;
+
         /// <summary>
         /// Probability with which this proposition will be true in the solver's starting guess.
         /// Should be a number in the range [0,1].
@@ -64,10 +67,42 @@ namespace CatSAT
         /// </summary>
         internal ushort Index;
 
+        [Flags]
+        enum PropositionFlags
+        {
+            Internal = 1,
+            Antecedent = 2,
+            Consequent = 4
+        };
+
+        private PropositionFlags flags;
+
         /// <summary>
         /// This is an internal, compiler-generated proposition.  So don't print it when we print a model.
         /// </summary>
-        internal bool IsInternal;
+        internal bool IsInternal
+        {
+            get => (flags & PropositionFlags.Internal) != 0;
+            set => flags = value ? flags | PropositionFlags.Internal : flags & ~PropositionFlags.Internal;
+        }
+
+        /// <summary>
+        /// This proposition is the antecedent of a rule or implication
+        /// </summary>
+        internal bool IsAntecedent
+        {
+            get => (flags & PropositionFlags.Antecedent) != 0;
+            set => flags = value ? flags | PropositionFlags.Antecedent : flags & ~PropositionFlags.Antecedent;
+        }
+
+        /// <summary>
+        /// This proposition is the consequent of a rule or implication
+        /// </summary>
+        internal bool IsConsequent
+        {
+            get => (flags & PropositionFlags.Consequent) != 0;
+            set => flags = value ? flags | PropositionFlags.Consequent : flags & ~PropositionFlags.Consequent;
+        }
 
         /// <summary>
         /// Bodies of any rules for which this proposition is the head.

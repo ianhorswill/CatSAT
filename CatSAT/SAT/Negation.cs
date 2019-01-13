@@ -42,9 +42,12 @@ namespace CatSAT
         /// <param name="proposition">Proposition to negate</param>
         public Negation(Proposition proposition)
         {
-            Proposition = proposition;
+            this.Proposition = proposition;
         }
-    
+
+        /// <inheritdoc />
+        public override Proposition BaseProposition => Proposition;
+
         /// <summary>
         /// Creates a Literal representing the negation of the proposition
         /// </summary>

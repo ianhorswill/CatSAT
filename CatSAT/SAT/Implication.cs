@@ -46,7 +46,9 @@ namespace CatSAT
         public Implication(Literal head, Expression body)
         {
             Head = head;
+            Head.BaseProposition.IsConsequent = true;
             Body = body;
+            Body.MarkAntecedent();
         }
 
         /// <inheritdoc />

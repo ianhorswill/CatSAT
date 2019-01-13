@@ -47,6 +47,17 @@ namespace CatSAT
         }
 
         /// <summary>
+        /// The proposition referred to by this literal.
+        /// </summary>
+        public abstract Proposition BaseProposition { get; }
+
+        /// <inheritdoc />
+        public override void MarkAntecedent()
+        {
+            BaseProposition.IsAntecedent = true;
+        }
+
+        /// <summary>
         /// Returns a biconditional rule asserting that the head and body are true in exactly the same models
         /// </summary>
         /// <param name="head">Literal that's equivalent to the body</param>

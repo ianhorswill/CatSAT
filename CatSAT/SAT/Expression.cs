@@ -71,5 +71,10 @@ namespace CatSAT
         /// Find all the non-negated propositions in this Expression.
         /// </summary>
         internal abstract IEnumerable<Proposition> PositiveLiterals { get; }
+
+        /// <summary>
+        /// Mark any Propositions contained in this expression as being antecedents (of some implication or rule).
+        /// </summary>
+        public abstract void MarkAntecedent();
     }
 }

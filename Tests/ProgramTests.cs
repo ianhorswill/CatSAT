@@ -33,6 +33,35 @@ namespace Tests
     public class ProgramTests
     {
         [TestMethod]
+        public void AntecedentTrackingTest()
+        {
+            var p = new Problem(nameof(AntecedentTrackingTest));
+            var x = (Proposition) "x";
+            var y = (Proposition) "y";
+            var z = (Proposition) "z";
+            var w = (Proposition) "w";
+            foreach (var prop in new[] {x, y, z, w})
+            {
+                Assert.IsFalse(prop.IsConsequent);
+                Assert.IsFalse(prop.IsAntecedent);
+            }
+            p.Assert(w > x);
+            Assert.IsTrue(x.IsConsequent);
+            Assert.IsFalse(x.IsAntecedent);
+            Assert.IsTrue(w.IsAntecedent);
+            Assert.IsFalse(w.IsConsequent);
+            p.Assert(x <= (y & z));
+            Assert.IsTrue(y.IsAntecedent);
+            Assert.IsFalse(y.IsConsequent);
+            Assert.IsTrue(z.IsAntecedent);
+            Assert.IsFalse(z.IsConsequent);
+            var a = (Proposition) "a";
+            p.Assert(Language.Not(x) > a);
+            Assert.IsTrue(x.IsAntecedent);
+            Assert.IsTrue(x.IsConsequent);
+        }
+
+        [TestMethod]
         public void AddClauseTest()
         {
             var p = new Problem("Add clause test");
