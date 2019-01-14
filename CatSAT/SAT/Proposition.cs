@@ -68,11 +68,12 @@ namespace CatSAT
         internal ushort Index;
 
         [Flags]
-        enum PropositionFlags
+        enum PropositionFlags : byte
         {
             Internal = 1,
             Antecedent = 2,
-            Consequent = 4
+            Consequent = 4,
+            Quantification = 8
         };
 
         private PropositionFlags flags;
@@ -102,6 +103,15 @@ namespace CatSAT
         {
             get => (flags & PropositionFlags.Consequent) != 0;
             set => flags = value ? flags | PropositionFlags.Consequent : flags & ~PropositionFlags.Consequent;
+        }
+
+        /// <summary>
+        /// This proposition appears in a quantification
+        /// </summary>
+        internal bool IsQuantified
+        {
+            get => (flags & PropositionFlags.Quantification) != 0;
+            set => flags = value ? flags | PropositionFlags.Quantification : flags & ~PropositionFlags.Quantification;
         }
 
         /// <summary>

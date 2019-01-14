@@ -837,6 +837,9 @@ namespace CatSAT
         /// <param name="lits">outlawed literals</param>
         public void Inconsistent(IEnumerable<Literal> lits)
         {
+            foreach (var l in lits)
+                l.BaseProposition.IsQuantified = true;
+
             AddClause(new Clause(1, 0, lits.Select(l => (short)(-l.SignedIndex)).Distinct().ToArray()));
         }
 
@@ -878,6 +881,9 @@ namespace CatSAT
                 throw new ContradictionException(this, "minimum number of disjuncts is more than the maximum number");
             var trueCount = 0;
             var set = new HashSet<Literal>();
+            foreach (var l in literals)
+                l.BaseProposition.IsQuantified = true;
+
             foreach (var l in literals)
             {
                 if (ReferenceEquals(l, Proposition.True))
