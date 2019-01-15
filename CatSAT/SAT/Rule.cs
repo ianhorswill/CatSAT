@@ -50,7 +50,7 @@ namespace CatSAT
         public Rule(Proposition head, Expression body)
         {
             Head = head;
-            Head.IsConsequent = true;
+            Head.IsRuleHead = true;
             Body = body;
             Body.MarkAntecedent();
         }

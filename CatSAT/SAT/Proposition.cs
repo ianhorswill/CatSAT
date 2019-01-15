@@ -72,8 +72,10 @@ namespace CatSAT
         {
             Internal = 1,
             Antecedent = 2,
-            Consequent = 4,
-            Quantification = 8
+            ImplicationConsequent = 4,
+            RuleHead = 8,
+            Quantification = 16,
+            Dependency = Antecedent | RuleHead | Quantification
         };
 
         private PropositionFlags flags;
@@ -97,12 +99,21 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// This proposition is the consequent of a rule or implication
+        /// This proposition is the consequent of an implication
         /// </summary>
-        internal bool IsConsequent
+        internal bool IsImplicationConsequent
         {
-            get => (flags & PropositionFlags.Consequent) != 0;
-            set => flags = value ? flags | PropositionFlags.Consequent : flags & ~PropositionFlags.Consequent;
+            get => (flags & PropositionFlags.ImplicationConsequent) != 0;
+            set => flags = value ? flags | PropositionFlags.ImplicationConsequent: flags & ~PropositionFlags.ImplicationConsequent;
+        }
+
+        /// <summary>
+        /// This proposition is the head of a rule
+        /// </summary>
+        internal bool IsRuleHead
+        {
+            get => (flags & PropositionFlags.RuleHead) != 0;
+            set => flags = value ? flags | PropositionFlags.RuleHead : flags & ~PropositionFlags.RuleHead;
         }
 
         /// <summary>
@@ -113,6 +124,11 @@ namespace CatSAT
             get => (flags & PropositionFlags.Quantification) != 0;
             set => flags = value ? flags | PropositionFlags.Quantification : flags & ~PropositionFlags.Quantification;
         }
+
+        /// <summary>
+        /// This proposition being true can force the truth of other propositions
+        /// </summary>
+        internal bool IsDependency => (flags & PropositionFlags.Dependency) != 0;
 
         /// <summary>
         /// Bodies of any rules for which this proposition is the head.

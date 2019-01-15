@@ -42,23 +42,35 @@ namespace Tests
             var w = (Proposition) "w";
             foreach (var prop in new[] {x, y, z, w})
             {
-                Assert.IsFalse(prop.IsConsequent);
+                Assert.IsFalse(prop.IsImplicationConsequent);
+                Assert.IsFalse(prop.IsRuleHead);
                 Assert.IsFalse(prop.IsAntecedent);
             }
             p.Assert(w > x);
-            Assert.IsTrue(x.IsConsequent);
+            Assert.IsTrue(x.IsImplicationConsequent);
+            Assert.IsFalse(x.IsRuleHead);
+            Assert.IsFalse(x.IsDependency);
             Assert.IsFalse(x.IsAntecedent);
             Assert.IsTrue(w.IsAntecedent);
-            Assert.IsFalse(w.IsConsequent);
+            Assert.IsFalse(w.IsImplicationConsequent);
+            Assert.IsFalse(w.IsRuleHead);
+            Assert.IsTrue(w.IsDependency);
             p.Assert(x <= (y & z));
+            Assert.IsTrue(x.IsRuleHead);
+            Assert.IsTrue(x.IsDependency);
             Assert.IsTrue(y.IsAntecedent);
-            Assert.IsFalse(y.IsConsequent);
+            Assert.IsFalse(y.IsRuleHead);
+            Assert.IsFalse(y.IsImplicationConsequent);
+            Assert.IsTrue(y.IsDependency);
             Assert.IsTrue(z.IsAntecedent);
-            Assert.IsFalse(z.IsConsequent);
+            Assert.IsFalse(z.IsRuleHead);
+            Assert.IsFalse(z.IsImplicationConsequent);
+            Assert.IsTrue(z.IsDependency);
             var a = (Proposition) "a";
             p.Assert(Language.Not(x) > a);
             Assert.IsTrue(x.IsAntecedent);
-            Assert.IsTrue(x.IsConsequent);
+            Assert.IsTrue(x.IsImplicationConsequent);
+            Assert.IsTrue(x.IsRuleHead);
         }
 
         [TestMethod]
