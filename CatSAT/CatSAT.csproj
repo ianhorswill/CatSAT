@@ -62,6 +62,7 @@
     <Compile Include="NonBoolean\SMT\MenuVariables\MenuVariable.cs" />
     <Compile Include="SAT\Assertable.cs" />
     <Compile Include="SAT\Biconditional.cs" />
+    <Compile Include="SAT\BooleanSolver.cs" />
     <Compile Include="SAT\Call.cs" />
     <Compile Include="NonBoolean\Structs\ConditionAttribute.cs" />
     <Compile Include="SAT\Clause.cs" />

@@ -351,6 +351,21 @@ namespace CatSAT
             return null;
         }
 
+        private BooleanSolver _booleanSolver;
+
+        /// <summary>
+        /// The BooleanSolver used by this Problem.
+        /// </summary>
+        public BooleanSolver BooleanSolver
+        {
+            get
+            {
+                // TODO: maybe this should be eagerly allocated rather than lazy
+                if (_booleanSolver != null)
+                    return _booleanSolver;
+                return _booleanSolver = new BooleanSolver(this);
+            }
+        }
         internal Dictionary<Type, TheorySolver> TheorySolvers;
 
         /// <summary>
@@ -485,14 +500,15 @@ namespace CatSAT
 #endif
             if (FloatingVariables.Count == 0)
                 RecomputeFloatingVariables();
-            var m = new Solution(this, Timeout);
-            if (m.Solve())
+            BooleanSolver.Timeout = Timeout;
+            var m = new Solution(this);
+            if (BooleanSolver.Solve(m))
             {
 #if PerformanceStatistics
-                SolveTimeMicroseconds.AddReading(m.SolveTimeMicroseconds);
-                SolveFlips.AddReading(m.SolveFlips);
+                SolveTimeMicroseconds.AddReading(BooleanSolver.SolveTimeMicroseconds);
+                SolveFlips.AddReading(BooleanSolver.SolveFlips);
                 if (LogPerformanceDataToConsole)
-                    Console.WriteLine(m.PerformanceStatistics);
+                    Console.WriteLine(BooleanSolver.PerformanceStatistics);
 #endif
                 return m;
             }

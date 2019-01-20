@@ -671,7 +671,7 @@ namespace Tests
             for (int i = 0; i < 100; i++)
             {
                 var s = p.Solve();
-                Console.WriteLine(s.PerformanceStatistics);
+                Console.WriteLine(p.PerformanceStatistics);
                 void PrintTree(int who, int depth)
                 {
                     for (int j = 0; j < depth; j++) Console.Write("    ");
