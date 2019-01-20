@@ -44,6 +44,12 @@ namespace CatSAT.NonBoolean.SMT.Float
             Result.AddFunctionalConstraint(this);
         }
 
+        public override void Validate()
+        {
+            base.Validate();
+            ValidateNotDependency();
+        }
+
         /// <summary>
         /// Called when the bounds on a variable involved in this constraint have changed
         /// </summary>

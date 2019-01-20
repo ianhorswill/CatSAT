@@ -22,6 +22,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
+
+using System;
+
 namespace CatSAT.NonBoolean.SMT.Float
 {
     class FloatProposition : TheoryProposition
@@ -29,6 +32,23 @@ namespace CatSAT.NonBoolean.SMT.Float
         public override void Initialize(Problem p)
         {
             p.GetSolver<FloatSolver>().Propositions.Add(this);
+        }
+
+        /// <summary>
+        /// Sanity check the proposition
+        /// </summary>
+        public virtual void Validate()
+        { }
+
+        /// <summary>
+        /// Check that other propositions don't depend on this one.
+        /// This is needed for propositions for which we can't implement their inverses as constraints.
+        /// </summary>
+        protected void ValidateNotDependency()
+        {
+            if (IsDependency)
+                throw new InvalidOperationException(
+                    $"{Name}: this proposition can't be used to infer other propositions.");
         }
     }
 }

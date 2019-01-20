@@ -36,6 +36,37 @@ namespace Tests
     public class SMT
     {
         [TestMethod]
+        public void ConstantBoundDependencyTest()
+        {
+            var p = new Problem(nameof(FloatTest));
+            var dom = new FloatDomain("unit", 0, 1);
+            var x = (FloatVariable) dom.Instantiate("x");
+            var a = (Proposition) "a";
+            p.Assert((x > 0.1f) > a);
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Assert.IsTrue(x.Value(s) <= 0.1f || s[a]);
+            }
+        }
+
+        [TestMethod]
+        public void VariableBoundDependencyTest()
+        {
+            var p = new Problem(nameof(FloatTest));
+            var dom = new FloatDomain("unit", 0, 1);
+            var x = (FloatVariable) dom.Instantiate("x");
+            var y = (FloatVariable) dom.Instantiate("x");
+            var a = (Proposition) "a";
+            p.Assert((x > y) > a);
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Assert.IsTrue(x.Value(s) <= y.Value(s) || s[a]);
+            }
+        }
+
+        [TestMethod]
         public void FloatTest()
         {
             var p = new Problem(nameof(FloatTest));
@@ -48,11 +79,11 @@ namespace Tests
             var c = (Proposition) "c";
             var d = (Proposition) "d";
             var e = (Proposition) "e";
-            p.Assert((x > .2f) <= a);
-            p.Assert((x > .3f) <= b);
-            p.Assert((x < .5f) <= c);
-            p.Assert((x < .8f) <= d);
-            p.Assert((x == y) <= e);
+            p.Assert(a > (x > .2f));
+            p.Assert(b > (x > .3f));
+            p.Assert(c > (x < .5f));
+            p.Assert(d > (x < .8f));
+            p.Assert(e > (x == y));
             for (int i = 0; i < 100; i++)
             {
                 var s = p.Solve();
@@ -88,20 +119,20 @@ namespace Tests
                 "fighter", "magic user", "cleric", "thief");
             var cClass = classDomain.Instantiate("class");
             p.Assert(
-                (str > intel) <= (cClass == "fighter"),
-                (str > 5) <= (cClass == "fighter"),
-                (con > 5) <= (cClass == "fighter"),
-                (intel < 8) <= (cClass == "fighter"),
-                (str < intel) <= (cClass == "magic user"),
-                (intel > 5) <= (cClass == "magic user"),
-                (str < 8) <= (cClass == "magic user"),
-                (wis > 5) <= (cClass == "cleric"),
-                (con < wis) <= (cClass == "cleric"),
-                (dex > 5) <= (cClass == "thief"),
-                (charisma > 5) <= (cClass == "thief"),
-                (wis < 5) <= (cClass == "thief"),
-                (dex > str) <= (cClass == "thief"),
-                (charisma > intel) <= (cClass == "thief")
+                (cClass == "fighter") > (str > intel),
+                (cClass == "fighter") > (str > 5),
+                (cClass == "fighter") > (con > 5),
+                (cClass == "fighter") > (intel < 8),
+                (cClass == "magic user") > (str < intel),
+                (cClass == "magic user") > (intel > 5),
+                (cClass == "magic user") > (str < 8),
+                (cClass == "cleric") > (wis > 5),
+                (cClass == "cleric") > (con < wis),
+                (cClass == "thief") > (dex > 5),
+                (cClass == "thief") >(charisma > 5),
+                (cClass == "thief") > (wis < 5),
+                (cClass == "thief") > (dex > str),
+                (cClass == "thief") > (charisma > intel)
             );
             for (int i = 0; i < 100; i++)
             {

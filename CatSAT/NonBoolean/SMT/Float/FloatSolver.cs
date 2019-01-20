@@ -48,6 +48,8 @@ namespace CatSAT.NonBoolean.SMT.Float
         {
             void PreprecessBounds(List<ConstantBound> constraints, int sign)
             {
+                foreach (var p in Propositions)
+                    p.Validate();
                 constraints.Sort((a, b) => sign*Comparer.Default.Compare(a.Bound, b.Bound));
 
                 // Add forward inferences: if v < bounds[i], then v < bounds[i+1]
@@ -63,6 +65,15 @@ namespace CatSAT.NonBoolean.SMT.Float
             {
                 PreprecessBounds(v.UpperConstantBounds, 1);
                 PreprecessBounds(v.LowerConstantBounds, -1);
+                // Make sure there aren't any propositions dependent on the truth of functional constraints.
+                // We *could* allow this, but given that functional constraints have measure zero, the only
+                // way it's possible for them to be unsatisfied with non-zero probability is through
+                // floating-point quantization.  That suggests that someone trying to make a proposition
+                // dependent on a != b+C is probably making a mistake.
+                if (v.AllFunctionalConstraints != null)
+                    foreach (var f in v.AllFunctionalConstraints)
+                        if (f.IsDependency)
+                            throw new InvalidOperationException($"{f.Name}: Inferences dependent on the truth of functional constraints are not supported.");
             }
 
             return null;
@@ -154,11 +165,21 @@ namespace CatSAT.NonBoolean.SMT.Float
                     return false;
 
                 foreach (var b in v.UpperConstantBounds)
-                    if (s[b] && !r.BoundAbove(b.Bound))
+                    if (s[b])
+                    {
+                        if (!r.BoundAbove(b.Bound))
+                            return false;
+                    }
+                    else if (b.IsDependency && !r.BoundBelow(b.Bound))
                         return false;
 
                 foreach (var b in v.LowerConstantBounds)
-                    if (s[b] && !r.BoundBelow(b.Bound))
+                    if (s[b])
+                    {
+                        if (!r.BoundBelow(b.Bound))
+                            return false;
+                    }
+                    else if (b.IsDependency && !r.BoundAbove(b.Bound))
                         return false;
             }
 
@@ -166,19 +187,23 @@ namespace CatSAT.NonBoolean.SMT.Float
             // Apply all variable bounds that apply in this model
             foreach (var p in Propositions)
             {
-                if (p is VariableBound b && s[b] && b.Lhs.IsDefinedIn(s) && b.Rhs.IsDefinedIn(s))
+                if (p is VariableBound b && b.Lhs.IsDefinedIn(s) && b.Rhs.IsDefinedIn(s))
                 {
                     var l = b.Lhs.Representative;
                     var r = b.Rhs.Representative;
-                    if (b.IsUpper)
+
+                    if (s[b] || b.IsDependency)
                     {
-                        l.AddUpperBound(r);
-                        r.AddLowerBound(l);
-                    }
-                    else
-                    {
-                        r.AddUpperBound(l);
-                        l.AddLowerBound(r);
+                        if (b.IsUpper ^ s[b])
+                        {
+                            r.AddUpperBound(l);
+                            l.AddLowerBound(r);
+                        }
+                        else
+                        {
+                            l.AddUpperBound(r);
+                            r.AddLowerBound(l);
+                        }
                     }
                 }
             }
