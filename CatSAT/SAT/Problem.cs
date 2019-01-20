@@ -490,6 +490,22 @@ namespace CatSAT
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Global
         public Solution Solve(bool throwOnUnsolvable = true)
         {
+            PrepareToSolve();
+            var m = new Solution(this);
+            if (SolveOne(m, Timeout))
+                return m;
+            if (throwOnUnsolvable)
+                throw new TimeoutException(this);
+            return null;
+        }
+
+        /// <summary>
+        /// Perform preprocessing steps for solver:
+        /// - Code generation
+        /// - Finding floating variables
+        /// </summary>
+        private void PrepareToSolve()
+        {
 #if PerformanceStatistics
             var previousState = compilationState;
 #endif
@@ -500,9 +516,18 @@ namespace CatSAT
 #endif
             if (FloatingVariables.Count == 0)
                 RecomputeFloatingVariables();
-            BooleanSolver.Timeout = Timeout;
-            var m = new Solution(this);
-            if (BooleanSolver.Solve(m))
+        }
+
+        /// <summary>
+        /// Generate one solution in the specified solution object.
+        /// Does not perform preprocessing
+        /// </summary>
+        /// <param name="s">Solution object to write result into</param>
+        /// <param name="timeout">Timeout</param>
+        /// <returns>True if solution was found</returns>
+        private bool SolveOne(Solution s, int timeout)
+        {
+            if (BooleanSolver.Solve(s, timeout))
             {
 #if PerformanceStatistics
                 SolveTimeMicroseconds.AddReading(BooleanSolver.SolveTimeMicroseconds);
@@ -510,14 +535,13 @@ namespace CatSAT
                 if (LogPerformanceDataToConsole)
                     Console.WriteLine(BooleanSolver.PerformanceStatistics);
 #endif
-                return m;
+                return true;
             }
-            if (throwOnUnsolvable)
-                throw new TimeoutException(this);
-            return null;
+
+            return false;
         }
 
-#region Assertions
+        #region Assertions
         /// <summary>
         /// Adds a set of assertions to this problem.
         /// Assertions are immutable: they cannot be changed or reset

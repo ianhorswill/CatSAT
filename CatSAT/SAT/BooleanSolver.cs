@@ -38,13 +38,6 @@ namespace CatSAT
     /// </summary>
     public class BooleanSolver
     {
-        #region Solver parameters
-        /// <summary>
-        /// Number of flips of propositions we can try before we give up and start over.
-        /// </summary>
-        public int Timeout;
-        #endregion
-
         #region Performance statistics
 #if PerformanceStatistics
         /// <summary>
@@ -117,7 +110,7 @@ namespace CatSAT
         /// Implements the WalkSAT algorithm
         /// </summary>
         /// <returns>True if a satisfying assignment was found.</returns>
-        internal bool Solve(Solution s)
+        internal bool Solve(Solution s, int timeout)
         {
             solution = s;
             propositions = s.Propositions;
@@ -130,7 +123,7 @@ namespace CatSAT
             Problem.Stopwatch.Start();
 #endif
 
-            var remainingFlips = Timeout;
+            var remainingFlips = timeout;
 
             restart:
             MakeRandomAssignment();
@@ -179,7 +172,7 @@ namespace CatSAT
 
 #if PerformanceStatistics
             SolveTimeMicroseconds = Problem.Stopwatch.ElapsedTicks / (Stopwatch.Frequency * 0.000001f);
-            SolveFlips = Timeout - remainingFlips;
+            SolveFlips = timeout - remainingFlips;
 #endif
 
             return unsatisfiedClauses.Count == 0;
