@@ -446,9 +446,14 @@ namespace CatSAT
 
             // Find all improvable propositions
             improvablePropositions.Clear();
+            var vars = Problem.SATVariables;
             for (ushort i = 0; i < propositions.Length; i++)
             {
-                var u = Problem.SATVariables[i].Proposition.Utility;
+                var satVar = vars[i];
+                if (satVar.IsPredetermined)
+                    continue;
+                
+                var u = satVar.Proposition.Utility;
                 if (propositions[i])
                 {
                     if (u < 0)
@@ -472,13 +477,16 @@ namespace CatSAT
         private void MakeRandomAssignment()
         {
             totalUtility = 0;
+            var vars = Problem.SATVariables;
+
             // Initialize propositions[] and compute totalUtility
             for (var i = 0; i < propositions.Length; i++)
             {
-                var truth = Problem.SATVariables[i].IsPredetermined?Problem.SATVariables[i].PredeterminedValue:Problem.SATVariables[i].RandomInitialState;
+                var satVar = vars[i];
+                var truth = satVar.IsPredetermined?satVar.PredeterminedValue:satVar.RandomInitialState;
                 propositions[i] = truth;
                 if (truth)
-                    totalUtility += Problem.SATVariables[i].Proposition.Utility;
+                    totalUtility += satVar.Proposition.Utility;
             }
 
             unsatisfiedClauses.Clear();
