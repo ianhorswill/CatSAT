@@ -44,20 +44,25 @@ namespace CatSAT
         /// </summary>
         public static readonly Proposition False = new Proposition(false, 0);
 
+        /// <inheritdoc />
+        public override Proposition BaseProposition => this;
+
         /// <summary>
         /// Arbitrary object that functions as the name of this proposition.
         /// Distinct Propositions should have distinct Names.
         /// </summary>
         public object Name { get; internal set; }
 
-        /// <inheritdoc />
-        public override Proposition BaseProposition => this;
-
         /// <summary>
         /// Probability with which this proposition will be true in the solver's starting guess.
         /// Should be a number in the range [0,1].
         /// </summary>
         public float InitialProbability = 0.5f;
+
+        /// <summary>
+        /// The utility of this proposition being true
+        /// </summary>
+        public float Utility = 0;
 
         /// <summary>
         /// Position in the Problem's Variables[] array of the Variable that tracks the truth value of

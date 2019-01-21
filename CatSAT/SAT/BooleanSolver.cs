@@ -38,6 +38,11 @@ namespace CatSAT
     /// </summary>
     public class BooleanSolver
     {
+        /// <summary>
+        /// The Program for which this is a solution.
+        /// </summary>
+        public readonly Problem Problem;
+
         #region Performance statistics
 #if PerformanceStatistics
         /// <summary>
@@ -53,14 +58,13 @@ namespace CatSAT
         
         #region Solver state
         /// <summary>
-        /// The Program for which this is a solution.
+        /// The solution object containing the model we're generating.
         /// </summary>
-        public readonly Problem Problem;
-
         private Solution solution;
 
         /// <summary>
         /// States of the different propositions of the Program, indexed by proposition number.
+        /// IMPORTANT: this is a cache of solution.Propositions.
         /// </summary>
         private bool[] propositions;
 
@@ -78,6 +82,16 @@ namespace CatSAT
         /// Total number of unsatisfied clauses
         /// </summary>
         private readonly List<ushort> unsatisfiedClauses = new List<ushort>();
+
+        /// <summary>
+        /// Propositions that would increase utility if they were flipped.
+        /// </summary>
+        private List<ushort> improvablePropositions;
+
+        /// <summary>
+        /// The total utility of all the true propositions in the solution.
+        /// </summary>
+        private float totalUtility;
         #endregion
 
         internal BooleanSolver(Problem problem)
@@ -110,13 +124,16 @@ namespace CatSAT
         /// Implements the WalkSAT algorithm
         /// </summary>
         /// <returns>True if a satisfying assignment was found.</returns>
-        internal bool Solve(Solution s, int timeout)
+        internal bool Solve(Solution s, int timeout, out int unusedFlips, bool continuePreviousSearch = false)
         {
             solution = s;
             propositions = s.Propositions;
             if (propositions.Length == 1 && Problem.TheorySolvers == null)
                 // Trivial problem, since propositions[0] isn't a real proposition.
+            {
+                unusedFlips = timeout;
                 return true;
+            }
 
 #if PerformanceStatistics
             Problem.Stopwatch.Reset();
@@ -126,7 +143,12 @@ namespace CatSAT
             var remainingFlips = timeout;
 
             restart:
-            MakeRandomAssignment();
+            // Make a random assignment, unless we've been specifically told to continue from where we were
+            if (continuePreviousSearch)
+                continuePreviousSearch = false;
+            else
+                MakeRandomAssignment();
+
             var flipsSinceImprovement = 0;
             var wp = 0f;
 
@@ -174,7 +196,8 @@ namespace CatSAT
             SolveTimeMicroseconds = Problem.Stopwatch.ElapsedTicks / (Stopwatch.Frequency * 0.000001f);
             SolveFlips = timeout - remainingFlips;
 #endif
-
+            solution.Utility = totalUtility;
+            unusedFlips = remainingFlips;
             return unsatisfiedClauses.Count == 0;
         }
 
@@ -340,6 +363,7 @@ namespace CatSAT
             {
                 // Flip true -> false
                 propositions[pIndex] = false;
+                totalUtility -= Problem.SATVariables[pIndex].Proposition.Utility;
 
                 // Update the clauses in which this appears as a positive literal
                 foreach (ushort cIndex in prop.PositiveClauses)
@@ -375,6 +399,7 @@ namespace CatSAT
             {
                 // Flip false -> true
                 propositions[pIndex] = true;
+                totalUtility += Problem.SATVariables[pIndex].Proposition.Utility;
 
                 // Update the clauses in which this appears as a positive literal
                 foreach (ushort cIndex in prop.PositiveClauses)
@@ -409,15 +434,51 @@ namespace CatSAT
         }
 
         /// <summary>
+        /// Forcibly flip improvable proposition to increase utility, probably at the expense
+        /// breaking a clause.
+        /// TODO: Make this actually be efficient
+        /// </summary>
+        /// <returns>True if solution wasn't already the maximum possible utility</returns>
+        internal bool ImproveUtility()
+        {
+            if (improvablePropositions == null)
+                improvablePropositions = new List<ushort>();
+
+            // Find all improvable propositions
+            improvablePropositions.Clear();
+            for (ushort i = 0; i < propositions.Length; i++)
+            {
+                var u = Problem.SATVariables[i].Proposition.Utility;
+                if (propositions[i])
+                {
+                    if (u < 0)
+                        improvablePropositions.Add(i);
+                } else if (u > 0)
+                    improvablePropositions.Add(i);
+            }
+
+            if (improvablePropositions.Count == 0)
+                return false;
+
+            // Randomly flip one
+            Flip(improvablePropositions.RandomElement());
+            return true;
+        }
+
+        /// <summary>
         /// Randomly assign values to the propositions,
         /// and initialize the other state information accordingly.
         /// </summary>
         private void MakeRandomAssignment()
         {
-            // Initialize propositions[]
+            totalUtility = 0;
+            // Initialize propositions[] and compute totalUtility
             for (var i = 0; i < propositions.Length; i++)
             {
-                propositions[i] = Problem.SATVariables[i].IsPredetermined?Problem.SATVariables[i].PredeterminedValue:Problem.SATVariables[i].RandomInitialState;
+                var truth = Problem.SATVariables[i].IsPredetermined?Problem.SATVariables[i].PredeterminedValue:Problem.SATVariables[i].RandomInitialState;
+                propositions[i] = truth;
+                if (truth)
+                    totalUtility += Problem.SATVariables[i].Proposition.Utility;
             }
 
             unsatisfiedClauses.Clear();

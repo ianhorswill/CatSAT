@@ -44,6 +44,11 @@ namespace CatSAT
         public readonly Problem Problem;
 
         /// <summary>
+        /// The total utility of all true propositions in this solution
+        /// </summary>
+        public float Utility { get; internal set; }
+
+        /// <summary>
         /// States of the different propositions of the Program, indexed by proposition number.
         /// </summary>
         internal readonly bool[] Propositions;
@@ -443,5 +448,16 @@ namespace CatSAT
         /// </summary>
         public object this[Variable v] => v.UntypedValue(this);
         #endregion
+
+        /// <summary>
+        /// Copy the data from the specified solution into this solution.
+        /// </summary>
+        /// <param name="s">Solution to copy from</param>
+        public void CopyFrom(Solution s)
+        {
+            Debug.Assert(Problem == s.Problem);
+            System.Array.Copy(s.Propositions, Propositions, Propositions.Length);
+            Utility = s.Utility;
+        }
     }
 }

@@ -491,9 +491,9 @@ namespace CatSAT
         public Solution Solve(bool throwOnUnsolvable = true)
         {
             PrepareToSolve();
-            var m = new Solution(this);
-            if (SolveOne(m, Timeout))
-                return m;
+            var s = new Solution(this);
+            if (SolveOne(s, Timeout))
+                return s;
             if (throwOnUnsolvable)
                 throw new TimeoutException(this);
             return null;
@@ -527,7 +527,7 @@ namespace CatSAT
         /// <returns>True if solution was found</returns>
         private bool SolveOne(Solution s, int timeout)
         {
-            if (BooleanSolver.Solve(s, timeout))
+            if (BooleanSolver.Solve(s, timeout, out var remaining))
             {
 #if PerformanceStatistics
                 SolveTimeMicroseconds.AddReading(BooleanSolver.SolveTimeMicroseconds);
@@ -539,6 +539,39 @@ namespace CatSAT
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Makes a best effort to find a solution with a high utility as specified by the utilities
+        /// of this problem's propositions.
+        /// </summary>
+        /// <param name="flips">Maximum number of flips to spend trying to find better solutions</param>
+        /// <param name="throwOnUnsolvable">Throw an exception if no solution is found.  Otherwise returns null when no solution is found.</param>
+        /// <returns>Best solution system could find in the time available, or null if it could find no solution.</returns>
+        public Solution HighUtilitySolution(int flips, bool throwOnUnsolvable = true)
+        {
+            PrepareToSolve();
+            Solution best = null;
+            var s = new Solution(this);
+            while (flips > 0 && BooleanSolver.Solve(s, flips, out var unused, best != null))
+            {
+                // Got a solution; see if it's better than the current best.
+                if (best == null)
+                {
+                    best = new Solution(this);
+                    best.CopyFrom(s);
+                } else if (s.Utility > best.Utility)
+                    best.CopyFrom(s);
+
+                if (!BooleanSolver.ImproveUtility())
+                    // We have an optimal solution
+                    return best;
+                flips = unused;
+            }
+
+            if (best == null && throwOnUnsolvable)
+                throw new TimeoutException(this);
+            return best;
         }
 
         #region Assertions
