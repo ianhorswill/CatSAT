@@ -221,7 +221,8 @@ namespace CatSAT
             // Walk disjuncts in a reasonably random order
             var dCount = (uint)disjuncts.Length;
             var index = Random.InRange(dCount);
-            var prime = Random.Prime();
+            uint prime;
+            do prime = Random.Prime(); while (prime <= dCount);
             for (var i = 0; i < dCount; i++)
             {
                 var value = disjuncts[index];
