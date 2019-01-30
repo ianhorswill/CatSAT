@@ -492,6 +492,11 @@ namespace CatSAT
         {
             PrepareToSolve();
             var s = new Solution(this);
+
+            if (TheorySolvers != null)
+                foreach (var pair in TheorySolvers)
+                    pair.Value.PropagatePredetermined(s);
+
             if (SolveOne(s, Timeout))
                 return s;
             if (throwOnUnsolvable)
@@ -629,6 +634,11 @@ namespace CatSAT
             v.DeterminionState = s;
             v.PredeterminedValue = value;
             SATVariables[index] = v;
+        }
+
+        public void SetInferredValue(Proposition p, bool value)
+        {
+            SetPredeterminedValue(p, value, SATVariable.DeterminationState.Inferred);
         }
 
         /// <summary>
@@ -1295,6 +1305,15 @@ namespace CatSAT
                 default:
                     throw new ArgumentException();
             }
+        }
+
+        /// <summary>
+        /// Test if this proposition is predetermined (explicitly set, inferred, etc.)
+        /// </summary>
+        /// <param name="p"></param>
+        public bool IsPredetermined(Proposition p)
+        {
+            return SATVariables[p.Index].IsPredetermined;
         }
 #endregion
 

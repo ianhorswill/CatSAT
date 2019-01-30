@@ -458,5 +458,50 @@ namespace Tests
                     Assert.IsTrue(Math.Abs(sum.Value(s) - (x.Value(s) + y.Value(s))) < 0.00001f);
             }
         }
+
+        [TestMethod]
+        public void FloatPredeterminationTest()
+        {
+            var prog = new Problem("test");
+            var dom = new FloatDomain("signed unit", -1, 1);
+            var x = (FloatVariable) dom.Instantiate("x", prog);
+            var y = (FloatVariable) dom.Instantiate("y", prog);
+            var z = (FloatVariable) dom.Instantiate("z", prog);
+            var bigThresh = 1.5f;
+            var smallThresh = -2.3f;
+            var xBig = x > bigThresh;
+            var ySmall = y < smallThresh;
+            var zBig = z > bigThresh;
+            var zSmall = z < smallThresh;
+            var xLTy = x < y;
+            var xGTz = x > z;
+            var yLTz = y < z;
+
+            for (var i = 0; i < 100; i++)
+            {
+                var xVal = Random.Float(-1, 1);
+                var yVal = Random.Float(-1, 1);
+                x.SetPredeterminedValue(xVal);
+                y.SetPredeterminedValue(yVal);
+                var s = prog.Solve();
+                Assert.AreEqual(xVal, x.Value(s));
+                Assert.AreEqual(yVal, y.Value(s));
+                float zVal = z.Value(s);
+                Assert.IsTrue(prog.IsPredetermined(xBig));
+                Assert.AreEqual(s[xBig], xVal >= bigThresh);
+
+                Assert.IsTrue(prog.IsPredetermined(ySmall));
+                Assert.AreEqual(s[ySmall], yVal <= smallThresh);
+
+                Assert.IsTrue(prog.IsPredetermined(xLTy));
+                Assert.AreEqual(s[xLTy], xVal <= yVal);
+
+                Assert.IsFalse(prog.IsPredetermined(zBig));
+                Assert.IsFalse(prog.IsPredetermined(zSmall));
+
+                Assert.IsFalse(prog.IsPredetermined(xGTz));
+                Assert.IsFalse(prog.IsPredetermined(yLTz));
+            }
+        }
     }
 }

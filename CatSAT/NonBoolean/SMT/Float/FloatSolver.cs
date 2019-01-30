@@ -79,6 +79,30 @@ namespace CatSAT.NonBoolean.SMT.Float
             return null;
         }
 
+        public override void PropagatePredetermined(Solution s)
+        {
+            foreach (var p in Propositions)
+                switch (p)
+                {
+                    case ConstantBound b:
+                        if (b.Variable.PredeterminedValueInternal.HasValue)
+                        {
+                            var value = b.Variable.PredeterminedValueInternal.Value;
+                            Problem.SetInferredValue(p, b.IsUpper?value <= b.Bound:value >= b.Bound);
+                        }
+                        break;
+
+                    case VariableBound v:
+                        if (v.Lhs.PredeterminedValueInternal.HasValue && v.Rhs.PredeterminedValueInternal.HasValue)
+                        {
+                            var lValue = v.Lhs.PredeterminedValueInternal.Value;
+                            var rValue = v.Rhs.PredeterminedValueInternal.Value;
+                            Problem.SetInferredValue(p, v.IsUpper? lValue <= rValue : lValue >= rValue);
+                        }
+                        break;
+                }
+        }
+
         /// <summary>
         /// Try to find values for the FloatVariables that are consistent with the true constraints.
         /// </summary>

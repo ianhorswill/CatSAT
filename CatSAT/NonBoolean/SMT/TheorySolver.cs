@@ -56,6 +56,15 @@ namespace CatSAT
         }
 
         /// <summary>
+        /// Evaluate any theory propositions whose truth values can be determined from predetermined variables
+        /// </summary>
+        /// <param name="s"></param>
+        public virtual void PropagatePredetermined(Solution s)
+        {
+            // Do nothing
+        }
+
+        /// <summary>
         /// Find values for the solver variables
         /// </summary>
         /// <returns>True if successful</returns>
