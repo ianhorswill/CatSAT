@@ -181,14 +181,14 @@ namespace Tests
             var dom = new FloatDomain("unit", -1, 1);
             var x = (FloatVariable) dom.Instantiate("x");
             var y = (FloatVariable) dom.Instantiate("y");
-            y.SetPredeterminedValue(1);
+            y.PredeterminedValue = 1;
             var sum = x + y;
             int spuriousHitCount = 0;
 
             for (int i = 0; i < 100; i++)
             {
                 var v = Random.Float(-1, 1);
-                x.SetPredeterminedValue(v);
+                x.PredeterminedValue = v;
                 var s = p.Solve();
                 // Should always give us the predetermined value
                 Assert.AreEqual(x.Value(s), v);
@@ -441,18 +441,18 @@ namespace Tests
         [TestMethod]
         public void SumConditionTest()
         {
-            var prog = new Problem("test");
+            var problem = new Problem("test");
             var dom = new FloatDomain("signed unit", -1, 1);
             var p = (Proposition) "p";
-            var x = (FloatVariable) dom.Instantiate("x", prog, p);
+            var x = (FloatVariable) dom.Instantiate("x", problem, p);
             var q = (Proposition) "q";
-            var y = (FloatVariable) dom.Instantiate("y", prog, q);
+            var y = (FloatVariable) dom.Instantiate("y", problem, q);
             var sum = x + y;
-            Assert.IsTrue(ReferenceEquals(sum.Condition, prog.Conjunction(p, q)));
+            Assert.IsTrue(ReferenceEquals(sum.Condition, problem.Conjunction(p, q)));
 
             for (int i = 0; i < 100; i++)
             {
-                var s = prog.Solve();
+                var s = problem.Solve();
                 Console.WriteLine(s.Model);
                 Assert.AreEqual(sum.IsDefinedInInternal(s), x.IsDefinedInInternal(s) & y.IsDefinedInInternal(s));
                 if (sum.IsDefinedInInternal(s))
@@ -463,11 +463,11 @@ namespace Tests
         [TestMethod]
         public void FloatPredeterminationTest()
         {
-            var prog = new Problem("test");
+            var problem = new Problem("test");
             var dom = new FloatDomain("signed unit", -1, 1);
-            var x = (FloatVariable) dom.Instantiate("x", prog);
-            var y = (FloatVariable) dom.Instantiate("y", prog);
-            var z = (FloatVariable) dom.Instantiate("z", prog);
+            var x = (FloatVariable) dom.Instantiate("x", problem);
+            var y = (FloatVariable) dom.Instantiate("y", problem);
+            var z = (FloatVariable) dom.Instantiate("z", problem);
             var bigThresh = 1.5f;
             var smallThresh = -2.3f;
             var xBig = x > bigThresh;
@@ -482,26 +482,26 @@ namespace Tests
             {
                 var xVal = Random.Float(-1, 1);
                 var yVal = Random.Float(-1, 1);
-                x.SetPredeterminedValue(xVal);
-                y.SetPredeterminedValue(yVal);
-                var s = prog.Solve();
+                x.PredeterminedValue = xVal;
+                y.PredeterminedValue = yVal;
+                var s = problem.Solve();
                 Assert.AreEqual(xVal, x.Value(s));
                 Assert.AreEqual(yVal, y.Value(s));
-                float zVal = z.Value(s);
-                Assert.IsTrue(prog.IsPredetermined(xBig));
+                
+                Assert.IsTrue(problem.IsPredetermined(xBig));
                 Assert.AreEqual(s[xBig], xVal >= bigThresh);
 
-                Assert.IsTrue(prog.IsPredetermined(ySmall));
+                Assert.IsTrue(problem.IsPredetermined(ySmall));
                 Assert.AreEqual(s[ySmall], yVal <= smallThresh);
 
-                Assert.IsTrue(prog.IsPredetermined(xLTy));
+                Assert.IsTrue(problem.IsPredetermined(xLTy));
                 Assert.AreEqual(s[xLTy], xVal <= yVal);
 
-                Assert.IsFalse(prog.IsPredetermined(zBig));
-                Assert.IsFalse(prog.IsPredetermined(zSmall));
+                Assert.IsFalse(problem.IsPredetermined(zBig));
+                Assert.IsFalse(problem.IsPredetermined(zSmall));
 
-                Assert.IsFalse(prog.IsPredetermined(xGTz));
-                Assert.IsFalse(prog.IsPredetermined(yLTz));
+                Assert.IsFalse(problem.IsPredetermined(xGTz));
+                Assert.IsFalse(problem.IsPredetermined(yLTz));
             }
         }
     }

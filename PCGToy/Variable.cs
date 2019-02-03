@@ -65,7 +65,7 @@ namespace PCGToy
             set
             {
                 _value = value;
-                SolverVariable.SetPredeterminedValue(value);
+                SolverVariable.PredeterminedValue = value;
             }
         }
 
@@ -97,7 +97,7 @@ namespace PCGToy
             {
                 SolverVariable = Condition == null? new FDVariable<object>(Name, Domain):new FDVariable<object>(Name, Domain, Condition.Literal);
                 if (IsLocked)
-                    SolverVariable.SetPredeterminedValue(Value);
+                    SolverVariable.PredeterminedValue = Value;
             }
         }
 

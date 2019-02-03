@@ -58,21 +58,17 @@ namespace CatSAT.NonBoolean.SMT.MenuVariables
         public override Domain<T> Domain => BaseMenu;
 
         /// <inheritdoc />
-        public override T PredeterminedValue()
+        public override T PredeterminedValue
         {
-            throw new NotImplementedException();
-        }
+            get => throw new NotImplementedException();
 
-        /// <inheritdoc />
-        public override void SetPredeterminedValue(T newValue)
-        {
-            throw new NotImplementedException();
+            set => throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public override void Reset()
         {
-            throw new NotImplementedException();
+            // Do nothing, since there are no predetermined values
         }
     }
 }

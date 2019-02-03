@@ -151,28 +151,20 @@ namespace CatSAT
         }
 
         /// <inheritdoc />
-        //public override bool IsDefinedInInternal(Solution s)
-        //{
-        //    foreach (var p in ValuePropositions)
-        //        if (s[p])
-        //            return true;
-        //    return false;
-        //}
-
-        /// <inheritdoc />
-        public override T PredeterminedValue()
+        public override T PredeterminedValue
         {
-            foreach (var p in ValuePropositions)
-                if (Problem[p])
-                    return ((ValueProposition)p.Name).Value;
-            throw new InvalidOperationException($"{Name} has no value assigned.");
-        }
-
-        /// <inheritdoc />
-        public override void SetPredeterminedValue(T newValue)
-        {
-            foreach (var p in ValuePropositions)
-                Problem[p] = ((ValueProposition)p.Name).Value.Equals(newValue);
+            get
+            {
+                foreach (var p in ValuePropositions)
+                    if (Problem[p])
+                        return ((ValueProposition) p.Name).Value;
+                throw new InvalidOperationException($"{Name} has no value assigned.");
+            }
+            set
+            {
+                foreach (var p in ValuePropositions)
+                    Problem[p] = ((ValueProposition) p.Name).Value.Equals(value);
+            }
         }
 
         /// <inheritdoc />

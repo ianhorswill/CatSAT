@@ -154,19 +154,18 @@ namespace CatSAT
         }
 
         /// <inheritdoc />
-        public override float PredeterminedValue()
+        public override float PredeterminedValue
         {
-            if (PredeterminedValueInternal == null)
-                throw new InvalidOperationException($"{Name} has no predetermined value");
-            return PredeterminedValueInternal.Value;
+            get
+            {
+                if (PredeterminedValueInternal == null)
+                    throw new InvalidOperationException($"{Name} has no predetermined value");
+                return PredeterminedValueInternal.Value;
+            }
+
+            set => PredeterminedValueInternal = value;
         }
 
-        /// <inheritdoc />
-        public override void SetPredeterminedValue(float newValue)
-        {
-            PredeterminedValueInternal = newValue;
-        }
-        
         /// <inheritdoc />
         public override void Reset()
         {
@@ -175,10 +174,7 @@ namespace CatSAT
 
         internal void ResetSolverState()
         {
-            if (PredeterminedValueInternal == null)
-                Bounds = FloatDomain.Bounds;
-            else
-                Bounds = new Interval(PredeterminedValueInternal.Value);
+            Bounds = PredeterminedValueInternal == null ? FloatDomain.Bounds : new Interval(PredeterminedValueInternal.Value);
             equivalence = null;
             UpperVariableBounds?.Clear();
             LowerVariableBounds?.Clear();

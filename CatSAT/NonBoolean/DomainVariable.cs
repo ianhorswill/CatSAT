@@ -55,18 +55,10 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// Returns the value assigned to the variable in the problem, if any
+        /// The value pre-assigned to the variable before attempting to solve the problem, if any.
         /// </summary>
         /// <returns>Value of the variable</returns>
-        // ReSharper disable once UnusedMember.Global
-        public abstract T PredeterminedValue();
-
-        /// <summary>
-        /// Fixes the value assigned to the variable in the problem.
-        /// </summary>
-        /// <param name="newValue"></param>
-        // ReSharper disable once UnusedMember.Global
-        public abstract void SetPredeterminedValue(T newValue);
+        public abstract T PredeterminedValue { get; set; }
 
         /// <summary>
         /// Removes any predetermined value for the variable
