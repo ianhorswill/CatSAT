@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using CatSAT.NonBoolean;
 
 namespace CatSAT
 {
@@ -52,6 +53,8 @@ namespace CatSAT
         /// States of the different propositions of the Program, indexed by proposition number.
         /// </summary>
         internal readonly bool[] Propositions;
+
+        private Dictionary<Variable, object> theoryVariableValues;
 
         internal Solution(Problem problem)
         {
@@ -84,7 +87,7 @@ namespace CatSAT
 
                 foreach (var v in Problem.Variables())
                 {
-                    if (v.IsDefinedIn(this))
+                    if (v.IsDefinedInInternal(this))
                     {
                         if (firstOne)
                             firstOne = false;
@@ -263,8 +266,8 @@ namespace CatSAT
         /// <returns>True if they're all true</returns>
         public bool All(IEnumerable<Literal> literals)
         {
-            var lits = literals.ToArray();
-            return Quantify(lits.Length, lits.Length, (IEnumerable<Literal>)lits);
+            var literalArray = literals.ToArray();
+            return Quantify(literalArray.Length, literalArray.Length, (IEnumerable<Literal>)literalArray);
         }
 
         /// <summary>
@@ -444,9 +447,30 @@ namespace CatSAT
 
         #region Variables
         /// <summary>
+        /// This solution has a value for the specified variable
+        /// </summary>
+        public bool DefinesVariable(Variable v)
+        {
+            return theoryVariableValues != null && theoryVariableValues.ContainsKey(v);
+        }
+
+        /// <summary>
         /// Get untyped value of variable
         /// </summary>
-        public object this[Variable v] => v.UntypedValue(this);
+        public object this[Variable v] => theoryVariableValues==null?throw new UndefinedVariableException(v, this):theoryVariableValues[v];
+
+        /// <summary>
+        /// Set the value of a theory variable within the solution.
+        /// This should only be called from within theory solvers.
+        /// </summary>
+        /// <param name="v">Variable</param>
+        /// <param name="value">Value</param>
+        internal void SetTheoryVariableValue(Variable v, object value)
+        {
+            if (theoryVariableValues == null)
+                theoryVariableValues = new Dictionary<Variable, object>();
+            theoryVariableValues[v] = value;
+        }
         #endregion
 
         /// <summary>
@@ -456,8 +480,14 @@ namespace CatSAT
         public void CopyFrom(Solution s)
         {
             Debug.Assert(Problem == s.Problem);
-            System.Array.Copy(s.Propositions, Propositions, Propositions.Length);
+            Array.Copy(s.Propositions, Propositions, Propositions.Length);
             Utility = s.Utility;
+            if (theoryVariableValues == null)
+                theoryVariableValues = new Dictionary<Variable, object>();
+            theoryVariableValues.Clear();
+            if (s.theoryVariableValues != null)
+                foreach (var pair in s.theoryVariableValues)
+                    theoryVariableValues[pair.Key] = pair.Value;
         }
     }
 }

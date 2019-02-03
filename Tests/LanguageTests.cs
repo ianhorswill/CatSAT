@@ -113,21 +113,21 @@ namespace Tests
         [TestMethod]
         public void CallEqualTest()
         {
-            var p = new Problem();
+            var unused = new Problem();
             Assert.AreEqual(Call.FromArgs(Problem.Current, "foo", 1, 2), Call.FromArgs(Problem.Current, "foo", 1, 2));
         }
 
         [TestMethod]
         public void CallHashTest()
         {
-            var p = new Problem();
+            var unused = new Problem();
             Assert.AreEqual(Call.FromArgs(Problem.Current, "foo", 1, 2).GetHashCode(), Call.FromArgs(Problem.Current, "foo", 1, 2).GetHashCode());
         }
 
         [TestMethod]
         public void CallNotEqualTest()
         {
-            var p = new Problem();
+            var unused = new Problem();
             Assert.AreNotEqual(Call.FromArgs(Problem.Current, "foo", 1, 2), Call.FromArgs(Problem.Current, "bar", 1, 2));
             Assert.AreNotEqual(Call.FromArgs(Problem.Current, "foo", 1, 2), Call.FromArgs(Problem.Current, "foo", 0, 2));
             Assert.AreNotEqual(Call.FromArgs(Problem.Current, "foo", 1, 2), Call.FromArgs(Problem.Current, "foo", 1, 0));
@@ -346,7 +346,7 @@ namespace Tests
 
                 string Value(FDVariable<string> v)
                 {
-                    return v.IsDefinedIn(solution) ? v.Value(solution) : null;
+                    return solution.DefinesVariable(v) ? v.Value(solution) : null;
                 }
                 solution.Populate(characterObject);
                 Assert.AreEqual(Value(race), characterObject.race);

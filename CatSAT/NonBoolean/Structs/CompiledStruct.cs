@@ -72,15 +72,15 @@ namespace CatSAT
         }
 
         /// <inheritdoc />
-        public override object UntypedValue(Solution s)
+        public override bool IsDefinedInInternal(Solution solution)
         {
-            throw new System.NotImplementedException();
+            return false;
         }
 
         /// <inheritdoc />
-        public override bool IsDefinedIn(Solution solution)
+        public override object ValueInternal(Solution s)
         {
-            return false;
+            throw new System.NotImplementedException();
         }
     }
 }

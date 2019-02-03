@@ -49,14 +49,13 @@ namespace CatSAT.NonBoolean.SMT.MenuVariables
 
         internal T CurrentValue;
 
-        /// <inheritdoc />
-        public override Domain<T> Domain => BaseMenu;
-
-        /// <inheritdoc />
-        public override T Value(Solution s)
+        public override object ValueInternal(Solution s)
         {
             return CurrentValue;
         }
+
+        /// <inheritdoc />
+        public override Domain<T> Domain => BaseMenu;
 
         /// <inheritdoc />
         public override T PredeterminedValue()

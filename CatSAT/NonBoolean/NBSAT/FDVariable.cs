@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using CatSAT.NonBoolean;
 
 namespace CatSAT
 {
@@ -141,23 +142,22 @@ namespace CatSAT
             throw new ArgumentException($"{value} is not a valid value for FDVariable {Name}");
         }
 
-        /// <inheritdoc />
-        public override bool IsDefinedIn(Solution s)
-        {
-            foreach (var p in ValuePropositions)
-                if (s[p])
-                    return true;
-            return false;
-        }
-
-        /// <inheritdoc />
-        public override T Value(Solution s)
+        public override object ValueInternal(Solution s)
         {
             foreach (var p in ValuePropositions)
                 if (s[p])
                     return ((ValueProposition) p.Name).Value;
-            throw new InvalidOperationException($"{Name} has no value assigned.");
+            throw new UndefinedVariableException(this, s);
         }
+
+        /// <inheritdoc />
+        //public override bool IsDefinedInInternal(Solution s)
+        //{
+        //    foreach (var p in ValuePropositions)
+        //        if (s[p])
+        //            return true;
+        //    return false;
+        //}
 
         /// <inheritdoc />
         public override T PredeterminedValue()

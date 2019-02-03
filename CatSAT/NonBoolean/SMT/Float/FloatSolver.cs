@@ -25,6 +25,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace CatSAT.NonBoolean.SMT.Float
@@ -133,7 +134,7 @@ namespace CatSAT.NonBoolean.SMT.Float
             // We tried several samples and failed
             return false;
         }
-        
+
         /// <summary>
         /// Find the equivalence classes of variables in this model
         /// </summary>
@@ -143,14 +144,14 @@ namespace CatSAT.NonBoolean.SMT.Float
             // Alias vars that are equated in this model
             foreach (var p in Propositions)
             {
-                if (p is VariableEquation e && s[e] && e.Lhs.IsDefinedIn(s) && e.Rhs.IsDefinedIn(s))
+                if (p is VariableEquation e && s[e] && e.Lhs.IsDefinedInInternal(s) && e.Rhs.IsDefinedInInternal(s))
                     FloatVariable.Equate(e.Lhs, e.Rhs);
             }
 
             // We can now focus on just the representatives of each equivalence class of variables
             // and ignore the rest.
             representatives.Clear();
-            representatives.AddRange(Variables.Where(v => v.IsDefinedIn(s) && (object) v == (object) v.Representative));
+            representatives.AddRange(Variables.Where(v => v.IsDefinedInInternal(s) && (object) v == (object) v.Representative));
         }
         
         /// <summary>
@@ -180,7 +181,7 @@ namespace CatSAT.NonBoolean.SMT.Float
             // Apply all constant bounds that apply in this model
             foreach (var v in Variables)
             {
-                if (!v.IsDefinedIn(s))
+                if (!v.IsDefinedInInternal(s))
                     continue;
 
                 var r = v.Representative;
@@ -211,7 +212,7 @@ namespace CatSAT.NonBoolean.SMT.Float
             // Apply all variable bounds that apply in this model
             foreach (var p in Propositions)
             {
-                if (p is VariableBound b && b.Lhs.IsDefinedIn(s) && b.Rhs.IsDefinedIn(s))
+                if (p is VariableBound b && b.Lhs.IsDefinedInInternal(s) && b.Rhs.IsDefinedInInternal(s))
                 {
                     var l = b.Lhs.Representative;
                     var r = b.Rhs.Representative;

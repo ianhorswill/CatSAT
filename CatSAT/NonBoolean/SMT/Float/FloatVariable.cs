@@ -138,23 +138,19 @@ namespace CatSAT
         /// </summary>
         internal readonly int Index;
 
-        /// <inheritdoc />
-        public override float Value(Solution s)
-        {
-            if (!IsDefinedIn(s))
-                throw new InvalidOperationException($"Variable {Name} is not defined in this solution.");
-            var r = Representative;
-            if (r.Bounds.IsUnique)
-                return r.Bounds.Lower;
-            throw new InvalidOperationException($"Variable {Name} has not been narrowed to a unique value.");
-        }
-
         private string DebugValueString => Bounds.IsUnique ? Bounds.Lower.ToString(CultureInfo.InvariantCulture) : Bounds.ToString();
 
         internal bool PickRandom(Queue<Tuple<FloatVariable,bool>> q)
         {
             var f = Random.Float(Bounds.Lower, Bounds.Upper);
             return BoundAbove(f, q) && BoundBelow(f, q);
+        }
+
+        /// <inheritdoc />
+        public override object ValueInternal(Solution s)
+        {
+            Debug.Assert(Representative.Bounds.IsUnique);
+            return Representative.Bounds.Lower;
         }
 
         /// <inheritdoc />

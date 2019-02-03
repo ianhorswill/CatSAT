@@ -104,7 +104,7 @@ namespace CatSAT.NonBoolean.SMT.Float
 
         public override bool IsDefinedIn(Solution s)
         {
-            return s[this] && Result.IsDefinedIn(s) && addends.All(a => a.IsDefinedIn(s));
+            return s[this] && Result.IsDefinedInInternal(s) && addends.All(a => a.IsDefinedInInternal(s));
         }
     }
 }

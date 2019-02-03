@@ -69,26 +69,28 @@ namespace CatSAT
         /// <param name="s">Solution from which to get the variable's value</param>
         public virtual string ValueString(Solution s)
         {
-            if (IsDefinedIn(s))
-                return $"{Name}={UntypedValue(s)}";
+            if (s.DefinesVariable(this))
+                return $"{Name}={s[this]}";
             return $"{Name} undefined";
         }
 
         /// <summary>
-        /// Returns the variable's value within a given solution, as type object.
-        /// </summary>
-        /// <param name="s">Solution from which to get the variable's value</param>
-        /// <returns></returns>
-        public abstract object UntypedValue(Solution s);
-
-        /// <summary>
         /// True if the variable has a value defined in the specified solution.
+        /// This works by directly checking the Condition of the variable, so it works during
+        /// solve time.
         /// </summary>
         /// <param name="solution">Solution to check</param>
-        public virtual bool IsDefinedIn(Solution solution)
+        public virtual bool IsDefinedInInternal(Solution solution)
         {
             return (object)Condition == null || solution[Condition];
         }
+
+        /// <summary>
+        /// DON'T CALL THIS YOURSELF: this should only be called by the solver itself.
+        /// Returns the value of a variable, immediately after the solver is run.
+        /// Not guaranteed to be valid afterward.
+        /// </summary>
+        public abstract object ValueInternal(Solution s);
 
         /// <inheritdoc />
         public override string ToString()

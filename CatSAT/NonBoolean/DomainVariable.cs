@@ -43,18 +43,15 @@ namespace CatSAT
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         public abstract Domain<T> Domain { get; }
-        
+
         /// <summary>
         /// Returns the value assigned to the variable in the solution
         /// </summary>
         /// <param name="s">Solution from which to get the variable's value</param>
         /// <returns>Value of the variable</returns>
-        public abstract T Value(Solution s);
-
-        /// <inheritdoc />
-        public override object UntypedValue(Solution s)
+        public T Value(Solution s)
         {
-            return Value(s);
+            return (T) s[this];
         }
 
         /// <summary>

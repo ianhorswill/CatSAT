@@ -94,17 +94,13 @@ namespace CatSAT
         public Variable this[object name] => variables[name];
 
         /// <inheritdoc />
-        public override bool IsDefinedIn(Solution solution)
+        public override bool IsDefinedInInternal(Solution solution)
         {
             return false;
         }
 
-        /// <summary>
-        /// Not implemented.  This operation doesn't make sense for a StructVar.
-        /// </summary>
-        /// <param name="s">Solution from which to get value of the variable.</param>
-        /// <exception cref="NotImplementedException"></exception>
-        public override object UntypedValue(Solution s)
+        /// <inheritdoc />
+        public override object ValueInternal(Solution s)
         {
             throw new NotImplementedException();
         }

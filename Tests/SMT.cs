@@ -26,6 +26,7 @@ using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CatSAT;
+using CatSAT.NonBoolean;
 using CatSAT.NonBoolean.SMT.Float;
 using static CatSAT.Language;
 using Random = CatSAT.Random;
@@ -340,7 +341,7 @@ namespace Tests
         /// <summary>
         /// Test that FloatVariables that aren't supposed to be defined actually aren't defined.
         /// </summary>
-        [TestMethod, ExpectedException(typeof(InvalidOperationException))]
+        [TestMethod, ExpectedException(typeof(UndefinedVariableException))]
         public void UndefinedFloatVarTest()
         {
             var p = new Problem("test");
@@ -354,7 +355,7 @@ namespace Tests
                 s = p.Solve();
                 Console.WriteLine(s.Model);
                 Assert.IsFalse(s[prop]);
-                Assert.IsFalse(x.IsDefinedIn(s));
+                Assert.IsFalse(x.IsDefinedInInternal(s));
             }
             Console.WriteLine(x.Value(s));
         }
@@ -376,8 +377,8 @@ namespace Tests
             for (int i = 0; i < 100; i++)
             {
                 var s = p.Solve();
-                Assert.IsFalse(x.IsDefinedIn(s));
-                Assert.IsTrue(y.IsDefinedIn(s));
+                Assert.IsFalse(x.IsDefinedInInternal(s));
+                Assert.IsTrue(y.IsDefinedInInternal(s));
                 Assert.IsFalse(ReferenceEquals(x.Representative, y.Representative));
             }
         }
@@ -399,8 +400,8 @@ namespace Tests
             for (int i = 0; i < 100; i++)
             {
                 var s = p.Solve();
-                Assert.IsFalse(x.IsDefinedIn(s));
-                Assert.IsTrue(y.IsDefinedIn(s));
+                Assert.IsFalse(x.IsDefinedInInternal(s));
+                Assert.IsTrue(y.IsDefinedInInternal(s));
                 Assert.IsTrue(ReferenceEquals(y, y.Representative));
                 Assert.IsTrue(y.UpperVariableBounds == null);
             }
@@ -425,10 +426,10 @@ namespace Tests
             for (int i = 0; i < 100; i++)
             {
                 var s = p.Solve();
-                Assert.IsFalse(x.IsDefinedIn(s));
-                Assert.IsTrue(y.IsDefinedIn(s));
+                Assert.IsFalse(x.IsDefinedInInternal(s));
+                Assert.IsTrue(y.IsDefinedInInternal(s));
                 Assert.IsTrue(ReferenceEquals(y, y.Representative));
-                Assert.IsFalse(sum.IsDefinedIn(s));
+                Assert.IsFalse(sum.IsDefinedInInternal(s));
                 Assert.IsTrue(y.ActiveFunctionalConstraints == null);
             }
         }
@@ -453,8 +454,8 @@ namespace Tests
             {
                 var s = prog.Solve();
                 Console.WriteLine(s.Model);
-                Assert.AreEqual(sum.IsDefinedIn(s), x.IsDefinedIn(s) & y.IsDefinedIn(s));
-                if (sum.IsDefinedIn(s))
+                Assert.AreEqual(sum.IsDefinedInInternal(s), x.IsDefinedInInternal(s) & y.IsDefinedInInternal(s));
+                if (sum.IsDefinedInInternal(s))
                     Assert.IsTrue(Math.Abs(sum.Value(s) - (x.Value(s) + y.Value(s))) < 0.00001f);
             }
         }

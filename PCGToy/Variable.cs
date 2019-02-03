@@ -103,7 +103,7 @@ namespace PCGToy
 
         public void UpdateFromSolution(Solution s)
         {
-            if (SolverVariable.IsDefinedIn(s))
+            if (s.DefinesVariable(SolverVariable))
                 _value = SolverVariable.Value(s);
             else
                 _value = null;

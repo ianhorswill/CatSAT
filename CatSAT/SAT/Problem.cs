@@ -532,6 +532,7 @@ namespace CatSAT
         /// <returns>True if solution was found</returns>
         private bool SolveOne(Solution s, int timeout)
         {
+            // Note: this also calls the theory solver(s), if needed
             if (BooleanSolver.Solve(s, timeout, out var remaining))
             {
 #if PerformanceStatistics
@@ -540,6 +541,10 @@ namespace CatSAT
                 if (LogPerformanceDataToConsole)
                     Console.WriteLine(BooleanSolver.PerformanceStatistics);
 #endif
+                // Write back values of variables
+                foreach (var v in Variables())
+                    if (v.IsDefinedInInternal(s))
+                        s.SetTheoryVariableValue(v, v.ValueInternal(s));
                 return true;
             }
 
