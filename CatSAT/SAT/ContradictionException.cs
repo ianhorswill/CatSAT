@@ -41,7 +41,7 @@ namespace CatSAT
             Problem = problem;
         }
 
-        internal ContradictionException(Problem problem, string message) : base($"Contradiction found: {message}")
+        public ContradictionException(Problem problem, string message) : base($"Contradiction found: {message}")
         {
             Problem = problem;
         }
