@@ -36,7 +36,7 @@ namespace CatSAT
     /// A logic program.
     /// Contains a set of prositions, rules for the propositions, and general clauses.
     /// </summary>
-    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + "}")]
+    [DebuggerDisplay("{" + nameof(Decompiled) + "}")]
     public class Problem
     {
         //
@@ -220,7 +220,7 @@ namespace CatSAT
             }
         }
         
-        private string DebuggerDisplay
+        public string Decompiled
         {
             // ReSharper disable once UnusedMember.Local
             get
@@ -231,9 +231,9 @@ namespace CatSAT
                 {
                     if (firstClause)
                         firstClause = false;
-                    else
-                        b.Append(" & ");
 
+                    if (c.MinDisjunctsMinusOne != 0 || c.MaxDisjunctsPlusOne <= c.Disjuncts.Length)
+                        b.Append($"{c.MinDisjunctsMinusOne + 1} ");
                     var firstLit = true;
                     foreach (var d in c.Disjuncts)
                     {
@@ -246,7 +246,42 @@ namespace CatSAT
                         b.Append(SATVariables[Math.Abs(d)].Proposition);
                     }
 
+                    if (c.MaxDisjunctsPlusOne <= c.Disjuncts.Length)
+                        b.Append($" {c.MaxDisjunctsPlusOne - 1}");
+
+                    b.AppendLine();
+
                 }
+
+                foreach (var v in SATVariables)
+                    if (v.IsPredetermined)
+                    {
+                        var propositionName = v.Proposition.Name.ToString();
+                        b.Append(v.PredeterminedValue ? propositionName : "!" + propositionName);
+
+                        switch (v.DeterminionState)
+                        {
+                            case SATVariable.DeterminationState.Fixed:
+                                b.AppendLine(" // fixed");
+                                break;
+
+                            case SATVariable.DeterminationState.Inferred:
+                                b.AppendLine(" // inferred");
+                                break;
+
+                            case SATVariable.DeterminationState.Floating:
+                                b.AppendLine(" // floating");
+                                break;
+
+                            case SATVariable.DeterminationState.Set:
+                                b.AppendLine(" // set");
+                                break;
+
+                            default:
+                                b.AppendLine(" // unknown DeterminationState !");
+                                break;
+                        }
+                    }
 
                 return b.ToString();
             }
@@ -450,6 +485,10 @@ namespace CatSAT
         /// </summary>
         private void AddClause(Clause clause)
         {
+            foreach (var c in Clauses)
+                if (c.Hash == clause.Hash && c == clause)
+                    return;
+
             clause.Index = (ushort)Clauses.Count;
             Clauses.Add(clause);
 
@@ -573,7 +612,7 @@ namespace CatSAT
                 } else if (s.Utility > best.Utility)
                     best.CopyFrom(s);
 
-                if (!BooleanSolver.ImproveUtility())
+                if (!BooleanSolver.ImproveUtility(5))
                     // We have an optimal solution
                     return best;
                 flips = unused;

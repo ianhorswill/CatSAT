@@ -54,6 +54,8 @@ namespace CatSAT
         /// </summary>
         public readonly ushort MaxDisjunctsPlusOne;
 
+        public readonly int Hash;
+
         /// <summary>
         /// Position in the Problem's Clauses list.
         /// </summary>
@@ -97,6 +99,7 @@ namespace CatSAT
                 throw new ArgumentException("Nonstandard clause has non-unique disjuncts");
             MinDisjunctsMinusOne = (short)(min-1);
             MaxDisjunctsPlusOne = (ushort)(max == 0 ? disjuncts.Length+1 : max+1);
+            Hash = ComputeHash();
         }
 
         /// <summary>
@@ -154,6 +157,39 @@ namespace CatSAT
                 b.Append(problem.SATVariables[Math.Abs(d)].Proposition.Name);
             }
             return b.ToString();
+        }
+
+        private int ComputeHash()
+        {
+            var hash = 0;
+            foreach (var disjunct in Disjuncts)
+            {
+                var rotHash = hash << 1 | ((hash >> 31) & 1);
+                hash = rotHash ^ disjunct;
+            }
+
+            return hash;
+        }
+
+        public override int GetHashCode() => Hash;
+
+        public static bool operator ==(Clause a, Clause b)
+        {
+            if (a.MaxDisjunctsPlusOne != b.MaxDisjunctsPlusOne)
+                return false;
+            if (a.MinDisjunctsMinusOne != b.MinDisjunctsMinusOne)
+                return false;
+            if (a.Disjuncts.Length != b.Disjuncts.Length)
+                return false;
+            for (var i = 0; i < a.Disjuncts.Length; i++)
+                if (a.Disjuncts[i] != b.Disjuncts[i])
+                    return false;
+            return true;
+        }
+
+        public static bool operator !=(Clause a, Clause b)
+        {
+            return !(a == b);
         }
     }
 }
