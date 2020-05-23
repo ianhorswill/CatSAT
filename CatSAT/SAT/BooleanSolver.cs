@@ -464,13 +464,14 @@ namespace CatSAT
         /// TODO: Make this actually be efficient
         /// </summary>
         /// <returns>True if solution wasn't already the maximum possible utility</returns>
-        internal bool ImproveUtility()
+        internal bool ImproveUtility(int propCount)
         {
             if (improvablePropositions.Size == 0)
                 return false;
 
-            // Randomly flip one
-            Flip(improvablePropositions.RandomElement);
+            for (var i = 0; i < propCount && improvablePropositions.Size > 0; i++)
+                // Randomly flip one
+                Flip(improvablePropositions.RandomElement);
             return true;
         }
 
