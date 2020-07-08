@@ -232,7 +232,7 @@ namespace CatSAT
                     if (firstClause)
                         firstClause = false;
 
-                    if (c.MinDisjunctsMinusOne != 0 || c.MaxDisjunctsPlusOne <= c.Disjuncts.Length)
+                    if (c.MinDisjunctsMinusOne != 0 || c.MaxDisjunctsPlusOne < c.Disjuncts.Length+1)
                         b.Append($"{c.MinDisjunctsMinusOne + 1} ");
                     var firstLit = true;
                     foreach (var d in c.Disjuncts)
@@ -246,7 +246,7 @@ namespace CatSAT
                         b.Append(SATVariables[Math.Abs(d)].Proposition);
                     }
 
-                    if (c.MaxDisjunctsPlusOne <= c.Disjuncts.Length)
+                    if (c.MaxDisjunctsPlusOne < c.Disjuncts.Length+1)
                         b.Append($" {c.MaxDisjunctsPlusOne - 1}");
 
                     b.AppendLine();
