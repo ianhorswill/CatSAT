@@ -518,7 +518,30 @@ namespace CatSAT
             return indices;
         }
         #endregion
+        
+#region Extension Hook
+        /// <summary>
+        /// Delegate used for pre-setting variables in a solution. 
+        /// </summary>
+        public delegate void PreSetHandler(Solution s);
 
+        /// <summary>
+        /// Event used for pre-setting variables in a solution. 
+        /// </summary>
+        public event PreSetHandler InitializeTruthAssignment;
+
+        /// <summary>
+        /// Clears all InitializeTruthAssignment events. 
+        /// </summary>
+        public void ClearInitializeTruthAssignment()
+        {
+            if (InitializeTruthAssignment == null) return;
+            foreach (var d in InitializeTruthAssignment.GetInvocationList())
+            {
+                InitializeTruthAssignment -= (PreSetHandler) d;
+            }
+        }
+        #endregion
 
         /// <summary>
         /// Return a Solution to the Problem.
@@ -531,6 +554,9 @@ namespace CatSAT
         {
             PrepareToSolve();
             var s = new Solution(this);
+
+            //Pre-set certain solution if applicable
+            InitializeTruthAssignment?.Invoke(s);
 
             if (TheorySolvers != null)
                 foreach (var pair in TheorySolvers)
