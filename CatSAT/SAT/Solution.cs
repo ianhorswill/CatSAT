@@ -26,6 +26,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -124,7 +125,7 @@ namespace CatSAT
         /// <param name="truth">Value of the proposition</param>
         public void SetProposition(ushort index, bool truth)
         {
-            Propositions[index] = truth; 
+            Propositions[index] = truth;
         }
 
         /// <summary>

@@ -555,9 +555,6 @@ namespace CatSAT
             PrepareToSolve();
             var s = new Solution(this);
 
-            //Pre-set certain solution if applicable
-            InitializeTruthAssignment?.Invoke(s);
-
             if (TheorySolvers != null)
                 foreach (var pair in TheorySolvers)
                     pair.Value.PropagatePredetermined(s);
@@ -598,7 +595,7 @@ namespace CatSAT
         private bool SolveOne(Solution s, int timeout)
         {
             // Note: this also calls the theory solver(s), if needed
-            if (BooleanSolver.Solve(s, timeout, out var remaining))
+            if (BooleanSolver.Solve(s, InitializeTruthAssignment, timeout, out var remaining))
             {
 #if PerformanceStatistics
                 SolveTimeMicroseconds.AddReading(BooleanSolver.SolveTimeMicroseconds);
@@ -628,7 +625,7 @@ namespace CatSAT
             PrepareToSolve();
             Solution best = null;
             var s = new Solution(this);
-            while (flips > 0 && BooleanSolver.Solve(s, flips, out var unused, best != null))
+            while (flips > 0 && BooleanSolver.Solve(s, InitializeTruthAssignment, flips, out var unused, best != null))
             {
                 // Got a solution; see if it's better than the current best.
                 if (best == null)

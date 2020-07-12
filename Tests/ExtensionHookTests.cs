@@ -36,7 +36,7 @@ namespace Tests
 
         public void SetVarX(Solution s)
         {
-            s["x"] = true; 
+            s["x"] = true;
         }
 
         [TestMethod]
@@ -52,10 +52,8 @@ namespace Tests
             {
                 var m = p.Solve();
                 Assert.IsTrue(m.IsTrue("z"));
-                Console.Write(m.IsTrue("x"));
-                if (m.IsTrue("x")) numTrue++; 
+                Assert.IsTrue(m.IsTrue("x"));
             }
-            Console.Write(numTrue);
         }
 
         
