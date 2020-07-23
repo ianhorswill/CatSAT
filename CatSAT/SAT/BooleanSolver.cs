@@ -128,7 +128,7 @@ namespace CatSAT
         /// Implements the WalkSAT algorithm
         /// </summary>
         /// <returns>True if a satisfying assignment was found.</returns>
-        internal bool Solve(Solution s, Problem.PreSetHandler initializeTruthAssignment, int timeout, out int unusedFlips, bool continuePreviousSearch = false)
+        internal bool Solve(Solution s, int timeout, out int unusedFlips, bool continuePreviousSearch = false)
         {
             solution = s;
             propositions = s.Propositions;
@@ -146,15 +146,15 @@ namespace CatSAT
 
             var remainingFlips = timeout;
 
-            restart:
+            s.Problem.ResetPredeterminedValue(); 
+            s.Problem.InvokeInitialization();
+
+        restart:
             // Make a random assignment, unless we've been specifically told to continue from where we were
             if (continuePreviousSearch)
                 continuePreviousSearch = false;
             else
                 MakeRandomAssignment();
-
-            //Pre-set certain solution if applicable
-            initializeTruthAssignment?.Invoke(s);
 
             var flipsSinceImprovement = 0;
             var wp = 0f;

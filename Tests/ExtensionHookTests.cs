@@ -34,9 +34,9 @@ namespace Tests
     public class ExtensionHookTests
     {
 
-        public void SetVarX(Solution s)
+        public void SetVarX(Problem p)
         {
-            s["x"] = true;
+            p.SetPredeterminedValue("x", true, SATVariable.DeterminationState.Preinitialized); 
         }
 
         [TestMethod]
@@ -47,7 +47,6 @@ namespace Tests
             p.AddClause("z");
             p.InitializeTruthAssignment += SetVarX;
 
-            int numTrue = 0; 
             for (int i = 0; i < 100; i++)
             {
                 var m = p.Solve();
@@ -56,7 +55,44 @@ namespace Tests
             }
         }
 
-        
+        [TestMethod]
+        public void ForcePreSettingVariablesTest()
+        {
+            var p = new Problem("Force Extension hook test");
+            p.AddClause("x", "y");
+            p.AddClause("x", "z");
+            p.AddClause(Not("x"), "z");
+            p.AddClause(Not("x"), "y");
+            p.InitializeTruthAssignment += SetVarX;
+
+            int numTrue = 0;
+            int numTests = 1000; 
+            for (int i = 0; i < numTests; i++)
+            {
+                var m = p.Solve();
+                if (m.IsTrue("x"))
+                {
+                    numTrue++;
+                }
+            }
+            Console.WriteLine(numTrue);
+            Assert.IsTrue(numTrue == numTests);
+
+            p.ClearInitializeTruthAssignment();
+
+            numTrue = 0;
+            numTests = 1000;
+            for (int i = 0; i < numTests; i++)
+            {
+                var m = p.Solve();
+                if (m.IsTrue("x"))
+                {
+                    numTrue++;
+                }
+            }
+            Console.WriteLine(numTrue);
+            Assert.IsTrue(numTrue != numTests);
+        }
     }
 }
 

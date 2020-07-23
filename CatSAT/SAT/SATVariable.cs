@@ -79,6 +79,10 @@ namespace CatSAT
             /// </summary>
             Floating,
             /// <summary>
+            /// The it's been preset by user as part of InitializeTruthAssignment
+            /// </summary>
+            Preinitialized,
+            /// <summary>
             /// The optimizer determined this from other set or fixed variables
             /// </summary>
             Inferred,

@@ -523,12 +523,38 @@ namespace CatSAT
         /// <summary>
         /// Delegate used for pre-setting variables in a solution. 
         /// </summary>
-        public delegate void PreSetHandler(Solution s);
+        public delegate void PreSetHandler(Problem p);
 
         /// <summary>
         /// Event used for pre-setting variables in a solution. 
         /// </summary>
         public event PreSetHandler InitializeTruthAssignment;
+
+        /// <summary>
+        /// Method used for running all registered events. 
+        /// </summary>
+        public void InvokeInitialization()
+        {
+            InitializeTruthAssignment?.Invoke(this);
+        }
+
+        /// <summary>
+        /// Method used for resetting all predetermined values. 
+        /// </summary>
+        public void ResetPredeterminedValue()
+        {
+            for (int i = 0; i < SATVariables.Count; i++)
+            {
+                if (SATVariables[i].DeterminionState == SATVariable.DeterminationState.Preinitialized)
+                {
+                    var v = SATVariables[i];
+                    v.DeterminionState = SATVariable.DeterminationState.Floating;
+                    v.PredeterminedValue = SATVariables[i].PredeterminedValue;
+                    SATVariables[i] = v;
+                }
+            }
+
+        }
 
         /// <summary>
         /// Clears all InitializeTruthAssignment events. 
@@ -595,7 +621,7 @@ namespace CatSAT
         private bool SolveOne(Solution s, int timeout)
         {
             // Note: this also calls the theory solver(s), if needed
-            if (BooleanSolver.Solve(s, InitializeTruthAssignment, timeout, out var remaining))
+            if (BooleanSolver.Solve(s, timeout, out var remaining))
             {
 #if PerformanceStatistics
                 SolveTimeMicroseconds.AddReading(BooleanSolver.SolveTimeMicroseconds);
@@ -625,7 +651,7 @@ namespace CatSAT
             PrepareToSolve();
             Solution best = null;
             var s = new Solution(this);
-            while (flips > 0 && BooleanSolver.Solve(s, InitializeTruthAssignment, flips, out var unused, best != null))
+            while (flips > 0 && BooleanSolver.Solve(s, flips, out var unused, best != null))
             {
                 // Got a solution; see if it's better than the current best.
                 if (best == null)
@@ -690,12 +716,12 @@ namespace CatSAT
             }
         }
 
-        private void SetPredeterminedValue(Proposition p, bool value, SATVariable.DeterminationState s)
+        internal void SetPredeterminedValue(Proposition p, bool value, SATVariable.DeterminationState s)
         {
             SetPredeterminedValue(p.Index, value, s);
         }
 
-        private void SetPredeterminedValue(int index, bool value, SATVariable.DeterminationState s)
+        internal void SetPredeterminedValue(int index, bool value, SATVariable.DeterminationState s)
         {
             var v = SATVariables[index];
             v.DeterminionState = s;
