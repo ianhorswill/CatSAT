@@ -146,7 +146,7 @@ namespace CatSAT
 
             var remainingFlips = timeout;
 
-            s.Problem.ResetPredeterminedValue(); 
+            s.Problem.ResetPreinitialization(); 
             s.Problem.InvokeInitialization();
 
         restart:
@@ -482,7 +482,8 @@ namespace CatSAT
         /// Check the invariant that totalUtility == the sum of the utilities of all true propositions
         /// </summary>
         [Conditional("DEBUG")]
-        void CheckUtility()
+        // ReSharper disable once UnusedMember.Local
+        private void CheckUtility()
         {
             #if DEBUG
             var sum = 0.0f;
@@ -549,6 +550,7 @@ namespace CatSAT
             private readonly ushort[] indices;
             public ushort Size;
 
+            // ReSharper disable once UnusedMember.Local
             public ushort this[int i]
             {
                 get => contents[i];

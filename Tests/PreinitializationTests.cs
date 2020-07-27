@@ -31,7 +31,7 @@ using static CatSAT.Language;
 namespace Tests
 {
     [TestClass]
-    public class ExtensionHookTests
+    public class PreinitializationTests
     {
 
         public void SetVarX(Problem p)
@@ -59,11 +59,20 @@ namespace Tests
         public void ForcePreSettingVariablesTest()
         {
             var p = new Problem("Force Extension hook test");
+            var preset = true;
+
+            void MaybeSetVarX(Problem _)
+            {
+                // ReSharper disable once AccessToModifiedClosure
+                if (preset)
+                    p.SetPredeterminedValue("x", true, SATVariable.DeterminationState.Preinitialized);
+            }
+
             p.AddClause("x", "y");
             p.AddClause("x", "z");
             p.AddClause(Not("x"), "z");
             p.AddClause(Not("x"), "y");
-            p.InitializeTruthAssignment += SetVarX;
+            p.InitializeTruthAssignment += MaybeSetVarX;
 
             int numTrue = 0;
             int numTests = 1000; 
@@ -78,7 +87,7 @@ namespace Tests
             Console.WriteLine(numTrue);
             Assert.IsTrue(numTrue == numTests);
 
-            p.ClearInitializeTruthAssignment();
+            preset = false;
 
             numTrue = 0;
             numTests = 1000;
