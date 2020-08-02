@@ -188,7 +188,7 @@ namespace Tests
             p.AddClause(2, 2, "w", "x", "y", "z");
             p.AddClause(1, 1, "x", "y");
             p.AddClause("w");
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 10; i++)
             {
                 var m = p.Solve();
                 var count = 0;
