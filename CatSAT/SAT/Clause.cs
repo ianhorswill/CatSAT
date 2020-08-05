@@ -84,8 +84,9 @@ namespace CatSAT
         /// <summary>
         /// True if this is a plain old boring disjunction
         /// </summary>
-        public bool IsNormalDisjunction => MinDisjunctsMinusOne == 0 && MaxDisjunctsPlusOne == Disjuncts.Length+1;
+        public bool IsNormalDisjunction => MinDisjunctsMinusOne == 0 && MaxDisjunctsPlusOne >= Disjuncts.Length+1;
 
+        
         /// <summary>
         /// Make a new clause (but doesn't add it to a Program)
         /// </summary>

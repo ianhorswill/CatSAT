@@ -176,19 +176,23 @@ namespace CatSAT
                 lastFlip[targetClauseIndex] = flipChoice;
                 var oldSatisfactionCount = unsatisfiedClauses.Size;
                 Flip(flipChoice);
-                if (unsatisfiedClauses.Size < oldSatisfactionCount)
+                //do NOT update noise level if it's a Pseudo Boolean Constraint (i.e. not normal)
+                if (targetClause.IsNormalDisjunction)
                 {
-                    // Improvement
-                    flipsSinceImprovement = 0;
-                    wp = wp * (1 - Phi / 2);
-                }
-                else
-                {
-                    flipsSinceImprovement++;
-                    if (flipsSinceImprovement > Problem.Clauses.Count / Theta)
+                    if (unsatisfiedClauses.Size < oldSatisfactionCount)
                     {
-                        wp = wp + (1 - wp) * Phi;
+                        // Improvement
                         flipsSinceImprovement = 0;
+                        wp = wp * (1 - Phi / 2);
+                    }
+                    else
+                    {
+                        flipsSinceImprovement++;
+                        if (flipsSinceImprovement > Problem.Clauses.Count / Theta)
+                        {
+                            wp = wp + (1 - wp) * Phi;
+                            flipsSinceImprovement = 0;
+                        }
                     }
                 }
             }

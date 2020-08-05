@@ -36,6 +36,9 @@
     <Prefer32Bit>false</Prefer32Bit>
     <DocumentationFile>bin\Release\CatSAT.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -61,6 +64,11 @@
     <Compile Include="NonBoolean\SMT\MenuVariables\MenuSolver.cs" />
     <Compile Include="NonBoolean\SMT\MenuVariables\MenuVariable.cs" />
     <Compile Include="NonBoolean\UndefinedVariableException.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="SAT\Assertable.cs" />
     <Compile Include="SAT\Biconditional.cs" />
     <Compile Include="SAT\BooleanSolver.cs" />
@@ -101,6 +109,12 @@
     <Compile Include="NonBoolean\Variable.cs" />
     <Compile Include="NonBoolean\VariableProblemExtensions.cs" />
     <Compile Include="NonBoolean\VariableType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
