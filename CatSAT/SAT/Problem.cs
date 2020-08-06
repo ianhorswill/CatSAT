@@ -723,6 +723,16 @@ namespace CatSAT
         }
 
         /// <summary>
+        /// Used to specify an initial value to be used by the solver for this one particular run of the solver.
+        /// </summary>
+        /// <param name="p">Proposition to assign a value to</param>
+        /// <param name="value">Truth value to assign to the proposition</param>
+        public void SetPreinitializedValue(Proposition p, bool value)
+        {
+            SetPredeterminedValue(p, value, SATVariable.DeterminationState.Preinitialized);
+        }
+
+        /// <summary>
         /// Asserts that the head must be true in any solution in which the body is true
         /// Assertions are immutable: they cannot be changed or reset
         /// Assertions cannot be added after the first call to Solve()
