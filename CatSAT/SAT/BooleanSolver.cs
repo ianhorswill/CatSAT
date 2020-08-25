@@ -66,17 +66,17 @@ namespace CatSAT
         /// States of the different propositions of the Program, indexed by proposition number.
         /// IMPORTANT: this is a cache of solution.Propositions.
         /// </summary>
-        private bool[] propositions;
+        public bool[] propositions;
 
         /// <summary>
         /// Number of presently true disjuncts in each of the Program's clauses, index by clause number.
         /// </summary>
-        private readonly ushort[] trueDisjunctCount;
+        public readonly ushort[] trueDisjunctCount;
 
         /// <summary>
         /// Last flipped disjunct of a given clause
         /// </summary>
-        private readonly ushort[] lastFlip;
+        public readonly ushort[] lastFlip;
 
         /// <summary>
         /// Total number of unsatisfied clauses
@@ -92,6 +92,7 @@ namespace CatSAT
         /// The total utility of all the true propositions in the solution.
         /// </summary>
         private float totalUtility;
+
         #endregion
 
         internal BooleanSolver(Problem problem)
@@ -169,7 +170,7 @@ namespace CatSAT
                     flipChoice = (ushort) Math.Abs(targetClause.Disjuncts.RandomElement());
                 else
                     // Hill climb: pick an unsatisfied clause at random and flip one of its variables;
-                    flipChoice = GreedyFlip(TooFewTrue(targetClauseIndex), targetClause.Disjuncts, lastFlip[targetClauseIndex]);
+                    flipChoice = targetClause.GreedyFlip(this);
                 lastFlip[targetClauseIndex] = flipChoice;
                 var oldSatisfactionCount = unsatisfiedClauses.Size;
                 Flip(flipChoice);
@@ -221,10 +222,14 @@ namespace CatSAT
         /// <param name="disjuncts">Signed indices of the disjuncts of the clause</param>
         /// <param name="lastFlipOfThisClause">Variable that was last chosen for flipping in this clause.</param>
         /// <returns>Index of the prop to flip</returns>
-        private ushort GreedyFlip(bool increaseTrueDisjuncts, short[] disjuncts, ushort lastFlipOfThisClause)
+        /*private ushort GreedyFlip(ushort targetClauseIndex)
         {
             var bestCount = int.MaxValue;
             var best = 0;
+            bool increaseTrueDisjuncts = TooFewTrue(targetClauseIndex);
+            short[] disjuncts = Problem.Clauses[targetClauseIndex].Disjuncts;
+
+            ushort lastFlipOfThisClause = lastFlip[targetClauseIndex];
 #if RANDOMIZE
             // Walk disjuncts in a reasonably random order
             var dCount = (uint)disjuncts.Length;
@@ -267,13 +272,14 @@ namespace CatSAT
                 return (ushort)Math.Abs(disjuncts.RandomElement());
             return (ushort)best;
         }
+        */
 
         /// <summary>
         /// The increase in the number of unsatisfied clauses as a result of flipping the specified variable
         /// </summary>
         /// <param name="pIndex">Index of the variable to consider flipping</param>
         /// <returns>The signed increase in the number of unsatisfied clauses</returns>
-        int UnsatisfiedClauseDelta(ushort pIndex)
+        public int UnsatisfiedClauseDelta(ushort pIndex)
         {
             int threatCount = 0;
             var prop = Problem.SATVariables[pIndex];
