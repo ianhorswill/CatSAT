@@ -22,7 +22,6 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-#define RANDOMIZE
 
 using System;
 using System.Collections.Generic;
@@ -66,17 +65,17 @@ namespace CatSAT
         /// States of the different propositions of the Program, indexed by proposition number.
         /// IMPORTANT: this is a cache of solution.Propositions.
         /// </summary>
-        public bool[] propositions;
+        public bool[] Propositions;
 
         /// <summary>
         /// Number of presently true disjuncts in each of the Program's clauses, index by clause number.
         /// </summary>
-        public readonly ushort[] trueDisjunctCount;
+        public readonly ushort[] TrueDisjunctCount;
 
         /// <summary>
         /// Last flipped disjunct of a given clause
         /// </summary>
-        public readonly ushort[] lastFlip;
+        public readonly ushort[] LastFlip;
 
         /// <summary>
         /// Total number of unsatisfied clauses
@@ -98,9 +97,9 @@ namespace CatSAT
         internal BooleanSolver(Problem problem)
         {
             Problem = problem;
-            var clausesCount = problem.Clauses.Count;
-            trueDisjunctCount = new ushort[clausesCount];
-            lastFlip = new ushort[clausesCount];
+            var clausesCount = problem.Constraints.Count;
+            TrueDisjunctCount = new ushort[clausesCount];
+            LastFlip = new ushort[clausesCount];
             unsatisfiedClauses = new DynamicUShortSet(clausesCount);
             improvablePropositions = new DynamicUShortSet(problem.SATVariables.Count);
 
@@ -132,8 +131,8 @@ namespace CatSAT
         internal bool Solve(Solution s, int timeout, out int unusedFlips, bool continuePreviousSearch = false)
         {
             solution = s;
-            propositions = s.Propositions;
-            if (propositions.Length == 1 && Problem.TheorySolvers == null)
+            Propositions = s.Propositions;
+            if (Propositions.Length == 1 && Problem.TheorySolvers == null)
                 // Trivial problem, since propositions[0] isn't a real proposition.
             {
                 unusedFlips = timeout;
@@ -164,7 +163,7 @@ namespace CatSAT
             {
                 // Hill climb: pick an unsatisfied clause at random and flip one of its variables
                 var targetClauseIndex = unsatisfiedClauses.RandomElement;
-                var targetClause = Problem.Clauses[targetClauseIndex];
+                var targetClause = Problem.Constraints[targetClauseIndex];
                 ushort flipChoice;
 
                 if (Random.InRange(100) < 100 * wp)
@@ -174,7 +173,7 @@ namespace CatSAT
                 else
                     // Hill climb: pick an unsatisfied clause at random and flip one of its variables;
                     flipChoice = targetClause.GreedyFlip(this);
-                lastFlip[targetClauseIndex] = flipChoice;
+                LastFlip[targetClauseIndex] = flipChoice;
                 var oldSatisfactionCount = unsatisfiedClauses.Size;
                 Flip(flipChoice);
                 //do NOT update noise level if it's a Pseudo Boolean Constraint (i.e. not normal)
@@ -189,7 +188,7 @@ namespace CatSAT
                     else
                     {
                         flipsSinceImprovement++;
-                        if (flipsSinceImprovement > Problem.Clauses.Count / Theta)
+                        if (flipsSinceImprovement > Problem.Constraints.Count / Theta)
                         {
                             wp = wp + (1 - wp) * Phi;
                             flipsSinceImprovement = 0;
@@ -213,70 +212,6 @@ namespace CatSAT
             return unsatisfiedClauses.Size == 0;
         }
 
-        private bool TooFewTrue(ushort targetClauseIndex)
-        {
-            return trueDisjunctCount[targetClauseIndex] <= Problem.Clauses[targetClauseIndex].MinDisjunctsMinusOne;
-        }
-
-        /// <summary>
-        /// Find the proposition from the specified clause that will do the least damage to the clauses that are already satisfied.
-        /// </summary>
-        /// <param name="increaseTrueDisjuncts">If true, the clause has too few disjuncts true</param>
-        /// <param name="disjuncts">Signed indices of the disjuncts of the clause</param>
-        /// <param name="lastFlipOfThisClause">Variable that was last chosen for flipping in this clause.</param>
-        /// <returns>Index of the prop to flip</returns>
-        /*private ushort GreedyFlip(ushort targetClauseIndex)
-        {
-            var bestCount = int.MaxValue;
-            var best = 0;
-            bool increaseTrueDisjuncts = TooFewTrue(targetClauseIndex);
-            short[] disjuncts = Problem.Clauses[targetClauseIndex].Disjuncts;
-
-            ushort lastFlipOfThisClause = lastFlip[targetClauseIndex];
-#if RANDOMIZE
-            // Walk disjuncts in a reasonably random order
-            var dCount = (uint)disjuncts.Length;
-            var index = Random.InRange(dCount);
-            uint prime;
-            do prime = Random.Prime(); while (prime <= dCount);
-            for (var i = 0; i < dCount; i++)
-            {
-                var value = disjuncts[index];
-                index = (index + prime) % dCount;
-#else
-                foreach (var value in disjuncts)
-            {
-#endif
-                var selectedVar = (ushort)Math.Abs(value);
-                var truth = propositions[selectedVar];
-                if (value < 0) truth = !truth;
-                if (truth == increaseTrueDisjuncts)
-                    // This is already the right polarity
-                    continue;
-
-                if (selectedVar == lastFlipOfThisClause)
-                    continue;
-                var threatCount = UnsatisfiedClauseDelta(selectedVar);
-                if (threatCount <= 0)
-                    // Fast path - we've found an improvement; take it
-                    // Real WalkSAT would continue searching for the best possible choice, but this
-                    // gives better performance in my tests
-                    // TODO - see if a faster way of computing ThreatenedClauseCount would improve things.
-                    return selectedVar;
-
-                if (threatCount < bestCount)
-                {
-                    best = selectedVar;
-                    bestCount = threatCount;
-                }
-            }
-
-            if (best == 0)
-                return (ushort)Math.Abs(disjuncts.RandomElement());
-            return (ushort)best;
-        }
-        */
-
         /// <summary>
         /// The increase in the number of unsatisfied clauses as a result of flipping the specified variable
         /// </summary>
@@ -289,7 +224,7 @@ namespace CatSAT
             List<ushort> increasingClauses;
             List<ushort> decreasingClauses;
 
-            if (propositions[pIndex])
+            if (Propositions[pIndex])
             {
                 // prop true -> false
                 increasingClauses = prop.NegativeClauses;
@@ -305,8 +240,8 @@ namespace CatSAT
             foreach (var cIndex in increasingClauses)
             {
                 // This clause is getting one more disjunct
-                var clause = Problem.Clauses[cIndex];
-                var count = trueDisjunctCount[cIndex];
+                var clause = Problem.Constraints[cIndex];
+                var count = TrueDisjunctCount[cIndex];
                 if (clause.OneTooFewDisjuncts(count))
                     threatCount--;
                 else if (clause.OneTooManyDisjuncts((ushort) (count + 1)))
@@ -316,8 +251,8 @@ namespace CatSAT
             foreach (var cIndex in decreasingClauses)
             {
                 // This clause is getting one more disjunct
-                var clause = Problem.Clauses[cIndex];
-                var count = trueDisjunctCount[cIndex];
+                var clause = Problem.Constraints[cIndex];
+                var count = TrueDisjunctCount[cIndex];
                 if (clause.OneTooFewDisjuncts((ushort)(count-1)))
                     threatCount++;
                 else if (clause.OneTooManyDisjuncts(count))
@@ -333,14 +268,14 @@ namespace CatSAT
             //    // For positive literals the satisfied disjunct count would decrease
             //    foreach (var cIndex in prop.PositiveClauses)
             //    {
-            //        if (Problem.Clauses[cIndex].OneTooFewDisjuncts((ushort)(trueDisjunctCount[cIndex] - 1)))
+            //        if (Problem.Constraints[cIndex].OneTooFewDisjuncts((ushort)(trueDisjunctCount[cIndex] - 1)))
             //            threatCount++;
             //    }
 
             //    // For negative literals, the satisfied disjunct count would increase
             //    foreach (var cIndex in prop.NegativeClauses)
             //    {
-            //        if (Problem.Clauses[cIndex].OneTooManyDisjuncts((ushort)(trueDisjunctCount[cIndex] + 1)))
+            //        if (Problem.Constraints[cIndex].OneTooManyDisjuncts((ushort)(trueDisjunctCount[cIndex] + 1)))
             //            threatCount++;
             //    }
             //}
@@ -351,14 +286,14 @@ namespace CatSAT
             //    // For positive literals the satisfied disjunct count would increase
             //    foreach (var cIndex in prop.PositiveClauses)
             //    {
-            //        if (Problem.Clauses[cIndex].OneTooManyDisjuncts((ushort)(trueDisjunctCount[cIndex] + 1)))
+            //        if (Problem.Constraints[cIndex].OneTooManyDisjuncts((ushort)(trueDisjunctCount[cIndex] + 1)))
             //            threatCount++;
             //    }
 
             //    // For negative literals, the satisfied disjunct count would decrease
             //    foreach (var cIndex in prop.NegativeClauses)
             //    {
-            //        if (Problem.Clauses[cIndex].OneTooFewDisjuncts((ushort)(trueDisjunctCount[cIndex] - 1)))
+            //        if (Problem.Constraints[cIndex].OneTooFewDisjuncts((ushort)(trueDisjunctCount[cIndex] - 1)))
             //            threatCount++;
             //    }
             //}
@@ -377,7 +312,7 @@ namespace CatSAT
                 // Can't flip it.
                 return;
 
-            var currentlyTrue = propositions[pIndex];
+            var currentlyTrue = Propositions[pIndex];
             var utility = prop.Proposition.Utility;
             // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (utility != 0)
@@ -398,7 +333,7 @@ namespace CatSAT
                 if (currentlyTrue)
                 {
                     // Flip true -> false
-                    propositions[pIndex] = false;
+                    Propositions[pIndex] = false;
                     totalUtility -= Problem.SATVariables[pIndex].Proposition.Utility;
 
                     // Update the clauses in which this appears as a positive literal
@@ -406,11 +341,11 @@ namespace CatSAT
                     {
                         // prop appears as a positive literal in clause.
                         // We just made it false, so clause now has fewer satisfied disjuncts.
-                        var clause = Problem.Clauses[cIndex];
-                        if (clause.OneTooManyDisjuncts(trueDisjunctCount[cIndex]))
+                        var clause = Problem.Constraints[cIndex];
+                        if (clause.OneTooManyDisjuncts(TrueDisjunctCount[cIndex]))
                             // We just satisfied it
                             unsatisfiedClauses.Remove(cIndex);
-                        var dCount = --trueDisjunctCount[cIndex];
+                        var dCount = --TrueDisjunctCount[cIndex];
                         if (clause.OneTooFewDisjuncts(dCount))
                             // It just transitioned from satisfied to unsatisfied
                             unsatisfiedClauses.Add(cIndex);
@@ -421,11 +356,11 @@ namespace CatSAT
                     {
                         // prop appears as a negative literal in clause.
                         // We just made it false, so clause now has more satisfied disjuncts.
-                        var clause = Problem.Clauses[cIndex];
-                        if (clause.OneTooFewDisjuncts(trueDisjunctCount[cIndex]))
+                        var clause = Problem.Constraints[cIndex];
+                        if (clause.OneTooFewDisjuncts(TrueDisjunctCount[cIndex]))
                             // We just satisfied it
                             unsatisfiedClauses.Remove(cIndex);
-                        var dCount = ++trueDisjunctCount[cIndex];
+                        var dCount = ++TrueDisjunctCount[cIndex];
                         if (clause.OneTooManyDisjuncts(dCount))
                             // It just transitioned from satisfied to unsatisfied
                             unsatisfiedClauses.Add(cIndex);
@@ -434,7 +369,7 @@ namespace CatSAT
                 else
                 {
                     // Flip false -> true
-                    propositions[pIndex] = true;
+                    Propositions[pIndex] = true;
                     totalUtility += Problem.SATVariables[pIndex].Proposition.Utility;
 
                     // Update the clauses in which this appears as a positive literal
@@ -442,11 +377,11 @@ namespace CatSAT
                     {
                         // prop appears as a positive literal in clause.
                         // We just made it true, so clause now has more satisfied disjuncts.
-                        var clause = Problem.Clauses[cIndex];
-                        if (clause.OneTooFewDisjuncts(trueDisjunctCount[cIndex]))
+                        var clause = Problem.Constraints[cIndex];
+                        if (clause.OneTooFewDisjuncts(TrueDisjunctCount[cIndex]))
                             // We just satisfied it
                             unsatisfiedClauses.Remove(cIndex);
-                        var dCount = ++trueDisjunctCount[cIndex];
+                        var dCount = ++TrueDisjunctCount[cIndex];
                         if (clause.OneTooManyDisjuncts(dCount))
                             // It just transitioned from satisfied to unsatisfied
                             unsatisfiedClauses.Add(cIndex);
@@ -457,11 +392,11 @@ namespace CatSAT
                     {
                         // prop appears as a negative literal in clause.
                         // We just made it true, so clause now has fewer satisfied disjuncts.
-                        var clause = Problem.Clauses[cIndex];
-                        if (clause.OneTooManyDisjuncts(trueDisjunctCount[cIndex]))
+                        var clause = Problem.Constraints[cIndex];
+                        if (clause.OneTooManyDisjuncts(TrueDisjunctCount[cIndex]))
                             // We just satisfied it
                             unsatisfiedClauses.Remove(cIndex);
-                        var dCount = --trueDisjunctCount[cIndex];
+                        var dCount = --TrueDisjunctCount[cIndex];
                         if (clause.OneTooFewDisjuncts(dCount))
                             // It just transitioned from satisfied to unsatisfied
                             unsatisfiedClauses.Add(cIndex);
@@ -497,8 +432,8 @@ namespace CatSAT
         {
             #if DEBUG
             var sum = 0.0f;
-            for (var i = 0; i < propositions.Length; i++)
-                if (propositions[i])
+            for (var i = 0; i < Propositions.Length; i++)
+                if (Propositions[i])
                     sum += Problem.SATVariables[i].Proposition.Utility;
             Debug.Assert(Math.Abs(totalUtility - sum) < 0.0001f, "totalUtility incorrect");
             #endif
@@ -516,11 +451,11 @@ namespace CatSAT
             var vars = Problem.SATVariables;
 
             // Initialize propositions[] and compute totalUtility
-            for (ushort i = 0; i < propositions.Length; i++)
+            for (ushort i = 0; i < Propositions.Length; i++)
             {
                 var satVar = vars[i];
                 var truth = satVar.IsPredetermined?satVar.PredeterminedValue:satVar.RandomInitialState;
-                propositions[i] = truth;
+                Propositions[i] = truth;
                 var utility = satVar.Proposition.Utility;
                 if (truth ^ utility > 0)
                     improvablePropositions.Add(i);
@@ -531,11 +466,11 @@ namespace CatSAT
             unsatisfiedClauses.Clear();
 
             // Initialize trueDisjunctCount[] and unsatisfiedClauses
-            for (ushort i = 0; i < trueDisjunctCount.Length; i++)
+            for (ushort i = 0; i < TrueDisjunctCount.Length; i++)
             {
-                var c = Problem.Clauses[i];
+                var c = Problem.Constraints[i];
                 var satisfiedDisjuncts = c.CountDisjuncts(solution);
-                trueDisjunctCount[i] = satisfiedDisjuncts;
+                TrueDisjunctCount[i] = satisfiedDisjuncts;
                 if (!c.IsSatisfied(satisfiedDisjuncts))
                     unsatisfiedClauses.Add(i);
             }

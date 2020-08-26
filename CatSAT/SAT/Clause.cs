@@ -24,7 +24,6 @@
 #endregion
 using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 
 namespace CatSAT
@@ -37,32 +36,9 @@ namespace CatSAT
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebugName) + "}")]
 #pragma warning disable 660,661
-    internal class Clause
+    internal class Clause : Constraint
 #pragma warning restore 660,661
     {
-        /// <summary>
-        /// The literals of the clause
-        /// </summary>
-        internal readonly short[] Disjuncts;
-        /// <summary>
-        /// Minimum number of disjusts that must be true in order for the constraint
-        /// to be satisfied, minus one.  For a normal clause, this is 0 (i.e. the real min number is 1)
-        /// </summary>
-        public readonly short MinDisjunctsMinusOne;
-        /// <summary>
-        /// Maximum number of disjucts that are allowed to be true in order for the
-        /// constraint to be considered satisfied, plus one.
-        /// For a normal clause, there is no limit, so this gets set to Disjuncts.Count+1.
-        /// </summary>
-        public readonly ushort MaxDisjunctsPlusOne;
-
-        public readonly int Hash;
-
-        /// <summary>
-        /// Position in the Problem's Clauses list.
-        /// </summary>
-        internal ushort Index;
-
         internal string DebugName
         {
             get
@@ -84,67 +60,14 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// True if this is a plain old boring disjunction
-        /// </summary>
-        public readonly bool IsNormalDisjunction;
-
-        
-        /// <summary>
         /// Make a new clause (but doesn't add it to a Program)
         /// </summary>
         /// <param name="min">Minimum number of disjuncts that must be true to consider the clause satisfied</param>
         /// <param name="max">Maximum number of disjuncts that are allowed to be true to consider the clause satisfied, or 0 if the is no maximum</param>
         /// <param name="disjuncts">The disjuncts, encoded as signed proposition indices</param>
-        internal Clause(ushort min, ushort max, short[] disjuncts)
-        {
-            Disjuncts = disjuncts.Distinct().ToArray();
-            if ((min != 1 || max != 0) && disjuncts.Length != Disjuncts.Length)
-                throw new ArgumentException("Nonstandard clause has non-unique disjuncts");
-            MinDisjunctsMinusOne = (short)(min-1);
-            MaxDisjunctsPlusOne = (ushort)(max == 0 ? disjuncts.Length+1 : max+1);
-            Hash = ComputeHash();
-            IsNormalDisjunction = MinDisjunctsMinusOne == 0 && MaxDisjunctsPlusOne >= Disjuncts.Length + 1;
-        }
+        internal Clause(ushort min, ushort max, short[] disjuncts) : base(min, max, disjuncts, min^max)
+        { }
 
-        /// <summary>
-        /// Return the number of disjuncts that are satisfied in the specified solution (i.e. model).
-        /// </summary>
-        /// <param name="solution">Solution to test against</param>
-        /// <returns>Number of satisfied disjuncts</returns>
-        public ushort CountDisjuncts(Solution solution)
-        {
-            ushort count = 0;
-            foreach (var d in Disjuncts)
-                if (solution.IsTrue(d))
-                    count++;
-            return count;
-        }
-
-        /// <summary>
-        /// Is this constraint satisfied if the specified number of disjuncts is satisfied?
-        /// </summary>
-        /// <param name="satisfiedDisjuncts">Number of satisfied disjuncts</param>
-        /// <returns>Whether the constraint is satisfied.</returns>
-        public bool IsSatisfied(ushort satisfiedDisjuncts)
-        {
-            return satisfiedDisjuncts > MinDisjunctsMinusOne && satisfiedDisjuncts < MaxDisjunctsPlusOne;
-        }
-
-        /// <summary>
-        /// Is the specified number of disjuncts one too many for this constraint to be satisfied?
-        /// </summary>
-        public bool OneTooManyDisjuncts(ushort satisfiedDisjuncts)
-        {
-            return satisfiedDisjuncts == MaxDisjunctsPlusOne;
-        }
-
-        /// <summary>
-        /// Is the specified number of disjuncts one too few for this constraint to be satisfied?
-        /// </summary>
-        public bool OneTooFewDisjuncts(ushort satisfiedDisjuncts)
-        {
-            return satisfiedDisjuncts == MinDisjunctsMinusOne;
-        }
 
         public string Decompile(Problem problem)
         {
@@ -163,40 +86,27 @@ namespace CatSAT
             return b.ToString();
         }
 
-        private int ComputeHash()
-        {
-            var hash = 0;
-            foreach (var disjunct in Disjuncts)
-            {
-                var rotHash = hash << 1 | ((hash >> 31) & 1);
-                hash = rotHash ^ disjunct;
-            }
-
-            return hash;
-        }
-
         public override int GetHashCode() => Hash;
 
-        public static bool operator ==(Clause a, Clause b)
+        internal override bool EquivalentTo(Constraint c)
         {
-            if (a is null || b is null)
-                return ReferenceEquals(a, b);
-            if (a.MaxDisjunctsPlusOne != b.MaxDisjunctsPlusOne)
+            if (!(c is Clause clause))
                 return false;
-            if (a.MinDisjunctsMinusOne != b.MinDisjunctsMinusOne)
+            if (MaxDisjunctsPlusOne != clause.MaxDisjunctsPlusOne)
                 return false;
-            if (a.Disjuncts.Length != b.Disjuncts.Length)
+            if (MinDisjunctsMinusOne != clause.MinDisjunctsMinusOne)
                 return false;
-            for (var i = 0; i < a.Disjuncts.Length; i++)
-                if (a.Disjuncts[i] != b.Disjuncts[i])
+            if (Disjuncts.Length != clause.Disjuncts.Length)
+                return false;
+            for (var i = 0; i < Disjuncts.Length; i++)
+                if (Disjuncts[i] != clause.Disjuncts[i])
                     return false;
             return true;
         }
 
-        public static bool operator !=(Clause a, Clause b)
-        {
-            return !(a == b);
-        }
+        public static bool operator ==(Clause a, Clause b) => a?.EquivalentTo(b) ?? ReferenceEquals(b, null);
+
+        public static bool operator !=(Clause a, Clause b) => !(a == b);
 
 
         /// <summary>
@@ -204,19 +114,19 @@ namespace CatSAT
         /// </summary>
         /// <param name="b">Current BooleanSolver</param>
         /// <returns>Index of the prop to flip</returns>
-        public ushort GreedyFlip(BooleanSolver b)
+        public override ushort GreedyFlip(BooleanSolver b)
         {
             // If true, the clause has too few disjuncts true
-            bool increaseTrueDisjuncts = b.trueDisjunctCount[Index] <= MinDisjunctsMinusOne;
+            bool increaseTrueDisjuncts = b.TrueDisjunctCount[Index] <= MinDisjunctsMinusOne;
             //Signed indices of the disjuncts of the clause
             short[] disjuncts = Disjuncts;
             //Variable that was last chosen for flipping in this clause
-            ushort lastFlipOfThisClause = b.lastFlip[Index];
+            ushort lastFlipOfThisClause = b.LastFlip[Index];
 
 
             var bestCount = int.MaxValue;
             var best = 0;
-#if RANDOMIZE 
+
             //Walk disjuncts in a reasonably random order
             var dCount = (uint)disjuncts.Length;
             var index = Random.InRange(dCount);
@@ -226,12 +136,8 @@ namespace CatSAT
             {
                 var value = disjuncts[index];
                 index = (index + prime) % dCount;
-#else
-            foreach (var value in disjuncts)
-            {
-#endif
                 var selectedVar = (ushort)Math.Abs(value);
-                var truth = b.propositions[selectedVar];
+                var truth = b.Propositions[selectedVar];
                 if (value < 0) truth = !truth;
                 if (truth == increaseTrueDisjuncts)
                     // This is already the right polarity
@@ -257,6 +163,26 @@ namespace CatSAT
             if (best == 0)
                 return (ushort)Math.Abs(disjuncts.RandomElement());
             return (ushort)best;
+        }
+
+        internal override void Decompile(Problem p, StringBuilder b)
+        {
+            if (MinDisjunctsMinusOne != 0 || MaxDisjunctsPlusOne < Disjuncts.Length + 1)
+                b.Append($"{MinDisjunctsMinusOne + 1} ");
+            var firstLit = true;
+            foreach (var d in Disjuncts)
+            {
+                if (firstLit)
+                    firstLit = false;
+                else
+                    b.Append(" | ");
+                if (d < 0)
+                    b.Append("!");
+                b.Append(p.SATVariables[Math.Abs(d)].Proposition);
+            }
+
+            if (MaxDisjunctsPlusOne < Disjuncts.Length + 1)
+                b.Append($" {MaxDisjunctsPlusOne - 1}");
         }
     }
 }

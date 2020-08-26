@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-#define NewOptimizer
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -40,7 +40,7 @@ namespace CatSAT
     public class Problem
     {
         //
-        // This is basically a storage area for Propositions, Variables, and Clauses (constraints)
+        // This is basically a storage area for Propositions, Variables, and Constraints (constraints)
         // It maintains bookkeeping information about how they all relate to one another and it
         // compiles rules to their clauses.  But otherwise, it's mostly passive.  It doesn't contain
         // the actual SAT solver, which is in the Solution object
@@ -174,7 +174,7 @@ namespace CatSAT
             set
             {
                 _logFile = value;
-                System.IO.File.WriteAllLines(_logFile, new [] {"Name,Create,Compile,Optimize,Clauses,Variables,Floating,SolveMin, SolveMax,SolveAvg,FlipsMin,FlipsMax,FlipsAvg"});
+                System.IO.File.WriteAllLines(_logFile, new [] {"Name,Create,Compile,Optimize,Constraints,Variables,Floating,SolveMin, SolveMax,SolveAvg,FlipsMin,FlipsMax,FlipsAvg"});
             }
 #else
             get => null;
@@ -188,7 +188,7 @@ namespace CatSAT
 #if PerformanceStatistics
             System.IO.File.AppendAllLines(LogFile, new []
             {
-                $"'{Name}',{CreationTime},{CompilationTime},{OptimizationTime},{Clauses.Count},{SATVariables.Count},{SATVariables.Count(v => v.DeterminationStatus == SATVariable.DeterminationState.Floating)},{SolveTimeMicroseconds.Min},{SolveTimeMicroseconds.Max},{SolveTimeMicroseconds.Average},{SolveFlips.Min},{SolveFlips.Max},{SolveFlips.Average}"
+                $"'{Name}',{CreationTime},{CompilationTime},{OptimizationTime},{Constraints.Count},{SATVariables.Count},{SATVariables.Count(v => v.DeterminationStatus == SATVariable.DeterminationState.Floating)},{SolveTimeMicroseconds.Min},{SolveTimeMicroseconds.Max},{SolveTimeMicroseconds.Average},{SolveFlips.Min},{SolveFlips.Max},{SolveFlips.Average}"
             });
 #endif
         }
@@ -216,41 +216,23 @@ namespace CatSAT
             get
             {
                 return
-                    $"{SATVariables.Count} variables, {SATVariables.Count(v => v.DeterminationStatus == SATVariable.DeterminationState.Floating)} floating, {Clauses.Count} clauses";
+                    $"{SATVariables.Count} variables, {SATVariables.Count(v => v.DeterminationStatus == SATVariable.DeterminationState.Floating)} floating, {Constraints.Count} clauses";
             }
         }
         
+        /// <summary>
+        /// Returns a textual representation of the constraints in the problem.
+        /// </summary>
         public string Decompiled
         {
             // ReSharper disable once UnusedMember.Local
             get
             {
                 var b = new StringBuilder();
-                var firstClause = true;
-                foreach (var c in Clauses)
+                foreach (var c in Constraints)
                 {
-                    if (firstClause)
-                        firstClause = false;
-
-                    if (c.MinDisjunctsMinusOne != 0 || c.MaxDisjunctsPlusOne < c.Disjuncts.Length+1)
-                        b.Append($"{c.MinDisjunctsMinusOne + 1} ");
-                    var firstLit = true;
-                    foreach (var d in c.Disjuncts)
-                    {
-                        if (firstLit)
-                            firstLit = false;
-                        else
-                            b.Append(" | ");
-                        if (d < 0)
-                            b.Append("!");
-                        b.Append(SATVariables[Math.Abs(d)].Proposition);
-                    }
-
-                    if (c.MaxDisjunctsPlusOne < c.Disjuncts.Length+1)
-                        b.Append($" {c.MaxDisjunctsPlusOne - 1}");
-
+                    c.Decompile(this, b);
                     b.AppendLine();
-
                 }
 
                 foreach (var v in SATVariables)
@@ -331,7 +313,7 @@ namespace CatSAT
         /// The constraints in the Problem.
         /// Most of these are normal clauses (disjunctions), but other cardinality constraints are possible.
         /// </summary>
-        internal readonly List<Clause> Clauses = new List<Clause>();
+        internal readonly List<Constraint> Constraints = new List<Constraint>();
 
         internal readonly List<ushort> FloatingVariables = new List<ushort>();
 
@@ -460,7 +442,7 @@ namespace CatSAT
 
 #region Clause management
         /// <summary>
-        /// Forcibly add a clause to the Problem.
+        /// Forcibly add a constraint to the Problem.
         /// </summary>
         internal Clause AddClause(params Literal[] disjuncts)
         {
@@ -468,7 +450,7 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// Forcibly add a clause to the Problem.
+        /// Forcibly add a constraint to the Problem.
         /// </summary>
         internal Clause AddClause(ushort min, ushort max, params Literal[] disjuncts)
         {
@@ -481,20 +463,20 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// Forcibly add a clause to the Problem.
+        /// Forcibly add a constraint to the Problem.
         /// </summary>
-        private void AddClause(Clause clause)
+        private void AddClause(Constraint constraint)
         {
-            foreach (var c in Clauses)
-                if (c.Hash == clause.Hash && c == clause)
+            foreach (var c in Constraints)
+                if (c.Hash == constraint.Hash && c.EquivalentTo(constraint))
                     return;
 
-            clause.Index = (ushort)Clauses.Count;
-            Clauses.Add(clause);
+            constraint.Index = (ushort)Constraints.Count;
+            Constraints.Add(constraint);
 
-            // Add the clause to the appropriate clause list for all the propositions that appear in the clause
-            var clauseIndex = (ushort) (Clauses.Count - 1);
-            foreach (var lit in clause.Disjuncts)
+            // Add the constraint to the appropriate constraint list for all the propositions that appear in the constraint
+            var clauseIndex = (ushort) (Constraints.Count - 1);
+            foreach (var lit in constraint.Disjuncts)
             {
                 if (lit > 0)
                     SATVariables[lit].PositiveClauses.Add(clauseIndex);
@@ -717,6 +699,9 @@ namespace CatSAT
             SATVariables[index] = v;
         }
 
+        /// <summary>
+        /// Declares a value for the proposition that has been inferred as part of the optimization process.
+        /// </summary>
         public void SetInferredValue(Proposition p, bool value)
         {
             SetPredeterminedValue(p, value, SATVariable.DeterminationState.Inferred);
@@ -746,7 +731,7 @@ namespace CatSAT
             {
                 if (!(bool)p)
                     AddClause(CompileNegatedConjunction(implication.Body));
-                // Otherwise h is always true, so don't bother adding a clause
+                // Otherwise h is always true, so don't bother adding a constraint
                 return;
             }
             AddClause(CompileImplication(implication));
@@ -1069,10 +1054,10 @@ namespace CatSAT
             }
 
             if (min - trueCount > set.Count)
-                throw new ContradictionException(this, "Minimum in quantification is larger than the number of non-false elements in the clause");
+                throw new ContradictionException(this, "Minimum in quantification is larger than the number of non-false elements in the constraint");
 
             if (max > 0 && trueCount > max)
-                throw new ContradictionException(this, "Quantification clause can never be satisfied");
+                throw new ContradictionException(this, "Quantification constraint can never be satisfied");
 
             if (max > 0 && max == trueCount)
             {
@@ -1411,8 +1396,6 @@ namespace CatSAT
 #endregion
 
 #region Optimization (unit resolution)
-        
-#if NewOptimizer
         /// <summary>
         /// Performs unit resolution, aka Boolean constraint propagation aka constant folding on the clauses of the problem.
         /// </summary>
@@ -1426,25 +1409,25 @@ namespace CatSAT
 #endif
             ResetInferredPropositions();
 
-            // The number of literals in clause whose values aren't yet known.
-            // Or -1 if this clause now compile-time true.
-            var counts = new short[Clauses.Count];
+            // The number of literals in constraint whose values aren't yet known.
+            // Or -1 if this constraint now compile-time true.
+            var counts = new short[Constraints.Count];
 
-            short UndeterminedDisjunctCount(Clause c)
+            short UndeterminedDisjunctCount(Constraint c)
             {
                 if (counts[c.Index] != 0)
                     return counts[c.Index];
                 if (!c.IsNormalDisjunction)
-                    // Ignore this clause
+                    // Ignore this constraint
                     return counts[c.Index] = -1;
                 var count = CountUndeterminedDisjuncts(c);
                 counts[c.Index] = count;
                 return count;
             }
 
-            var walkQueue = new Queue<Clause>();
+            var walkQueue = new Queue<Constraint>();
 
-            void Walk(Clause c)
+            void Walk(Constraint c)
             {
                 var d = UndeterminedDisjunctCount(c);
                 if (d == 1)
@@ -1465,14 +1448,14 @@ namespace CatSAT
                             if (counts[dependent] == 0)
                                 // Never got initialized
                                 // Note we don't have to decrement because the call below sees that v is not predetermined.
-                                counts[dependent] = UndeterminedDisjunctCount(Clauses[dependent]);
+                                counts[dependent] = UndeterminedDisjunctCount(Constraints[dependent]);
                             else
                                 counts[dependent]--;
                             if (counts[dependent] == 0)
-                                throw new ContradictionException(this, Clauses[dependent]);
+                                throw new ContradictionException(this, Constraints[dependent]);
 
                             if (counts[dependent] == 1)
-                                walkQueue.Enqueue(Clauses[dependent]);
+                                walkQueue.Enqueue(Constraints[dependent]);
                         }
                     }
                     else
@@ -1489,22 +1472,22 @@ namespace CatSAT
                             if (counts[dependent] == 0)
                                 // Never got initialized
                                 // Note we don't have to decrement because the call below sees that v is not predetermined.
-                                counts[dependent] = UndeterminedDisjunctCount(Clauses[dependent]);
+                                counts[dependent] = UndeterminedDisjunctCount(Constraints[dependent]);
                             else
                                 counts[dependent]--;
                             if (counts[dependent] == 0)
-                                throw new ContradictionException(this, Clauses[dependent]);
+                                throw new ContradictionException(this, Constraints[dependent]);
                             if (counts[dependent] == 1)
-                                walkQueue.Enqueue(Clauses[dependent]);
+                                walkQueue.Enqueue(Constraints[dependent]);
                         }
                     }
 
-                    // Take this clause out of commission
+                    // Take this constraint out of commission
                     counts[c.Index] = -1;
                 }
             }
             
-            foreach (var c in Clauses)
+            foreach (var c in Constraints)
                 Walk(c);
             while (walkQueue.Count > 0)
                 Walk(walkQueue.Dequeue());
@@ -1516,21 +1499,21 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// Find the first (and presumably only) undetermined disjunct of the clause.
+        /// Find the first (and presumably only) undetermined disjunct of the constraint.
         /// </summary>
-        /// <param name="c">The clause</param>
+        /// <param name="c">The constraint</param>
         /// <returns>Signed index of the disjunct</returns>
-        short UndeterminedDisjunctOf(Clause c)
+        short UndeterminedDisjunctOf(Constraint c)
         {
             foreach (var d in c.Disjuncts)
             {
                 if (!SATVariables[Math.Abs(d)].IsPredetermined)
                     return d;
             }
-            throw new InvalidOperationException("Internal error - UndeterminedDisjunctOf called on clause with no undetermined disjuncts");
+            throw new InvalidOperationException("Internal error - UndeterminedDisjunctOf called on constraint with no undetermined disjuncts");
         }
 
-        short CountUndeterminedDisjuncts(Clause c)
+        short CountUndeterminedDisjuncts(Constraint c)
         {
             short count = 0;
             foreach (var d in c.Disjuncts)
@@ -1543,7 +1526,7 @@ namespace CatSAT
                     {
                         if (v.IsAlwaysTrue)
                         {
-                            // This clause is always pre-satisfied
+                            // This constraint is always pre-satisfied
                             return -1;
                         }
                     }
@@ -1558,7 +1541,7 @@ namespace CatSAT
                     {
                         if (v.IsAlwaysFalse)
                         {
-                            // This clause is always pre-satisfied
+                            // This constraint is always pre-satisfied
                             return -1;
                         }
                     }
@@ -1572,110 +1555,6 @@ namespace CatSAT
 
             return count;
         }
-#else
-        /// <summary>
-        /// Do a simple constant-folding pass over the program.
-        /// This is technically called unit resolution, but it basically means constant folding
-        /// </summary>
-        public void Optimize()
-        {
-            FinishCodeGeneration();
-            ResetInferredPropositions();
-
-            // This is inefficient, but I'm not going to optimize this loop until I know it's worthwhile
-            bool changed;
-            var toBeOptimized = new List<Clause>(Clauses);
-            do
-            {
-                changed = false;
-                foreach (var c in toBeOptimized.ToArray())
-                    switch (UnitPropagate(c))
-                    {
-                        case OptimizationState.Contradiction:
-                            // Compile-time false
-                            throw new ContradictionException(this, c);
-
-                        case OptimizationState.Optimized:
-                            // Just optimized it away
-                            changed = true;
-                            toBeOptimized.Remove(c);
-                            break;
-
-                        case OptimizationState.Ignore:
-                            // Compile-time true; don't need to look at it any more
-                            toBeOptimized.Remove(c);
-                            break;
-                    }
-            } while (changed);
-        }
-
-        enum OptimizationState { InPlay, Ignore, Optimized, Contradiction }
-
-        OptimizationState UnitPropagate(Clause c)
-        {
-            if (!c.IsNormalDisjunction)
-                // Unit resolution is invalid for this clause
-                return OptimizationState.Ignore;
-
-            // Check if clause has exactly one disjunct that isn't verifiably false at compile time
-            short inferred = 0;
-            foreach (var i in c.Disjuncts)
-            {
-                if (i > 0)
-                {
-                    // It's a positive literal
-                    var v = Variables[i];
-                    if (v.IsPredetermined)
-                    {
-                        if (v.PredeterminedValue)
-                            // It's a positive literal and it's true, so no optimization possible
-                            return OptimizationState.Ignore;
-                        // Otherwise, v is always false, so this disjunct is always false
-                        // Move on to the next disjunct
-                    }
-                    else
-                    {
-                        if (inferred != 0)
-                            // We already found a non-constant disjunct, so this is the second one
-                            // and so we can't do anything with this clause
-                            return OptimizationState.InPlay;
-                        inferred = i;
-                    }
-                }
-                else
-                {
-                    // It's a negative literal
-                    var v = Variables[-i];
-                    if (v.IsPredetermined)
-                    {
-                        if (!v.PredeterminedValue)
-                            // It's a negative literal and it's false so no optimization possible
-                            return OptimizationState.Ignore;
-                        // Otherwise, v is always false, so this disjunct is always false
-                        // Move on to the next disjunct
-                    }
-                    else
-                    {
-                        if (inferred != 0)
-                            // We already found a non-constant disjunct, so this is the second one
-                            // and so we can't do anything with this clause
-                            return OptimizationState.InPlay;
-                        inferred = i;
-                    }
-                }
-            }
-
-            // We got through all the disjuncts
-            if (inferred == 0)
-                // All disjuncts are compile-time false!
-                return OptimizationState.Contradiction;
-            if (inferred > 0)
-                SetPredeterminedValue(inferred, true, Variable.DeterminationState.Inferred);
-            else
-                SetPredeterminedValue(-inferred, false, Variable.DeterminationState.Inferred);
-            return OptimizationState.Optimized;
-        }
-#endif
 #endregion
 
 #region Manipulation of predetermined values of variables

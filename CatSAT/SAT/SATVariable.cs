@@ -59,12 +59,12 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// Clauses in which this variable appears unnegated.
+        /// Constraints in which this variable appears unnegated.
         /// Used to know what clauses to check if we flip this variable
         /// </summary>
         public readonly List<ushort> PositiveClauses;
         /// <summary>
-        /// Clauses in which this variable appears negated.
+        /// Constraints in which this variable appears negated.
         /// Used to know what clauses to check if we flip this variable
         /// </summary>
         public readonly List<ushort> NegativeClauses;
