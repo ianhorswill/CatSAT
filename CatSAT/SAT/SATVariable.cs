@@ -45,7 +45,7 @@ namespace CatSAT
             PositiveClauses = new List<ushort>();
             NegativeClauses = new List<ushort>();
             PredeterminedValue = false;
-            DeterminionState = DeterminationState.Floating;
+            DeterminationStatus = DeterminationState.Floating;
         }
 
         /// <summary>
@@ -79,6 +79,10 @@ namespace CatSAT
             /// </summary>
             Floating,
             /// <summary>
+            /// The it's been preset by user as part of InitializeTruthAssignment
+            /// </summary>
+            Preinitialized,
+            /// <summary>
             /// The optimizer determined this from other set or fixed variables
             /// </summary>
             Inferred,
@@ -97,12 +101,12 @@ namespace CatSAT
         /// If floating, then the solver is allowed to choose its value freely.
         /// If any other value, the solver has to use the value in PredeterminedValue.
         /// </summary>
-        public DeterminationState DeterminionState;
+        public DeterminationState DeterminationStatus;
 
         /// <summary>
         /// Whether the value of the variable is fixed.
         /// </summary>
-        public bool IsPredetermined => DeterminionState != DeterminationState.Floating;
+        public bool IsPredetermined => DeterminationStatus != DeterminationState.Floating;
         
         /// <summary>
         /// Value of variable if it is predetermined

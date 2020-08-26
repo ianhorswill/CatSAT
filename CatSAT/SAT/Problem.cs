@@ -34,14 +34,14 @@ namespace CatSAT
 {
     /// <summary>
     /// A logic program.
-    /// Contains a set of prositions, rules for the propositions, and general clauses.
+    /// Contains a set of propositions, rules for the propositions, and general clauses.
     /// </summary>
     [DebuggerDisplay("{" + nameof(Decompiled) + "}")]
     public class Problem
     {
         //
         // This is basically a storage area for Propositions, Variables, and Clauses (constraints)
-        // It maintains bookkeeping information aobut how they all relate to one another and it
+        // It maintains bookkeeping information about how they all relate to one another and it
         // compiles rules to their clauses.  But otherwise, it's mostly passive.  It doesn't contain
         // the actual SAT solver, which is in the Solution object
         //
@@ -86,11 +86,11 @@ namespace CatSAT
         internal readonly Stopwatch Stopwatch = new Stopwatch();
 
         /// <summary>
-        /// Number of microseconds spent in Boolean Constriant Propagation
+        /// Number of microseconds spent in Boolean Constraint Propagation
         /// </summary>
         public float OptimizationTime { get; private set; }
         /// <summary>
-        /// Number of microsections spent computing the completions of rules
+        /// Number of microseconds spent computing the completions of rules
         /// </summary>
         public float CompilationTime { get; private set; }
         /// <summary>
@@ -188,7 +188,7 @@ namespace CatSAT
 #if PerformanceStatistics
             System.IO.File.AppendAllLines(LogFile, new []
             {
-                $"'{Name}',{CreationTime},{CompilationTime},{OptimizationTime},{Clauses.Count},{SATVariables.Count},{SATVariables.Count(v => v.DeterminionState == SATVariable.DeterminationState.Floating)},{SolveTimeMicroseconds.Min},{SolveTimeMicroseconds.Max},{SolveTimeMicroseconds.Average},{SolveFlips.Min},{SolveFlips.Max},{SolveFlips.Average}"
+                $"'{Name}',{CreationTime},{CompilationTime},{OptimizationTime},{Clauses.Count},{SATVariables.Count},{SATVariables.Count(v => v.DeterminationStatus == SATVariable.DeterminationState.Floating)},{SolveTimeMicroseconds.Min},{SolveTimeMicroseconds.Max},{SolveTimeMicroseconds.Average},{SolveFlips.Min},{SolveFlips.Max},{SolveFlips.Average}"
             });
 #endif
         }
@@ -216,7 +216,7 @@ namespace CatSAT
             get
             {
                 return
-                    $"{SATVariables.Count} variables, {SATVariables.Count(v => v.DeterminionState == SATVariable.DeterminationState.Floating)} floating, {Clauses.Count} clauses";
+                    $"{SATVariables.Count} variables, {SATVariables.Count(v => v.DeterminationStatus == SATVariable.DeterminationState.Floating)} floating, {Clauses.Count} clauses";
             }
         }
         
@@ -259,7 +259,7 @@ namespace CatSAT
                         var propositionName = v.Proposition.Name.ToString();
                         b.Append(v.PredeterminedValue ? propositionName : "!" + propositionName);
 
-                        switch (v.DeterminionState)
+                        switch (v.DeterminationStatus)
                         {
                             case SATVariable.DeterminationState.Fixed:
                                 b.AppendLine(" // fixed");
@@ -305,7 +305,7 @@ namespace CatSAT
         public bool Tight = true;
 
         /// <summary>
-        /// Number of timesteps in history, if fluents are used.
+        /// Number of time-steps in history, if fluents are used.
         /// </summary>
         public int TimeHorizon=-1;
 
@@ -386,7 +386,7 @@ namespace CatSAT
             return null;
         }
 
-        private BooleanSolver _booleanSolver;
+        private BooleanSolver booleanSolver;
 
         /// <summary>
         /// The BooleanSolver used by this Problem.
@@ -396,9 +396,9 @@ namespace CatSAT
             get
             {
                 // TODO: maybe this should be eagerly allocated rather than lazy
-                if (_booleanSolver != null)
-                    return _booleanSolver;
-                return _booleanSolver = new BooleanSolver(this);
+                if (booleanSolver != null)
+                    return booleanSolver;
+                return booleanSolver = new BooleanSolver(this);
             }
         }
         internal Dictionary<Type, TheorySolver> TheorySolvers;
@@ -518,7 +518,44 @@ namespace CatSAT
             return indices;
         }
         #endregion
+        
+#region Preinitialization
+        /// <summary>
+        /// Delegate used for pre-setting variables in a solution. 
+        /// </summary>
+        public delegate void PreSetHandler(Problem p);
 
+        /// <summary>
+        /// Called to let user preinitialize truth assignments for solution
+        /// </summary>
+        public event PreSetHandler InitializeTruthAssignment;
+
+        /// <summary>
+        /// Method used for running all registered events. 
+        /// </summary>
+        public void InvokeInitialization()
+        {
+            InitializeTruthAssignment?.Invoke(this);
+        }
+
+        /// <summary>
+        /// Change SATVariables marked preinitialized back to floating.
+        /// </summary>
+        public void ResetPreinitialization()
+        {
+            for (int i = 0; i < SATVariables.Count; i++)
+            {
+                if (SATVariables[i].DeterminationStatus == SATVariable.DeterminationState.Preinitialized)
+                {
+                    var v = SATVariables[i];
+                    v.DeterminationStatus = SATVariable.DeterminationState.Floating;
+                    v.PredeterminedValue = SATVariables[i].PredeterminedValue;
+                    SATVariables[i] = v;
+                }
+            }
+
+        }
+        #endregion
 
         /// <summary>
         /// Return a Solution to the Problem.
@@ -572,7 +609,7 @@ namespace CatSAT
         private bool SolveOne(Solution s, int timeout)
         {
             // Note: this also calls the theory solver(s), if needed
-            if (BooleanSolver.Solve(s, timeout, out var remaining))
+            if (BooleanSolver.Solve(s, timeout, out _))
             {
 #if PerformanceStatistics
                 SolveTimeMicroseconds.AddReading(BooleanSolver.SolveTimeMicroseconds);
@@ -627,7 +664,7 @@ namespace CatSAT
         /// <summary>
         /// Adds a set of assertions to this problem.
         /// Assertions are immutable: they cannot be changed or reset
-        /// Assertions cannot be edded after the first call to Solve()
+        /// Assertions cannot be added after the first call to Solve()
         /// </summary>
         /// <param name="assertions">Assertions to add (literals, rules, implications, etc.)</param>
         /// <exception cref="InvalidOperationException">When the Problem has already been solved once</exception>
@@ -640,7 +677,7 @@ namespace CatSAT
         /// <summary>
         /// Asserts the literal must always be true in any solution.
         /// Assertions are immutable: they cannot be changed or reset
-        /// Assertions cannot be edded after the first call to Solve()
+        /// Assertions cannot be added after the first call to Solve()
         /// </summary>
         /// <param name="literal">Literal tha must always be true</param>
         /// <exception cref="InvalidOperationException">When the Problem has already been solved once</exception>
@@ -667,15 +704,15 @@ namespace CatSAT
             }
         }
 
-        private void SetPredeterminedValue(Proposition p, bool value, SATVariable.DeterminationState s)
+        internal void SetPredeterminedValue(Proposition p, bool value, SATVariable.DeterminationState s)
         {
             SetPredeterminedValue(p.Index, value, s);
         }
 
-        private void SetPredeterminedValue(int index, bool value, SATVariable.DeterminationState s)
+        internal void SetPredeterminedValue(int index, bool value, SATVariable.DeterminationState s)
         {
             var v = SATVariables[index];
-            v.DeterminionState = s;
+            v.DeterminationStatus = s;
             v.PredeterminedValue = value;
             SATVariables[index] = v;
         }
@@ -686,9 +723,19 @@ namespace CatSAT
         }
 
         /// <summary>
+        /// Used to specify an initial value to be used by the solver for this one particular run of the solver.
+        /// </summary>
+        /// <param name="p">Proposition to assign a value to</param>
+        /// <param name="value">Truth value to assign to the proposition</param>
+        public void SetPreinitializedValue(Proposition p, bool value)
+        {
+            SetPredeterminedValue(p, value, SATVariable.DeterminationState.Preinitialized);
+        }
+
+        /// <summary>
         /// Asserts that the head must be true in any solution in which the body is true
         /// Assertions are immutable: they cannot be changed or reset
-        /// Assertions cannot be edded after the first call to Solve()
+        /// Assertions cannot be added after the first call to Solve()
         /// </summary>
         /// <param name="implication">Implication that must be true in any solution</param>
         /// <exception cref="InvalidOperationException">When the Problem has already been solved once</exception>
@@ -708,7 +755,7 @@ namespace CatSAT
         /// <summary>
         /// Adds a rule to the problem.
         /// Assertions are immutable: they cannot be changed or reset
-        /// Assertions cannot be edded after the first call to Solve()
+        /// Assertions cannot be added after the first call to Solve()
         /// </summary>
         /// <param name="rule">Rule to add to the problem</param>
         /// <exception cref="InvalidOperationException">When the Problem has already been solved once</exception>
@@ -733,7 +780,7 @@ namespace CatSAT
         /// <summary>
         /// Asserts that in any solution, either the head and body must both be true or both be false
         /// Assertions are immutable: they cannot be changed or reset
-        /// Assertions cannot be edded after the first call to Solve()
+        /// Assertions cannot be added after the first call to Solve()
         /// </summary>
         /// <param name="equivalence">Equivalence that must be true in any solution</param>
         /// <exception cref="InvalidOperationException">When the Problem has already been solved once</exception>
@@ -964,10 +1011,11 @@ namespace CatSAT
         /// <param name="lits">outlawed literals</param>
         public void Inconsistent(IEnumerable<Literal> lits)
         {
-            foreach (var l in lits)
+            var enumerable = lits as Literal[] ?? lits.ToArray();
+            foreach (var l in enumerable)
                 l.BaseProposition.IsQuantified = true;
 
-            AddClause(new Clause(1, 0, lits.Select(l => (short)(-l.SignedIndex)).Distinct().ToArray()));
+            AddClause(new Clause(1, 0, enumerable.Select(l => (short)(-l.SignedIndex)).Distinct().ToArray()));
         }
 
         /// <summary>
@@ -1008,10 +1056,11 @@ namespace CatSAT
                 throw new ContradictionException(this, "minimum number of disjuncts is more than the maximum number");
             var trueCount = 0;
             var set = new HashSet<Literal>();
-            foreach (var l in literals)
+            var enumerable = literals as Literal[] ?? literals.ToArray();
+            foreach (var l in enumerable)
                 l.BaseProposition.IsQuantified = true;
 
-            foreach (var l in literals)
+            foreach (var l in enumerable)
             {
                 if (ReferenceEquals(l, Proposition.True))
                     trueCount++;
@@ -1478,7 +1527,7 @@ namespace CatSAT
                 if (!SATVariables[Math.Abs(d)].IsPredetermined)
                     return d;
             }
-            throw new InvalidOperationException("Internal error - UndeterminedDisjunctOf called on clause with no undertermined disjuncts");
+            throw new InvalidOperationException("Internal error - UndeterminedDisjunctOf called on clause with no undetermined disjuncts");
         }
 
         short CountUndeterminedDisjuncts(Clause c)
@@ -1647,7 +1696,7 @@ namespace CatSAT
             }
             set
             {
-                if (SATVariables[p.Index].DeterminionState == SATVariable.DeterminationState.Fixed
+                if (SATVariables[p.Index].DeterminationStatus == SATVariable.DeterminationState.Fixed
                     && SATVariables[p.Index].PredeterminedValue != value)
                     throw new InvalidOperationException($"{p}'s value is fixed by an Assertion in the problem.  It cannot be changed.");
                 SetPredeterminedValue(p, value, SATVariable.DeterminationState.Set);
@@ -1657,7 +1706,7 @@ namespace CatSAT
         /// <summary>
         /// Gets or sets the predetermined value of the literal.
         /// </summary>
-        /// <param name="l">Literalto check</param>
+        /// <param name="l">Literal to check</param>
         /// <returns>Predetermined value</returns>
         /// <exception cref="InvalidOperationException">If the literal's proposition has not been given a predetermined value</exception>
         // ReSharper disable once UnusedMember.Global
@@ -1704,10 +1753,10 @@ namespace CatSAT
         {
             for (int i = 0; i < SATVariables.Count; i++)
             {
-                if (SATVariables[i].DeterminionState == SATVariable.DeterminationState.Inferred)
+                if (SATVariables[i].DeterminationStatus == SATVariable.DeterminationState.Inferred)
                 {
                     var v = SATVariables[i];
-                    v.DeterminionState = SATVariable.DeterminationState.Floating;
+                    v.DeterminationStatus = SATVariable.DeterminationState.Floating;
                     SATVariables[i] = v;
                 }
             }
@@ -1719,7 +1768,7 @@ namespace CatSAT
         {
             FloatingVariables.Clear();
             for (ushort i = 0; i < SATVariables.Count; i++)
-                if (SATVariables[i].DeterminionState == SATVariable.DeterminationState.Floating)
+                if (SATVariables[i].DeterminationStatus == SATVariable.DeterminationState.Floating)
                     FloatingVariables.Add(i);
         }
 
@@ -1730,10 +1779,10 @@ namespace CatSAT
         {
             for (int i = 0; i < SATVariables.Count; i++)
             {
-                if (SATVariables[i].DeterminionState == SATVariable.DeterminationState.Set)
+                if (SATVariables[i].DeterminationStatus == SATVariable.DeterminationState.Set)
                 {
                     var v = SATVariables[i];
-                    v.DeterminionState = SATVariable.DeterminationState.Floating;
+                    v.DeterminationStatus = SATVariable.DeterminationState.Floating;
                     SATVariables[i] = v;
                 }
             }
@@ -1746,10 +1795,10 @@ namespace CatSAT
         public void ResetProposition(Proposition p)
         {
             int i = p.Index;
-            if (SATVariables[i].DeterminionState == SATVariable.DeterminationState.Set)
+            if (SATVariables[i].DeterminationStatus == SATVariable.DeterminationState.Set)
             {
                 var v = SATVariables[i];
-                v.DeterminionState = SATVariable.DeterminationState.Floating;
+                v.DeterminationStatus = SATVariable.DeterminationState.Floating;
                 SATVariables[i] = v;
             }
         }

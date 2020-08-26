@@ -111,7 +111,29 @@ namespace CatSAT
         /// <summary>
         /// Test the truth of the specified literal within the model
         /// </summary>
-        public bool this[Proposition p] => IsTrue(p);
+        public bool this[Proposition p]
+        {
+            get => IsTrue(p); 
+            set => SetProposition(p, value);
+        }
+
+        /// <summary>
+        /// Set the truth of a proposition/positive literal
+        /// </summary>
+        /// <param name="index">Index of the proposition</param>
+        /// <param name="truth">Value of the proposition</param>
+        public void SetProposition(ushort index, bool truth)
+        {
+            Propositions[index] = truth;
+        }
+
+        /// <summary>
+        /// Set the truth of the specified proposition within the model
+        /// </summary>
+        public void SetProposition(Proposition p, bool truth)
+        {
+            SetProposition(p.Index, truth);
+        }
 
         /// <summary>
         /// Test the truth of a literal (positive or negative) in the model.

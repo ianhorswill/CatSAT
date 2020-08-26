@@ -36,7 +36,9 @@ namespace CatSAT
     /// number of disjuncts may be satisfied.
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebugName) + "}")]
-    class Clause
+#pragma warning disable 660,661
+    internal class Clause
+#pragma warning restore 660,661
     {
         /// <summary>
         /// The literals of the clause
@@ -84,7 +86,7 @@ namespace CatSAT
         /// <summary>
         /// True if this is a plain old boring disjunction
         /// </summary>
-        public bool IsNormalDisjunction => MinDisjunctsMinusOne == 0 && MaxDisjunctsPlusOne >= Disjuncts.Length+1;
+        public readonly bool IsNormalDisjunction;
 
         
         /// <summary>
@@ -101,6 +103,7 @@ namespace CatSAT
             MinDisjunctsMinusOne = (short)(min-1);
             MaxDisjunctsPlusOne = (ushort)(max == 0 ? disjuncts.Length+1 : max+1);
             Hash = ComputeHash();
+            IsNormalDisjunction = MinDisjunctsMinusOne == 0 && MaxDisjunctsPlusOne >= Disjuncts.Length + 1;
         }
 
         /// <summary>
@@ -176,6 +179,8 @@ namespace CatSAT
 
         public static bool operator ==(Clause a, Clause b)
         {
+            if (a is null || b is null)
+                return ReferenceEquals(a, b);
             if (a.MaxDisjunctsPlusOne != b.MaxDisjunctsPlusOne)
                 return false;
             if (a.MinDisjunctsMinusOne != b.MinDisjunctsMinusOne)
