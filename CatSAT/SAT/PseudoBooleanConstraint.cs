@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Clause.cs" company="Ian Horswill">
+// <copyright file="Constraints.cs" company="Ian Horswill">
 // Copyright (C) 2018, 2019 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,7 +36,7 @@ namespace CatSAT
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebugName) + "}")]
 #pragma warning disable 660,661
-    internal class PseudoBooleanConstraint : Clause
+    internal class PseudoBooleanConstraint : Constraints
     {
         internal string DebugName
         {
@@ -123,7 +123,7 @@ namespace CatSAT
 
         public override int GetHashCode() => Hash;
 
-        internal override bool EquivalentTo(Clause c)
+        internal override bool EquivalentTo(Constraints c)
         {
             if (!(c is PseudoBooleanConstraint pbConstraint))
                 return false;
