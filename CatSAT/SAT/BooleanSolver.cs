@@ -80,7 +80,7 @@ namespace CatSAT
         /// <summary>
         /// Total number of unsatisfied clauses
         /// </summary>
-        private DynamicUShortSet unsatisfiedClauses;
+        public DynamicUShortSet unsatisfiedClauses;
 
         /// <summary>
         /// Propositions that would increase utility if they were flipped.
@@ -97,7 +97,7 @@ namespace CatSAT
         internal BooleanSolver(Problem problem)
         {
             Problem = problem;
-            var clausesCount = problem.Constraints.Count;
+            var clausesCount = problem.Clauses.Count;
             TrueDisjunctCount = new ushort[clausesCount];
             LastFlip = new ushort[clausesCount];
             unsatisfiedClauses = new DynamicUShortSet(clausesCount);
@@ -163,7 +163,7 @@ namespace CatSAT
             {
                 // Hill climb: pick an unsatisfied clause at random and flip one of its variables
                 var targetClauseIndex = unsatisfiedClauses.RandomElement;
-                var targetClause = Problem.Constraints[targetClauseIndex];
+                var targetClause = Problem.Clauses[targetClauseIndex];
                 ushort flipChoice;
 
                 if (Random.InRange(100) < 100 * wp)
@@ -188,7 +188,7 @@ namespace CatSAT
                     else
                     {
                         flipsSinceImprovement++;
-                        if (flipsSinceImprovement > Problem.Constraints.Count / Theta)
+                        if (flipsSinceImprovement > Problem.Clauses.Count / Theta)
                         {
                             wp = wp + (1 - wp) * Phi;
                             flipsSinceImprovement = 0;
@@ -240,26 +240,20 @@ namespace CatSAT
             foreach (var cIndex in increasingClauses)
             {
                 // This clause is getting one more disjunct
-                var clause = Problem.Constraints[cIndex];
+                var clause = Problem.Clauses[cIndex];
                 var count = TrueDisjunctCount[cIndex];
-                if (clause.OneTooFewDisjuncts(count))
-                    threatCount--;
-                else if (clause.OneTooManyDisjuncts((ushort) (count + 1)))
-                    threatCount++;
+                threatCount += clause.ThreatCountDeltaIncreasing(count);
             }
 
             foreach (var cIndex in decreasingClauses)
             {
                 // This clause is getting one more disjunct
-                var clause = Problem.Constraints[cIndex];
+                var clause = Problem.Clauses[cIndex];
                 var count = TrueDisjunctCount[cIndex];
-                if (clause.OneTooFewDisjuncts((ushort)(count-1)))
-                    threatCount++;
-                else if (clause.OneTooManyDisjuncts(count))
-                    threatCount--;
+                threatCount += clause.ThreatCountDeltaDecreasing(count);
             }
 
-            
+
 
             //if (propositions[pIndex])
             //{
@@ -301,6 +295,7 @@ namespace CatSAT
             return threatCount;
         }
 
+
         /// <summary>
         /// Flip the variable at the specified index.
         /// </summary>
@@ -341,14 +336,8 @@ namespace CatSAT
                     {
                         // prop appears as a positive literal in clause.
                         // We just made it false, so clause now has fewer satisfied disjuncts.
-                        var clause = Problem.Constraints[cIndex];
-                        if (clause.OneTooManyDisjuncts(TrueDisjunctCount[cIndex]))
-                            // We just satisfied it
-                            unsatisfiedClauses.Remove(cIndex);
-                        var dCount = --TrueDisjunctCount[cIndex];
-                        if (clause.OneTooFewDisjuncts(dCount))
-                            // It just transitioned from satisfied to unsatisfied
-                            unsatisfiedClauses.Add(cIndex);
+                        var clause = Problem.Clauses[cIndex];
+                        clause.UpdateTruePositiveAndFalseNegative(this, cIndex);
                     }
 
                     // Update the clauses in which this appears as a negative literal
@@ -356,14 +345,8 @@ namespace CatSAT
                     {
                         // prop appears as a negative literal in clause.
                         // We just made it false, so clause now has more satisfied disjuncts.
-                        var clause = Problem.Constraints[cIndex];
-                        if (clause.OneTooFewDisjuncts(TrueDisjunctCount[cIndex]))
-                            // We just satisfied it
-                            unsatisfiedClauses.Remove(cIndex);
-                        var dCount = ++TrueDisjunctCount[cIndex];
-                        if (clause.OneTooManyDisjuncts(dCount))
-                            // It just transitioned from satisfied to unsatisfied
-                            unsatisfiedClauses.Add(cIndex);
+                        var clause = Problem.Clauses[cIndex];
+                        clause.UpdateTrueNegativeAndFalsePositive(this, cIndex);
                     }
                 }
                 else
@@ -377,14 +360,8 @@ namespace CatSAT
                     {
                         // prop appears as a positive literal in clause.
                         // We just made it true, so clause now has more satisfied disjuncts.
-                        var clause = Problem.Constraints[cIndex];
-                        if (clause.OneTooFewDisjuncts(TrueDisjunctCount[cIndex]))
-                            // We just satisfied it
-                            unsatisfiedClauses.Remove(cIndex);
-                        var dCount = ++TrueDisjunctCount[cIndex];
-                        if (clause.OneTooManyDisjuncts(dCount))
-                            // It just transitioned from satisfied to unsatisfied
-                            unsatisfiedClauses.Add(cIndex);
+                        var clause = Problem.Clauses[cIndex];
+                        clause.UpdateTrueNegativeAndFalsePositive(this, cIndex);
                     }
 
                     // Update the clauses in which this appears as a negative literal
@@ -392,14 +369,8 @@ namespace CatSAT
                     {
                         // prop appears as a negative literal in clause.
                         // We just made it true, so clause now has fewer satisfied disjuncts.
-                        var clause = Problem.Constraints[cIndex];
-                        if (clause.OneTooManyDisjuncts(TrueDisjunctCount[cIndex]))
-                            // We just satisfied it
-                            unsatisfiedClauses.Remove(cIndex);
-                        var dCount = --TrueDisjunctCount[cIndex];
-                        if (clause.OneTooFewDisjuncts(dCount))
-                            // It just transitioned from satisfied to unsatisfied
-                            unsatisfiedClauses.Add(cIndex);
+                        var clause = Problem.Clauses[cIndex];
+                        clause.UpdateTruePositiveAndFalseNegative(this, cIndex);
                     }
                 }
             }
@@ -468,7 +439,7 @@ namespace CatSAT
             // Initialize trueDisjunctCount[] and unsatisfiedClauses
             for (ushort i = 0; i < TrueDisjunctCount.Length; i++)
             {
-                var c = Problem.Constraints[i];
+                var c = Problem.Clauses[i];
                 var satisfiedDisjuncts = c.CountDisjuncts(solution);
                 TrueDisjunctCount[i] = satisfiedDisjuncts;
                 if (!c.IsSatisfied(satisfiedDisjuncts))
@@ -481,7 +452,7 @@ namespace CatSAT
 
         #region Dynamic sets
 
-        private struct DynamicUShortSet
+        public struct DynamicUShortSet
         {
             public DynamicUShortSet(int max)
             {

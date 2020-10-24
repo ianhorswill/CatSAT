@@ -165,7 +165,7 @@ namespace Tests
             prog.Solve();  // Force it to expand rule to completion
 
             // This should not generate any clauses
-            Assert.AreEqual(0, prog.Constraints.Count);
+            Assert.AreEqual(0, prog.Clauses.Count);
         }
 
         [TestMethod]
@@ -182,7 +182,7 @@ namespace Tests
             var s = prog.Solve();  // Force it to expand rule to completion
 
             // This should have compiled to zero clauses but p should still always be true
-            Assert.AreEqual(0, prog.Constraints.Count);
+            Assert.AreEqual(0, prog.Clauses.Count);
             Assert.IsTrue(s[p]);
         }
 
@@ -200,15 +200,15 @@ namespace Tests
             prog.Solve();  // Force it to expand rule to completion
 
             // This should have compiled to two clauses
-            Assert.AreEqual(2, prog.Constraints.Count);
+            Assert.AreEqual(2, prog.Clauses.Count);
             // First clause should be q => p
-            Assert.AreEqual(2, prog.Constraints[0].Disjuncts.Length);
-            Assert.AreEqual(1, prog.Constraints[0].Disjuncts[0]);
-            Assert.AreEqual(-2, prog.Constraints[0].Disjuncts[1]);
+            Assert.AreEqual(2, prog.Clauses[0].Disjuncts.Length);
+            Assert.AreEqual(1, prog.Clauses[0].Disjuncts[0]);
+            Assert.AreEqual(-2, prog.Clauses[0].Disjuncts[1]);
             // Section clause should be p => q
-            Assert.AreEqual(2, prog.Constraints[1].Disjuncts.Length);
-            Assert.AreEqual(-1, prog.Constraints[1].Disjuncts[0]);
-            Assert.AreEqual(2, prog.Constraints[1].Disjuncts[1]);
+            Assert.AreEqual(2, prog.Clauses[1].Disjuncts.Length);
+            Assert.AreEqual(-1, prog.Clauses[1].Disjuncts[0]);
+            Assert.AreEqual(2, prog.Clauses[1].Disjuncts[1]);
         }
 
         [TestMethod]

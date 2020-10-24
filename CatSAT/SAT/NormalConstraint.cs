@@ -29,14 +29,15 @@ using System.Text;
 namespace CatSAT
 {
     /// <summary>
-    /// Represents a subclass of Constraint, for the pseudo-Boolean constraints, in a Problem.
+    /// Represents a NormalConstraint in a Problem.
     /// The name is a slight misnomer, since a true clause is satisfied as long as at least one disjunct is satisfied.
-    /// A clause in CatSAT is a generalized cardinality constraint, meaning the user can specify arbitrary max/min
+    /// A clause in CatSAT is a generalized cardinality NormalConstraint, meaning the user can specify arbitrary max/min
     /// number of disjuncts may be satisfied.
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebugName) + "}")]
 #pragma warning disable 660,661
-    internal class PseudoBooleanConstraint : Clause
+    internal class NormalConstraint :Clause
+#pragma warning restore 660,661
     {
         internal string DebugName
         {
@@ -57,50 +58,16 @@ namespace CatSAT
                 return b.ToString();
             }
         }
-        /// <summary>
-        /// Maximum number of disjuncts that are allowed to be true in order for the
-        /// constraint to be considered satisfied, plus one.
-        /// For a normal clause, there is no limit, so this gets set to Disjuncts.Count+1.
-        /// </summary>
-        public readonly ushort MaxDisjunctsPlusOne;
+
 
         /// <summary>
-        /// Make a new clause (but doesn't add it to a Program)
+        /// Make a new normal clause (but doesn't add it to a Program)
         /// </summary>
         /// <param name="min">Minimum number of disjuncts that must be true to consider the clause satisfied</param>
-        /// <param name="max">Maximum number of disjuncts that are allowed to be true to consider the clause satisfied, or 0 if the is no maximum</param>
         /// <param name="disjuncts">The disjuncts, encoded as signed proposition indices</param>
-        internal PseudoBooleanConstraint(ushort min, ushort max, short[] disjuncts) : base(min, disjuncts, min ^ max)
+        internal NormalConstraint(ushort min, short[] disjuncts) : base(min, disjuncts, min ^ 0)
         {
-            min = 1;
-            if ((min != 1||max != 0) && disjuncts.Length != Disjuncts.Length)
-                throw new ArgumentException("Nonstandard clause has non-unique disjuncts");
-            MaxDisjunctsPlusOne = (ushort)(max == 0 ? disjuncts.Length + 1 : max + 1);
-            IsNormalDisjunction = false; //MinDisjunctsMinusOne == 0 && MaxDisjunctsPlusOne >= Disjuncts.Length + 1;
-        }
-        /// <summary>
-        /// Is this constraint satisfied if the specified number of disjuncts is satisfied?
-        /// </summary>
-        /// <param name="satisfiedDisjuncts">Number of satisfied disjuncts</param>
-        /// <returns>Whether the constraint is satisfied.</returns>
-        public override bool IsSatisfied(ushort satisfiedDisjuncts)
-        {
-            return satisfiedDisjuncts > MinDisjunctsMinusOne && satisfiedDisjuncts < MaxDisjunctsPlusOne;
-        }
-
-        /// <summary>
-        /// Is the specified number of disjuncts one too many for this constraint to be satisfied?
-        /// </summary>
-        public override bool OneTooManyDisjuncts(ushort satisfiedDisjuncts)
-        {
-            return satisfiedDisjuncts == MaxDisjunctsPlusOne;
-        }
-        /// <summary>
-        /// Is the specified number of disjuncts one too few for this constraint to be satisfied?
-        /// </summary>
-        public override bool OneTooFewDisjuncts(ushort satisfiedDisjuncts)
-        {
-            return satisfiedDisjuncts == MinDisjunctsMinusOne;
+            IsNormalDisjunction = true;
         }
 
 
@@ -125,24 +92,49 @@ namespace CatSAT
 
         internal override bool EquivalentTo(Clause c)
         {
-            if (!(c is PseudoBooleanConstraint pbConstraint))
+            if (!(c is NormalConstraint normalConstraint))
                 return false;
-            if (MaxDisjunctsPlusOne != pbConstraint.MaxDisjunctsPlusOne)
+            if (MinDisjunctsMinusOne != normalConstraint.MinDisjunctsMinusOne)
                 return false;
-            if (MinDisjunctsMinusOne != 0)
-                return false;
-            if (Disjuncts.Length != pbConstraint.Disjuncts.Length)
+            if (Disjuncts.Length != normalConstraint.Disjuncts.Length)
                 return false;
             for (var i = 0; i < Disjuncts.Length; i++)
-                if (Disjuncts[i] != pbConstraint.Disjuncts[i])
+                if (Disjuncts[i] != normalConstraint.Disjuncts[i])
                     return false;
             return true;
         }
 
-        public static bool operator ==(PseudoBooleanConstraint a, PseudoBooleanConstraint b) => a?.EquivalentTo(b) ?? ReferenceEquals(b, null);
+        public static bool operator ==(NormalConstraint a, NormalConstraint b) => a?.EquivalentTo(b) ?? ReferenceEquals(b, null);
 
-        public static bool operator !=(PseudoBooleanConstraint a, PseudoBooleanConstraint b) => !(a == b);
+        public static bool operator !=(NormalConstraint a, NormalConstraint b) => !(a == b);
 
+
+        /// <summary>
+        /// Is this NormalConstraint satisfied if the specified number of disjuncts is satisfied?
+        /// </summary>
+        /// <param name="satisfiedDisjuncts">Number of satisfied disjuncts</param>
+        /// <returns>Whether the NormalConstraint is satisfied.</returns>
+        public override bool IsSatisfied(ushort satisfiedDisjuncts)
+        {
+            return satisfiedDisjuncts > MinDisjunctsMinusOne &&  satisfiedDisjuncts < Disjuncts.Length + 1;
+        }
+
+        /// <summary>
+        /// Is the specified number of disjuncts one too many for this NormalConstraint to be satisfied?
+        /// </summary>
+        public override bool OneTooManyDisjuncts(ushort satisfiedDisjuncts)
+        {
+            return satisfiedDisjuncts == Disjuncts.Length + 1;
+        }
+
+        /// <summary>
+        /// Is the specified number of disjuncts one too few for this NormalConstraint to be satisfied?
+        /// For normal clauses it's always true
+        /// </summary>
+        public override bool OneTooFewDisjuncts(ushort satisfiedDisjuncts)
+        {
+            return satisfiedDisjuncts == MinDisjunctsMinusOne;
+        }
 
         /// <summary>
         /// Find the proposition from the specified clause that will do the least damage to the clauses that are already satisfied.
@@ -202,7 +194,7 @@ namespace CatSAT
 
         internal override void Decompile(Problem p, StringBuilder b)
         {
-            if (MinDisjunctsMinusOne != 0 || MaxDisjunctsPlusOne < Disjuncts.Length + 1)
+            if (MinDisjunctsMinusOne != 0)
                 b.Append($"{MinDisjunctsMinusOne + 1} ");
             var firstLit = true;
             foreach (var d in Disjuncts)
@@ -216,8 +208,8 @@ namespace CatSAT
                 b.Append(p.SATVariables[Math.Abs(d)].Proposition);
             }
 
-            if (MaxDisjunctsPlusOne < Disjuncts.Length + 1)
-                b.Append($" {MaxDisjunctsPlusOne - 1}");
+            //if (MaxDisjunctsPlusOne < Disjuncts.Length + 1)
+                //b.Append($" {MaxDisjunctsPlusOne - 1}");
         }
     }
 }
