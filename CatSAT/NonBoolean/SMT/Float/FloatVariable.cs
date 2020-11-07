@@ -99,12 +99,12 @@ namespace CatSAT
         internal List<FloatVariable> LowerVariableBounds;
 
         /// <summary>
-        /// All functional constraints applying to this variable
+        /// All functional constraint applying to this variable
         /// </summary>
         internal List<FunctionalConstraint> AllFunctionalConstraints;
 
         /// <summary>
-        /// Functional constraints that apply in this solution
+        /// Functional constraint that apply in this solution
         /// </summary>
         internal List<FunctionalConstraint> ActiveFunctionalConstraints;
 

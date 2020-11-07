@@ -66,15 +66,15 @@ namespace CatSAT.NonBoolean.SMT.Float
             {
                 PreprecessBounds(v.UpperConstantBounds, 1);
                 PreprecessBounds(v.LowerConstantBounds, -1);
-                // Make sure there aren't any propositions dependent on the truth of functional constraints.
-                // We *could* allow this, but given that functional constraints have measure zero, the only
+                // Make sure there aren't any propositions dependent on the truth of functional constraint.
+                // We *could* allow this, but given that functional constraint have measure zero, the only
                 // way it's possible for them to be unsatisfied with non-zero probability is through
                 // floating-point quantization.  That suggests that someone trying to make a proposition
                 // dependent on a != b+C is probably making a mistake.
                 if (v.AllFunctionalConstraints != null)
                     foreach (var f in v.AllFunctionalConstraints)
                         if (f.IsDependency)
-                            throw new InvalidOperationException($"{f.Name}: Inferences dependent on the truth of functional constraints are not supported.");
+                            throw new InvalidOperationException($"{f.Name}: Inferences dependent on the truth of functional constraint are not supported.");
             }
 
             return null;
@@ -105,9 +105,9 @@ namespace CatSAT.NonBoolean.SMT.Float
         }
 
         /// <summary>
-        /// Try to find values for the FloatVariables that are consistent with the true constraints.
+        /// Try to find values for the FloatVariables that are consistent with the true constraint.
         /// </summary>
-        /// <param name="s">Model providing truth values for constraints</param>
+        /// <param name="s">Model providing truth values for constraint</param>
         /// <returns>True if variable values found successfully</returns>
         public override bool Solve(Solution s)
         {
@@ -116,7 +116,7 @@ namespace CatSAT.NonBoolean.SMT.Float
             FindActiveFunctionalConstraints(s);
 
             if (!FindSolutionBounds(s)) 
-                // Constraints are contradictory
+                // Constraint are contradictory
                 return false;
 
             // Repeatedly attempt to sample a solution
@@ -155,7 +155,7 @@ namespace CatSAT.NonBoolean.SMT.Float
         }
         
         /// <summary>
-        /// Find all functional constraints that are active in solution and attach them to the
+        /// Find all functional constraint that are active in solution and attach them to the
         /// representatives of their associated variables.
         /// </summary>
         private void FindActiveFunctionalConstraints(Solution solution)
@@ -175,7 +175,7 @@ namespace CatSAT.NonBoolean.SMT.Float
         /// Save these bounds in SolutionBounds field of each variable
         /// </summary>
         /// <param name="s">Model against which to compute bounds</param>
-        /// <returns>False if constraints in this model are contradictory</returns>
+        /// <returns>False if constraint in this model are contradictory</returns>
         private bool FindSolutionBounds(Solution s)
         {
             // Apply all constant bounds that apply in this model

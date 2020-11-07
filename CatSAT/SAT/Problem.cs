@@ -41,7 +41,7 @@ namespace CatSAT
     public class Problem
     {
         //
-        // This is basically a storage area for Propositions, Variables, and Constraints (constraints)
+        // This is basically a storage area for Propositions, Variables, and Constraint (constraint)
         // It maintains bookkeeping information about how they all relate to one another and it
         // compiles rules to their clauses.  But otherwise, it's mostly passive.  It doesn't contain
         // the actual SAT solver, which is in the Solution object
@@ -222,7 +222,7 @@ namespace CatSAT
         }
         
         /// <summary>
-        /// Returns a textual representation of the constraints in the problem.
+        /// Returns a textual representation of the constraint in the problem.
         /// </summary>
         public string Decompiled
         {
@@ -311,10 +311,10 @@ namespace CatSAT
         /// </summary>
         internal readonly List<SATVariable> SATVariables = new List<SATVariable>();
         /// <summary>
-        /// The constraints in the Problem.
-        /// Most of these are normal clauses (disjunctions), but other cardinality constraints are possible.
+        /// The constraint in the Problem.
+        /// Most of these are normal clauses (disjunctions), but other cardinality constraint are possible.
         /// </summary>
-        internal readonly List<Constraints> Clauses = new List<Constraints>();
+        internal readonly List<Constraint> Clauses = new List<Constraint>();
 
         internal readonly List<ushort> FloatingVariables = new List<ushort>();
 
@@ -441,11 +441,11 @@ namespace CatSAT
 
 #endregion
 
-#region Constraints management
+#region Constraint management
         /// <summary>
         /// Forcibly add a constraint to the Problem.
         /// </summary>
-        internal Constraints AddClause(params Literal[] disjuncts)
+        internal Constraint AddClause(params Literal[] disjuncts)
         {
             return AddClause(1, 0, disjuncts);
         }
@@ -453,7 +453,7 @@ namespace CatSAT
         /// <summary>
         /// Forcibly add a constraint to the Problem.
         /// </summary>
-        internal Constraints AddClause(ushort min, params Literal[] disjuncts)
+        internal Constraint AddClause(ushort min, params Literal[] disjuncts)
         {
             // Look up the internal numeric literal representations for all the disjuncts
             var compiled = CompileClause(disjuncts);
@@ -466,7 +466,7 @@ namespace CatSAT
         /// <summary>
         /// Forcibly add a constraint to the Problem.
         /// </summary>
-        internal Constraints AddClause(ushort min, ushort max, params Literal[] disjuncts)
+        internal Constraint AddClause(ushort min, ushort max, params Literal[] disjuncts)
         {
             // Look up the internal numeric literal representations for all the disjuncts
             var compiled = CompileClause(disjuncts);
@@ -479,18 +479,18 @@ namespace CatSAT
         /// <summary>
         /// Forcibly add a constraint to the Problem.
         /// </summary>
-        private void AddClause(Constraints constraints)
+        private void AddClause(Constraint constraint)
         {
             foreach (var c in Clauses)
-                if (c.Hash == constraints.Hash && c.EquivalentTo(constraints))
+                if (c.Hash == constraint.Hash && c.EquivalentTo(constraint))
                     return;
 
-            constraints.Index = (ushort)Clauses.Count;
-            Clauses.Add(constraints);
+            constraint.Index = (ushort)Clauses.Count;
+            Clauses.Add(constraint);
 
             // Add the constraint to the appropriate constraint list for all the propositions that appear in the constraint
             var clauseIndex = (ushort) (Clauses.Count - 1);
-            foreach (var lit in constraints.Disjuncts)
+            foreach (var lit in constraint.Disjuncts)
             {
                 if (lit > 0)
                     SATVariables[lit].PositiveClauses.Add(clauseIndex);
@@ -684,7 +684,7 @@ namespace CatSAT
                 return;
             if (Equals(literal, Proposition.False))
                 throw new InvalidOperationException("Attempt to Assert the false proposition.");
-            //AddClause(new Constraints(1, 0, new[] {l.SignedIndex}));
+            //AddClause(new Constraint(1, 0, new[] {l.SignedIndex}));
             switch (literal)
             {
                 case Proposition p:
@@ -796,7 +796,7 @@ namespace CatSAT
             }
         }
 
-        private Constraints CompileImplication(Implication implication)
+        private Constraint CompileImplication(Implication implication)
         {
             return new Clause(1,  DisjunctsFromImplication(implication.Head, implication.Body));
         }
@@ -810,7 +810,7 @@ namespace CatSAT
             return result;
         }
 
-        private Constraints CompileNegatedConjunction(Expression body)
+        private Constraint CompileNegatedConjunction(Expression body)
         {
             return new Clause(1,  DisjunctsFromBody(body));
         }
@@ -1353,9 +1353,9 @@ namespace CatSAT
             return p;
         }
 
-        internal Proposition KeyOf(Constraints constraints, ushort position)
+        internal Proposition KeyOf(Constraint constraint, ushort position)
         {
-            return SATVariables[constraints.Disjuncts[position]].Proposition;
+            return SATVariables[constraint.Disjuncts[position]].Proposition;
         }
 
         /// <summary>
@@ -1432,7 +1432,7 @@ namespace CatSAT
             // Or -1 if this constraint now compile-time true.
             var counts = new short[Clauses.Count];
 
-            short UndeterminedDisjunctCount(Constraints c)
+            short UndeterminedDisjunctCount(Constraint c)
             {
                 if (counts[c.Index] != 0)
                     return counts[c.Index];
@@ -1444,9 +1444,9 @@ namespace CatSAT
                 return count;
             }
 
-            var walkQueue = new Queue<Constraints>();
+            var walkQueue = new Queue<Constraint>();
 
-            void Walk(Constraints c)
+            void Walk(Constraint c)
             {
                 var d = UndeterminedDisjunctCount(c);
                 if (d == 1)
@@ -1522,7 +1522,7 @@ namespace CatSAT
         /// </summary>
         /// <param name="c">The constraint</param>
         /// <returns>Signed index of the disjunct</returns>
-        short UndeterminedDisjunctOf(Constraints c)
+        short UndeterminedDisjunctOf(Constraint c)
         {
             foreach (var d in c.Disjuncts)
             {
@@ -1532,7 +1532,7 @@ namespace CatSAT
             throw new InvalidOperationException("Internal error - UndeterminedDisjunctOf called on constraint with no undetermined disjuncts");
         }
 
-        short CountUndeterminedDisjuncts(Constraints c)
+        short CountUndeterminedDisjuncts(Constraint c)
         {
             short count = 0;
             foreach (var d in c.Disjuncts)

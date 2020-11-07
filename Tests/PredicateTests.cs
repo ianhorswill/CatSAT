@@ -51,7 +51,7 @@ namespace Tests
             var rook = Predicate<int, int>("rook");
 
             //
-            // Add constraints to the program
+            // Add constraint to the program
             //
 
             // There should be a total of n rooks
@@ -68,7 +68,7 @@ namespace Tests
             var m = p.Solve();
 
             //
-            // Test the constraints in the solution
+            // Test the constraint in the solution
             //
 
             m.Exactly(n, Range(0, n).SelectMany(i => Range(0, n).Select(j => rook(i, j))));
@@ -94,7 +94,7 @@ namespace Tests
             var rook = Predicate<int, int>("rook");
 
             //
-            // Add constraints to the program
+            // Add constraint to the program
             //
 
             // There should be a total of n rooks
@@ -111,7 +111,7 @@ namespace Tests
             var m = p.Solve();
 
             //
-            // Test the constraints in the solution
+            // Test the constraint in the solution
             //
 
             m.Exactly(n, Range(0, n).SelectMany(i => Range(0, n).Select(j => rook(i, j))));

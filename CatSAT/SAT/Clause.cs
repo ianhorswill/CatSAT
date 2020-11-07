@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Constraints.cs" company="Ian Horswill">
+// <copyright file="Constraint.cs" company="Ian Horswill">
 // Copyright (C) 2018, 2019 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,7 +36,7 @@ namespace CatSAT
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebugName) + "}")]
 #pragma warning disable 660,661
-    internal class Clause :Constraints
+    internal class Clause :Constraint
 #pragma warning restore 660,661
     {
         internal string DebugName
@@ -90,7 +90,7 @@ namespace CatSAT
 
         public override int GetHashCode() => Hash;
 
-        internal override bool EquivalentTo(Constraints c)
+        internal override bool EquivalentTo(Constraint c)
         {
             if (!(c is Clause normalConstraint))
                 return false;
@@ -116,24 +116,51 @@ namespace CatSAT
         /// <returns>Whether the Clause is satisfied.</returns>
         public override bool IsSatisfied(ushort satisfiedDisjuncts)
         {
-            return satisfiedDisjuncts > MinDisjunctsMinusOne &&  satisfiedDisjuncts < Disjuncts.Length + 1;
+            return satisfiedDisjuncts > 0 &&  satisfiedDisjuncts < Disjuncts.Length + 1;
         }
 
         /// <summary>
-        /// Is the specified number of disjuncts one too many for this Clause to be satisfied?
+        /// ThreatCountDelta when current clause is getting one less disjunct.
         /// </summary>
-        public override bool OneTooManyDisjuncts(ushort satisfiedDisjuncts)
+        public override int ThreatCountDeltaDecreasing(ushort count)
         {
-            return satisfiedDisjuncts == Disjuncts.Length + 1;
+            int threatCountDelta = 0;
+            if ((ushort)(count - 1) == 0)//Is the specified number of disjuncts one too few for this Clause to be satisfied? 
+                threatCountDelta = 1;
+            return threatCountDelta;
+        }
+         /// <summary>
+         /// ThreatCountDelta when current clause is getting one more disjunct.
+         /// </summary>
+        public override int ThreatCountDeltaIncreasing(ushort count)
+        {
+            int threatCountDelta = 0;
+            if (count == 0) //Is the specified number of disjuncts one too few for this Clause to be satisfied? 
+                threatCountDelta = -1;
+            return threatCountDelta;
         }
 
-        /// <summary>
-        /// Is the specified number of disjuncts one too few for this Clause to be satisfied?
-        /// For normal clauses it's always true
+        ///<summary>
+        /// transit prop appears as a negative literal in clause from false -> true,
+        /// OR prop appears as a positive literal in clause from true -> false
         /// </summary>
-        public override bool OneTooFewDisjuncts(ushort satisfiedDisjuncts)
+        public override void UpdateTruePositiveAndFalseNegative(BooleanSolver b, ushort cIndex)
         {
-            return satisfiedDisjuncts == MinDisjunctsMinusOne;
+            var dCount = --b.TrueDisjunctCount[cIndex];
+            if (dCount == 0) //Is the specified number of disjuncts one too few for this Clause to be satisfied? 
+                // It just transitioned from satisfied to unsatisfied
+                b.unsatisfiedClauses.Add(cIndex);
+        }
+        ///<summary>
+        /// transit prop appears as a negative literal in clause from true -> false,
+        /// OR prop appears as a positive literal in clause from false -> true
+        /// </summary>
+        public override void UpdateTrueNegativeAndFalsePositive(BooleanSolver b, ushort cIndex)
+        {
+            if (b.TrueDisjunctCount[cIndex] == 0) //Is the specified number of disjuncts one too few for this Clause to be satisfied? 
+                // We just satisfied it
+                b.unsatisfiedClauses.Remove(cIndex);
+            var dCount = ++b.TrueDisjunctCount[cIndex];
         }
 
         /// <summary>
@@ -144,7 +171,7 @@ namespace CatSAT
         public override ushort GreedyFlip(BooleanSolver b)
         {
             // If true, the clause has too few disjuncts true
-            bool increaseTrueDisjuncts = b.TrueDisjunctCount[Index] <= MinDisjunctsMinusOne;
+            bool increaseTrueDisjuncts = b.TrueDisjunctCount[Index] <= 0;
             //Signed indices of the disjuncts of the clause
             short[] disjuncts = Disjuncts;
             //Variable that was last chosen for flipping in this clause

@@ -1,6 +1,6 @@
 ﻿#region Copyright
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Constraints.cs" company="Ian Horswill">
+// <copyright file="Constraint.cs" company="Ian Horswill">
 // Copyright (C) 2018, 2019 Ian Horswill
 //  
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,14 +29,14 @@ using System.Text;
 namespace CatSAT
 {
     /// <summary>
-    /// Represents a subclass of Constraint, for the pseudo-Boolean constraints, in a Problem.
+    /// Represents a subclass of Constraint, for the pseudo-Boolean constraint, in a Problem.
     /// The name is a slight misnomer, since a true clause is satisfied as long as at least one disjunct is satisfied.
     /// A clause in CatSAT is a generalized cardinality constraint, meaning the user can specify arbitrary max/min
     /// number of disjuncts may be satisfied.
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebugName) + "}")]
 #pragma warning disable 660,661
-    internal class PseudoBooleanConstraint : Constraints
+    internal class PseudoBooleanConstraint : Constraint
     {
         internal string DebugName
         {
@@ -89,21 +89,58 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// Is the specified number of disjuncts one too many for this constraint to be satisfied?
+        /// ThreatCountDelta when current clause is getting one more disjunct.
         /// </summary>
-        public override bool OneTooManyDisjuncts(ushort satisfiedDisjuncts)
+        public override int ThreatCountDeltaIncreasing(ushort count)
         {
-            return satisfiedDisjuncts == MaxDisjunctsPlusOne;
+            int threatCountDelta = 0;
+            if (count == MinDisjunctsMinusOne) // Is the specified number of disjuncts one too few for this constraint to be satisfied?
+                threatCountDelta = -1;
+            else if ((ushort)(count + 1) == MaxDisjunctsPlusOne) // Is the specified number of disjuncts one too many for this constraint to be satisfied?
+                threatCountDelta = 1;
+            return threatCountDelta;
         }
+
         /// <summary>
-        /// Is the specified number of disjuncts one too few for this constraint to be satisfied?
+        /// ThreatCountDelta when current clause is getting one less disjunct.
         /// </summary>
-        public override bool OneTooFewDisjuncts(ushort satisfiedDisjuncts)
+        public override int ThreatCountDeltaDecreasing(ushort count)
         {
-            return satisfiedDisjuncts == MinDisjunctsMinusOne;
+            int threatCountDelta = 0;
+            if ((ushort)(count - 1) == MinDisjunctsMinusOne) //Is the specified number of disjuncts one too few for this Clause to be satisfied? 
+                threatCountDelta = 1;
+            else if (count == MaxDisjunctsPlusOne) // Is the specified number of disjuncts one too many for this constraint to be satisfied?
+                threatCountDelta = -1;
+            return threatCountDelta;
         }
-
-
+        ///<summary>
+        /// transit prop appears as a negative literal in clause from false -> true,
+        /// OR prop appears as a positive literal in clause from true -> false
+        /// </summary>
+        public override void UpdateTruePositiveAndFalseNegative(BooleanSolver b, ushort cIndex)
+        {
+            if (b.TrueDisjunctCount[cIndex] == MaxDisjunctsPlusOne) // Is the specified number of disjuncts one too many for this constraint to be satisfied?
+                // We just satisfied it
+                b.unsatisfiedClauses.Remove(cIndex);
+            var dCount = --b.TrueDisjunctCount[cIndex];
+            if (dCount == MinDisjunctsMinusOne)  //Is the specified number of disjuncts one too few for this Clause to be satisfied? 
+                // It just transitioned from satisfied to unsatisfied
+                b.unsatisfiedClauses.Add(cIndex);
+        }
+        ///<summary>
+        /// transit prop appears as a negative literal in clause from true -> false,
+        /// OR prop appears as a positive literal in clause from false -> true
+        /// </summary>
+        public override void UpdateTrueNegativeAndFalsePositive(BooleanSolver b, ushort cIndex)
+        {
+            if (b.TrueDisjunctCount[cIndex] == MinDisjunctsMinusOne) //Is the specified number of disjuncts one too few for this Clause to be satisfied? 
+                // We just satisfied it
+                b.unsatisfiedClauses.Remove(cIndex);
+            var dCount = ++b.TrueDisjunctCount[cIndex];
+            if (dCount == MaxDisjunctsPlusOne)
+                // It just transitioned from satisfied to unsatisfied
+                b.unsatisfiedClauses.Add(cIndex);
+        }
         public string Decompile(Problem problem)
         {
             var b = new StringBuilder();
@@ -123,7 +160,7 @@ namespace CatSAT
 
         public override int GetHashCode() => Hash;
 
-        internal override bool EquivalentTo(Constraints c)
+        internal override bool EquivalentTo(Constraint c)
         {
             if (!(c is PseudoBooleanConstraint pbConstraint))
                 return false;

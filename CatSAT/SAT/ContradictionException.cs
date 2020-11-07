@@ -36,7 +36,7 @@ namespace CatSAT
         /// </summary>
         public readonly Problem Problem;
 
-        internal ContradictionException(Problem problem, Constraints constraints) : base($"Contradiction found in constraint {constraints.Decompile(problem)}")
+        internal ContradictionException(Problem problem, Constraint constraint) : base($"Contradiction found in constraint {constraint.Decompile(problem)}")
         {
             Problem = problem;
         }
