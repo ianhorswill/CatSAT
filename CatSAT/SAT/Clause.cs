@@ -70,31 +70,11 @@ namespace CatSAT
             IsNormalDisjunction = true;
         }
 
-
-        public string Decompile(Problem problem)
-        {
-            var b = new StringBuilder();
-            var firstOne = true;
-            foreach (var d in Disjuncts)
-            {
-                if (firstOne)
-                    firstOne = false;
-                else
-                    b.Append(" | ");
-                if (d < 0)
-                    b.Append('!');
-                b.Append(problem.SATVariables[Math.Abs(d)].Proposition.Name);
-            }
-            return b.ToString();
-        }
-
         public override int GetHashCode() => Hash;
 
         internal override bool EquivalentTo(Constraints c)
         {
             if (!(c is Clause normalConstraint))
-                return false;
-            if (MinDisjunctsMinusOne != normalConstraint.MinDisjunctsMinusOne)
                 return false;
             if (Disjuncts.Length != normalConstraint.Disjuncts.Length)
                 return false;
@@ -116,24 +96,46 @@ namespace CatSAT
         /// <returns>Whether the Clause is satisfied.</returns>
         public override bool IsSatisfied(ushort satisfiedDisjuncts)
         {
-            return satisfiedDisjuncts > MinDisjunctsMinusOne &&  satisfiedDisjuncts < Disjuncts.Length + 1;
+            return satisfiedDisjuncts > 0;
         }
 
         /// <summary>
-        /// Is the specified number of disjuncts one too many for this Clause to be satisfied?
+        /// ThreatCountDelta when current clause is getting one more true disjunct.
         /// </summary>
-        public override bool OneTooManyDisjuncts(ushort satisfiedDisjuncts)
+        public override int ThreatCountDeltaIncreasing(ushort count)
         {
-            return satisfiedDisjuncts == Disjuncts.Length + 1;
+            return (count == 0) ? -1 : 0;
+        }
+        /// <summary>
+        /// ThreatCountDelta when current clause is getting one less true disjunct.
+        /// </summary>
+        public override int ThreatCountDeltaDecreasing(ushort count)
+        {
+            return (count == 1) ? 1 : 0;
         }
 
-        /// <summary>
-        /// Is the specified number of disjuncts one too few for this Clause to be satisfied?
-        /// For normal clauses it's always true
+        ///<summary>
+        /// transit prop appears as a negative literal in clause from false -> true,
+        /// OR prop appears as a positive literal in clause from true -> false
         /// </summary>
-        public override bool OneTooFewDisjuncts(ushort satisfiedDisjuncts)
+        public override void UpdateTruePositiveAndFalseNegative(BooleanSolver b)
         {
-            return satisfiedDisjuncts == MinDisjunctsMinusOne;
+            var dCount = --b.TrueDisjunctCount[Index];
+            if (dCount == 0)
+                // It just transitioned from satisfied to unsatisfied
+                b.unsatisfiedClauses.Add(Index);
+        }
+
+        ///<summary>
+        /// transit prop appears as a negative literal in clause from true -> false,
+        /// OR prop appears as a positive literal in clause from false -> true
+        /// </summary>
+        public override void UpdateTrueNegativeAndFalsePositive(BooleanSolver b)
+        {
+            if (b.TrueDisjunctCount[Index] == 0)
+                // We just satisfied it
+                b.unsatisfiedClauses.Remove(Index);
+            ++b.TrueDisjunctCount[Index];
         }
 
         /// <summary>
@@ -144,7 +146,7 @@ namespace CatSAT
         public override ushort GreedyFlip(BooleanSolver b)
         {
             // If true, the clause has too few disjuncts true
-            bool increaseTrueDisjuncts = b.TrueDisjunctCount[Index] <= MinDisjunctsMinusOne;
+            bool increaseTrueDisjuncts = b.TrueDisjunctCount[Index] <= 0;
             //Signed indices of the disjuncts of the clause
             short[] disjuncts = Disjuncts;
             //Variable that was last chosen for flipping in this clause
@@ -194,8 +196,6 @@ namespace CatSAT
 
         internal override void Decompile(Problem p, StringBuilder b)
         {
-            if (MinDisjunctsMinusOne != 0)
-                b.Append($"{MinDisjunctsMinusOne + 1} ");
             var firstLit = true;
             foreach (var d in Disjuncts)
             {

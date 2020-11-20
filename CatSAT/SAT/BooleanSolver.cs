@@ -337,7 +337,7 @@ namespace CatSAT
                         // prop appears as a positive literal in clause.
                         // We just made it false, so clause now has fewer satisfied disjuncts.
                         var clause = Problem.Clauses[cIndex];
-                        clause.UpdateTruePositiveAndFalseNegative(this, cIndex);
+                        clause.UpdateTruePositiveAndFalseNegative(this);
                     }
 
                     // Update the clauses in which this appears as a negative literal
@@ -346,7 +346,7 @@ namespace CatSAT
                         // prop appears as a negative literal in clause.
                         // We just made it false, so clause now has more satisfied disjuncts.
                         var clause = Problem.Clauses[cIndex];
-                        clause.UpdateTrueNegativeAndFalsePositive(this, cIndex);
+                        clause.UpdateTrueNegativeAndFalsePositive(this);
                     }
                 }
                 else
@@ -361,7 +361,7 @@ namespace CatSAT
                         // prop appears as a positive literal in clause.
                         // We just made it true, so clause now has more satisfied disjuncts.
                         var clause = Problem.Clauses[cIndex];
-                        clause.UpdateTrueNegativeAndFalsePositive(this, cIndex);
+                        clause.UpdateTrueNegativeAndFalsePositive(this);
                     }
 
                     // Update the clauses in which this appears as a negative literal
@@ -370,7 +370,7 @@ namespace CatSAT
                         // prop appears as a negative literal in clause.
                         // We just made it true, so clause now has fewer satisfied disjuncts.
                         var clause = Problem.Clauses[cIndex];
-                        clause.UpdateTruePositiveAndFalseNegative(this, cIndex);
+                        clause.UpdateTruePositiveAndFalseNegative(this);
                     }
                 }
             }

@@ -23,22 +23,12 @@ namespace CatSAT
         /// </summary>
         public bool IsNormalDisjunction { get; protected set; }
 
-        /// <summary>
-        /// Minimum number of disjuncts that must be true in order for the constraint
-        /// to be satisfied, minus one.  For a normal clause, this is 0 (i.e. the real min number is 1)
-        /// </summary>
-        public readonly short MinDisjunctsMinusOne;
-
-
-
         protected Constraints(ushort min, short[] disjuncts, int extraHash)
         {
             Disjuncts = Disjuncts = disjuncts.Distinct().ToArray();
             Hash = ComputeHash(Disjuncts) ^ extraHash;
             if ((min != 1) && disjuncts.Length != Disjuncts.Length)
                 throw new ArgumentException("Nonstandard clause has non-unique disjuncts");
-            MinDisjunctsMinusOne = (short)(min - 1);
-            
         }
 
         private static int ComputeHash(short[] disjuncts)
@@ -75,71 +65,27 @@ namespace CatSAT
         public abstract bool IsSatisfied(ushort satisfiedDisjuncts);
 
         /// <summary>
-        /// Is the specified number of disjuncts one too many for this constraint to be satisfied?
+        /// ThreatCountDelta when current clause is getting one more true disjunct.
         /// </summary>
-        public abstract bool OneTooManyDisjuncts(ushort satisfiedDisjuncts);
+        public abstract int ThreatCountDeltaIncreasing(ushort count);
 
         /// <summary>
-        /// Is the specified number of disjuncts one too few for this constraint to be satisfied?
+        /// ThreatCountDelta when current clause is getting one less true disjunct.
         /// </summary>
-        public abstract bool OneTooFewDisjuncts(ushort satisfiedDisjuncts);
+        public abstract int ThreatCountDeltaDecreasing(ushort count);
 
-        /// <summary>
-        /// ThreatCountDelta when current clause is getting one more disjunct.
-        /// </summary>
-        /// <summary>
-        /// ThreatCountDelta when current clause is getting one more disjunct.
-        /// </summary>
-        public int ThreatCountDeltaIncreasing(ushort count)
-        {
-            int threatCountDelta = 0;
-            if (OneTooFewDisjuncts(count))
-                threatCountDelta = -1;
-            else if (OneTooManyDisjuncts((ushort)(count + 1)))
-                threatCountDelta = 1;
-            return threatCountDelta;
-        }
-        /// <summary>
-        /// ThreatCountDelta when current clause is getting one less disjunct.
-        /// </summary>
-        public int ThreatCountDeltaDecreasing(ushort count)
-        {
-            int threatCountDelta = 0;
-            if (OneTooFewDisjuncts((ushort)(count - 1)))
-                threatCountDelta = 1;
-            else if (OneTooManyDisjuncts(count))
-                threatCountDelta = -1;
-            return threatCountDelta;
-        }
         ///<summary>
         /// transit prop appears as a negative literal in clause from false -> true,
         /// OR prop appears as a positive literal in clause from true -> false
         /// </summary>
-        public void UpdateTruePositiveAndFalseNegative(BooleanSolver b, ushort cIndex)
-        {
-            if (OneTooManyDisjuncts(b.TrueDisjunctCount[cIndex]))
-                // We just satisfied it
-                b.unsatisfiedClauses.Remove(cIndex);
-            var dCount = --b.TrueDisjunctCount[cIndex];
-            if (OneTooFewDisjuncts(dCount))
-                // It just transitioned from satisfied to unsatisfied
-                b.unsatisfiedClauses.Add(cIndex);
-        }
+        public abstract void UpdateTruePositiveAndFalseNegative(BooleanSolver b);
 
         ///<summary>
         /// transit prop appears as a negative literal in clause from true -> false,
         /// OR prop appears as a positive literal in clause from false -> true
         /// </summary>
-        public void UpdateTrueNegativeAndFalsePositive(BooleanSolver b, ushort cIndex)
-        {
-            if (OneTooFewDisjuncts(b.TrueDisjunctCount[cIndex]))
-                // We just satisfied it
-                b.unsatisfiedClauses.Remove(cIndex);
-            var dCount = ++b.TrueDisjunctCount[cIndex];
-            if (OneTooManyDisjuncts(dCount))
-                // It just transitioned from satisfied to unsatisfied
-                b.unsatisfiedClauses.Add(cIndex);
-        }
+        public abstract void UpdateTrueNegativeAndFalsePositive(BooleanSolver b);
+
         /// <summary>
         /// Find the proposition from the specified clause that will do the least damage to the clauses that are already satisfied.
         /// </summary>
@@ -163,6 +109,5 @@ namespace CatSAT
         /// Check if this constraint is just a copy of (or identical to) the specified constraint
         /// </summary>
         internal abstract bool EquivalentTo(Constraints c);
-
     }
 }

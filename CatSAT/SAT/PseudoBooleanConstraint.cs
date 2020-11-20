@@ -57,6 +57,13 @@ namespace CatSAT
                 return b.ToString();
             }
         }
+
+        /// <summary>
+        /// Minimum number of disjuncts that must be true in order for the constraint
+        /// to be satisfied, minus one.  For a normal clause, this is 0 (i.e. the real min number is 1)
+        /// </summary>
+        public readonly short MinDisjunctsMinusOne;
+
         /// <summary>
         /// Maximum number of disjuncts that are allowed to be true in order for the
         /// constraint to be considered satisfied, plus one.
@@ -72,12 +79,10 @@ namespace CatSAT
         /// <param name="disjuncts">The disjuncts, encoded as signed proposition indices</param>
         internal PseudoBooleanConstraint(ushort min, ushort max, short[] disjuncts) : base(min, disjuncts, min ^ max)
         {
-            min = 1;
-            if ((min != 1||max != 0) && disjuncts.Length != Disjuncts.Length)
-                throw new ArgumentException("Nonstandard clause has non-unique disjuncts");
+            MinDisjunctsMinusOne = (short)(min - 1);
             MaxDisjunctsPlusOne = (ushort)(max == 0 ? disjuncts.Length + 1 : max + 1);
-            IsNormalDisjunction = false; //MinDisjunctsMinusOne == 0 && MaxDisjunctsPlusOne >= Disjuncts.Length + 1;
         }
+
         /// <summary>
         /// Is this constraint satisfied if the specified number of disjuncts is satisfied?
         /// </summary>
@@ -91,34 +96,72 @@ namespace CatSAT
         /// <summary>
         /// Is the specified number of disjuncts one too many for this constraint to be satisfied?
         /// </summary>
-        public override bool OneTooManyDisjuncts(ushort satisfiedDisjuncts)
+        public bool OneTooManyDisjuncts(ushort satisfiedDisjuncts)
         {
             return satisfiedDisjuncts == MaxDisjunctsPlusOne;
         }
+
         /// <summary>
         /// Is the specified number of disjuncts one too few for this constraint to be satisfied?
         /// </summary>
-        public override bool OneTooFewDisjuncts(ushort satisfiedDisjuncts)
+        public bool OneTooFewDisjuncts(ushort satisfiedDisjuncts)
         {
             return satisfiedDisjuncts == MinDisjunctsMinusOne;
         }
 
-
-        public string Decompile(Problem problem)
+        /// <summary>
+        /// ThreatCountDelta when current clause is getting one more true disjunct.
+        /// </summary>
+        public override int ThreatCountDeltaIncreasing(ushort count)
         {
-            var b = new StringBuilder();
-            var firstOne = true;
-            foreach (var d in Disjuncts)
-            {
-                if (firstOne)
-                    firstOne = false;
-                else
-                    b.Append(" | ");
-                if (d < 0)
-                    b.Append('!');
-                b.Append(problem.SATVariables[Math.Abs(d)].Proposition.Name);
-            }
-            return b.ToString();
+            int threatCountDelta = 0;
+            if (OneTooFewDisjuncts(count))
+                threatCountDelta = -1;
+            else if (OneTooManyDisjuncts((ushort)(count + 1)))
+                threatCountDelta = 1;
+            return threatCountDelta;
+        }
+        /// <summary>
+        /// ThreatCountDelta when current clause is getting one less true disjunct.
+        /// </summary>
+        public override int ThreatCountDeltaDecreasing(ushort count)
+        {
+            int threatCountDelta = 0;
+            if (OneTooFewDisjuncts((ushort)(count - 1)))
+                threatCountDelta = 1;
+            else if (OneTooManyDisjuncts(count))
+                threatCountDelta = -1;
+            return threatCountDelta;
+        }
+
+        ///<summary>
+        /// transit prop appears as a negative literal in clause from false -> true,
+        /// OR prop appears as a positive literal in clause from true -> false
+        /// </summary>
+        public override void UpdateTruePositiveAndFalseNegative(BooleanSolver b)
+        {
+            if (OneTooManyDisjuncts(b.TrueDisjunctCount[Index]))
+                // We just satisfied it
+                b.unsatisfiedClauses.Remove(Index);
+            var dCount = --b.TrueDisjunctCount[Index];
+            if (OneTooFewDisjuncts(dCount))
+                // It just transitioned from satisfied to unsatisfied
+                b.unsatisfiedClauses.Add(Index);
+        }
+
+        ///<summary>
+        /// transit prop appears as a negative literal in clause from true -> false,
+        /// OR prop appears as a positive literal in clause from false -> true
+        /// </summary>
+        public override void UpdateTrueNegativeAndFalsePositive(BooleanSolver b)
+        {
+            if (OneTooFewDisjuncts(b.TrueDisjunctCount[Index]))
+                // We just satisfied it
+                b.unsatisfiedClauses.Remove(Index);
+            var dCount = ++b.TrueDisjunctCount[Index];
+            if (OneTooManyDisjuncts(dCount))
+                // It just transitioned from satisfied to unsatisfied
+                b.unsatisfiedClauses.Add(Index);
         }
 
         public override int GetHashCode() => Hash;
