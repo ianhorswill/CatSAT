@@ -36,7 +36,7 @@ namespace CatSAT
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebugName) + "}")]
 #pragma warning disable 660,661
-    internal class Clause :Constraints
+    internal class Clause : Constraint
 #pragma warning restore 660,661
     {
         internal string DebugName
@@ -72,7 +72,7 @@ namespace CatSAT
 
         public override int GetHashCode() => Hash;
 
-        internal override bool EquivalentTo(Constraints c)
+        internal override bool EquivalentTo(Constraint c)
         {
             if (!(c is Clause normalConstraint))
                 return false;

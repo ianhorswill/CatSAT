@@ -36,7 +36,7 @@ namespace CatSAT
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebugName) + "}")]
 #pragma warning disable 660,661
-    internal class PseudoBooleanConstraint : Constraints
+    internal class PseudoBooleanConstraint : Constraint
     {
         internal string DebugName
         {
@@ -166,7 +166,7 @@ namespace CatSAT
 
         public override int GetHashCode() => Hash;
 
-        internal override bool EquivalentTo(Constraints c)
+        internal override bool EquivalentTo(Constraint c)
         {
             if (!(c is PseudoBooleanConstraint pbConstraint))
                 return false;

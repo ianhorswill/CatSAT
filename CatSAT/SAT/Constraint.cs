@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CatSAT
 {
-    internal abstract class Constraints
+    internal abstract class Constraint
     {
         /// <summary>
         /// The literals of the constraint
@@ -23,7 +23,7 @@ namespace CatSAT
         /// </summary>
         public bool IsNormalDisjunction { get; protected set; }
 
-        protected Constraints(ushort min, short[] disjuncts, int extraHash)
+        protected Constraint(ushort min, short[] disjuncts, int extraHash)
         {
             Disjuncts = Disjuncts = disjuncts.Distinct().ToArray();
             Hash = ComputeHash(Disjuncts) ^ extraHash;
@@ -108,6 +108,6 @@ namespace CatSAT
         /// <summary>
         /// Check if this constraint is just a copy of (or identical to) the specified constraint
         /// </summary>
-        internal abstract bool EquivalentTo(Constraints c);
+        internal abstract bool EquivalentTo(Constraint c);
     }
 }
