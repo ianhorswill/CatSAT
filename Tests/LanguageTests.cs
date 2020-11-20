@@ -592,7 +592,7 @@ namespace Tests
                     new Member("nationality", "race=human", "landia", "placeville", "cityburgh"),
                     new Member("religion", "class=cleric", "monotheist", "pantheist", "lovecraftian", "dawkinsian")
                 },
-                // Constraints
+                // Constraint
                 (p, v) =>
                 {
                     // Electroids are atheists

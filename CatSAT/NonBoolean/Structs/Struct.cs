@@ -41,7 +41,7 @@ namespace CatSAT
         /// </summary>
         /// <param name="name">Name of the variable</param>
         /// <param name="memberVariables">Variables to be created inside this variable</param>
-        /// <param name="constrainer">Procedure to add constraints to a newly created instance, if desired.</param>
+        /// <param name="constrainer">Procedure to add constraint to a newly created instance, if desired.</param>
         public Struct(string name, Member[] memberVariables, Action<Problem, StructVar> constrainer = null) : base(name)
         {
             this.memberVariables = memberVariables;

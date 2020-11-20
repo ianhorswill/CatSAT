@@ -28,7 +28,7 @@ using System.Collections.Generic;
 namespace CatSAT.NonBoolean.SMT.Float
 {
     /// <summary>
-    /// Base class for constraints such as SumConstraint.
+    /// Base class for constraint such as SumConstraint.
     /// Represents the constraint that Result = f(args) for some f and args
     /// </summary>
     abstract class FunctionalConstraint : FloatProposition

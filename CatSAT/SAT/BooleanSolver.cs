@@ -262,14 +262,14 @@ namespace CatSAT
             //    // For positive literals the satisfied disjunct count would decrease
             //    foreach (var cIndex in prop.PositiveClauses)
             //    {
-            //        if (Problem.Constraints[cIndex].OneTooFewDisjuncts((ushort)(trueDisjunctCount[cIndex] - 1)))
+            //        if (Problem.Constraint[cIndex].OneTooFewDisjuncts((ushort)(trueDisjunctCount[cIndex] - 1)))
             //            threatCount++;
             //    }
 
             //    // For negative literals, the satisfied disjunct count would increase
             //    foreach (var cIndex in prop.NegativeClauses)
             //    {
-            //        if (Problem.Constraints[cIndex].OneTooManyDisjuncts((ushort)(trueDisjunctCount[cIndex] + 1)))
+            //        if (Problem.Constraint[cIndex].OneTooManyDisjuncts((ushort)(trueDisjunctCount[cIndex] + 1)))
             //            threatCount++;
             //    }
             //}
@@ -280,14 +280,14 @@ namespace CatSAT
             //    // For positive literals the satisfied disjunct count would increase
             //    foreach (var cIndex in prop.PositiveClauses)
             //    {
-            //        if (Problem.Constraints[cIndex].OneTooManyDisjuncts((ushort)(trueDisjunctCount[cIndex] + 1)))
+            //        if (Problem.Constraint[cIndex].OneTooManyDisjuncts((ushort)(trueDisjunctCount[cIndex] + 1)))
             //            threatCount++;
             //    }
 
             //    // For negative literals, the satisfied disjunct count would decrease
             //    foreach (var cIndex in prop.NegativeClauses)
             //    {
-            //        if (Problem.Constraints[cIndex].OneTooFewDisjuncts((ushort)(trueDisjunctCount[cIndex] - 1)))
+            //        if (Problem.Constraint[cIndex].OneTooFewDisjuncts((ushort)(trueDisjunctCount[cIndex] - 1)))
             //            threatCount++;
             //    }
             //}

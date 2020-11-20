@@ -42,7 +42,7 @@ namespace CatSAT.NonBoolean.SMT.Float
 
         /// <summary>
         /// Check that other propositions don't depend on this one.
-        /// This is needed for propositions for which we can't implement their inverses as constraints.
+        /// This is needed for propositions for which we can't implement their inverses as constraint.
         /// </summary>
         protected void ValidateNotDependency()
         {

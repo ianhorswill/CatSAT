@@ -76,7 +76,7 @@
     <Compile Include="NonBoolean\Structs\ConditionAttribute.cs" />
     <Compile Include="SAT\PseudoBooleanConstraint.cs" />
     <Compile Include="SAT\Clause.cs" />
-    <Compile Include="SAT\Constraints.cs" />
+    <Compile Include="SAT\Constraint.cs" />
     <Compile Include="NonBoolean\Structs\CompiledStruct.cs" />
     <Compile Include="NonBoolean\Structs\CompiledStructType.cs" />
     <Compile Include="NonBoolean\Domain.cs" />
