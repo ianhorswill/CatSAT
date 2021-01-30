@@ -27,6 +27,7 @@ using System;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
 using static CatSAT.Language;
@@ -451,7 +452,7 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// Forcibly add a constraint to the Problem.
+        /// Forcibly add a normal constraint to the Problem.
         /// </summary>
         internal Constraint AddClause(ushort min, params Literal[] disjuncts)
         {
@@ -464,7 +465,7 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// Forcibly add a constraint to the Problem.
+        /// Forcibly add a PseudoBoolean constraint to the Problem.
         /// </summary>
         internal Constraint AddClause(ushort min, ushort max, params Literal[] disjuncts)
         {
@@ -475,6 +476,21 @@ namespace CatSAT
 
             return clause;
         }
+
+        /// <summary>
+        /// Forcibly add a Conditional PBC to the Problem.
+        /// If the condition is true, add it as a PBC.
+        /// Else ignore it
+        /// </summary>
+        internal void AddClause(ushort min, ushort max, bool condition, params Literal[] disjuncts)
+        {
+            var compiled = CompileClause(disjuncts);
+            var clause = new ConditionalPBC(min, max, condition, compiled);
+            if (condition) AddClause(min, max, disjuncts);
+            else return;
+        }
+
+
 
         /// <summary>
         /// Forcibly add a constraint to the Problem.

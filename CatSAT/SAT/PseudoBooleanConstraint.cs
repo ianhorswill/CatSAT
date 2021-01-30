@@ -31,7 +31,7 @@ namespace CatSAT
     /// <summary>
     /// Represents a subclass of Constraint, for the pseudo-Boolean constraints, in a Problem.
     /// The name is a slight misnomer, since a true clause is satisfied as long as at least one disjunct is satisfied.
-    /// A clause in CatSAT is a generalized cardinality constraint, meaning the user can specify arbitrary max/min
+    /// A PseudoBoolean Constrain in CatSAT is a generalized cardinality constraint, meaning the user can specify arbitrary max/min
     /// number of disjuncts may be satisfied.
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebugName) + "}")]
@@ -70,6 +70,12 @@ namespace CatSAT
         /// For a normal clause, there is no limit, so this gets set to Disjuncts.Count+1.
         /// </summary>
         public readonly ushort MaxDisjunctsPlusOne;
+
+        /// <summary>
+        /// True if this is a Conditional PBC
+        /// Currently not referenced... yet
+        /// </summary>
+        public bool IsConditional { get; protected set; }
 
         /// <summary>
         /// Make a new clause (but doesn't add it to a Program)

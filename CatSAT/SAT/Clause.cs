@@ -31,7 +31,7 @@ namespace CatSAT
     /// <summary>
     /// Represents a Clause in a Problem.
     /// The name is a slight misnomer, since a true clause is satisfied as long as at least one disjunct is satisfied.
-    /// A clause in CatSAT is a generalized cardinality Clause, meaning the user can specify arbitrary max/min
+    /// A clause in CatSAT is a generalized cardinality Clause, meaning the user can specify arbitrary min
     /// number of disjuncts may be satisfied.
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebugName) + "}")]

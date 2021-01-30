@@ -74,6 +74,7 @@
     <Compile Include="SAT\BooleanSolver.cs" />
     <Compile Include="SAT\Call.cs" />
     <Compile Include="NonBoolean\Structs\ConditionAttribute.cs" />
+    <Compile Include="SAT\ConditionalPBC.cs" />
     <Compile Include="SAT\PseudoBooleanConstraint.cs" />
     <Compile Include="SAT\Clause.cs" />
     <Compile Include="SAT\Constraint.cs" />

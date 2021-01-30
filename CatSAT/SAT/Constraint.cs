@@ -48,7 +48,7 @@ namespace CatSAT
         /// </summary>
         /// <param name="solution">Solution to test against</param>
         /// <returns>Number of satisfied disjuncts</returns>
-        public ushort CountDisjuncts(Solution solution)
+        public virtual ushort CountDisjuncts(Solution solution)
         {
             ushort count = 0;
             foreach (var d in Disjuncts)
