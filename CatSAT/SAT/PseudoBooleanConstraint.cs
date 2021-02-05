@@ -98,6 +98,8 @@ namespace CatSAT
         {
             return satisfiedDisjuncts > MinDisjunctsMinusOne && satisfiedDisjuncts < MaxDisjunctsPlusOne;
         }
+        public virtual bool IsSatisfied(ushort satisfiedDisjuncts, Solution solution) => throw new NotImplementedException();
+        
 
         /// <summary>
         /// Is the specified number of disjuncts one too many for this constraint to be satisfied?
@@ -154,6 +156,7 @@ namespace CatSAT
                 // It just transitioned from satisfied to unsatisfied
                 b.unsatisfiedClauses.Add(Index);
         }
+        public virtual void UpdateTruePositiveAndFalseNegative(BooleanSolver b, Solution solution) => throw new NotImplementedException();
 
         ///<summary>
         /// transit prop appears as a negative literal in clause from true -> false,
@@ -170,7 +173,10 @@ namespace CatSAT
                 b.unsatisfiedClauses.Add(Index);
         }
 
-        public override int GetHashCode() => Hash;
+        public virtual void UpdateTrueNegativeAndFalsePositive(BooleanSolver b, Solution solution) => throw new NotImplementedException();
+    
+
+    public override int GetHashCode() => Hash;
 
         internal override bool EquivalentTo(Constraint c)
         {

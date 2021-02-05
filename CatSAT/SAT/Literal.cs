@@ -40,7 +40,7 @@ namespace CatSAT
         /// Returns the proposition with the specified name
         /// </summary>
         /// <param name="s">Name of hte proposition</param>
-        /// <returns>The proposition with that naem</returns>
+        /// <returns>The proposition with that name</returns>
         public static implicit operator Literal(string s)
         {
             return Proposition.MakeProposition(s);

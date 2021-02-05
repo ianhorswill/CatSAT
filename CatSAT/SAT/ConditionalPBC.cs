@@ -40,13 +40,7 @@ namespace CatSAT
         /// The condition Boolean in the clause that needs to be true
         /// If false, ignore the whole constraint.
         /// </summary>
-        public readonly Boolean ConditionBoolean;
-
-        /// <summary>
-        /// The BooleanSolver for which this is a solution.
-        /// </summary>
-        public readonly BooleanSolver BooleanSolver;
-
+        public readonly short Condition;
 
         /// <summary>
         /// Make a new clause (but doesn't add it to a Program)
@@ -54,41 +48,66 @@ namespace CatSAT
         /// <param name="min">Minimum number of disjuncts that must be true to consider the clause satisfied</param>
         /// <param name="max">Maximum number of disjuncts that are allowed to be true to consider the clause satisfied, or 0 if the is no maximum</param>
         /// <param name="disjuncts">The disjuncts, encoded as signed proposition indices</param>
-        /// <param name="conditionBoolean"> The condition Boolean in the clause that needs to be true </param>
-        internal ConditionalPBC(ushort min, ushort max, bool conditionBoolean, short[] disjuncts) : base(min, max, disjuncts)
+        /// <param name="condition"> The condition literal in the clause that needs to be true </param>
+        internal ConditionalPBC(ushort min, ushort max, short condition, short[] disjuncts) : base(min, max, disjuncts)
         {
-            ConditionBoolean = conditionBoolean;
+            Condition = condition;
             IsConditional = true;
         }
 
         /// <summary>
-        /// Return the number of disjuncts that are satisfied in the specified solution (i.e. model).
-        ///  Currently not referenced... yet
-        /// <param name="solution">Solution to test against</param>
-        /// <returns>Number of satisfied disjuncts</returns>
-        public override ushort CountDisjuncts(Solution solution)
-        {
-            ushort count = 0;
-            if (ConditionBoolean)
-                return (ushort) (MinDisjunctsMinusOne + 1);
-            else 
-                foreach (var d in Disjuncts) 
-                    if (solution.IsTrue(d)) 
-                        count++; 
-            return count;
-        }
+        /// Is this constraint satisfied if the specified number of disjuncts is satisfied?
+        /// <param name="satisfiedDisjuncts">Number of satisfied disjuncts</param>
+        /// <param name="solution">The solution object containing the model we're generating </param>
+        /// <returns>Whether the constraint is satisfied.</returns>
+        /// </summary>
+        public override bool IsSatisfied(ushort satisfiedDisjuncts, Solution solution) 
+            => solution.IsTrue(Condition) || base.IsSatisfied(satisfiedDisjuncts, solution);  //base.IsSatisfied(satisfiedDisjuncts)
 
         /// <summary>
-        /// Is this constraint satisfied if the specified number of disjuncts is satisfied?
-        /// Currently not referenced... yet
-        /// <param name="satisfiedDisjuncts">Number of satisfied disjuncts</param>
-        /// <returns>Whether the constraint is satisfied.</returns>
-        public override bool IsSatisfied(ushort satisfiedDisjuncts)
+        /// Check if the conditional PBC's condition literal is satisfied.
+        /// </summary>
+        public override bool IsEnabled(Solution s) => s.IsTrue(Condition);
+
+
+        ///<summary>
+        /// transit prop appears as a negative literal in clause from false -> true,
+        /// OR prop appears as a positive literal in clause from true -> false
+        /// </summary>
+        public override void UpdateTruePositiveAndFalseNegative(BooleanSolver b, Solution solution)
         {
-            if (ConditionBoolean)
-                return true;
+            if (OneTooManyDisjuncts(b.TrueDisjunctCount[Index]))
+                // We just satisfied it
+                b.unsatisfiedClauses.Remove(Index);
+            var dCount = --b.TrueDisjunctCount[Index];
+            if (OneTooFewDisjuncts(dCount))
+                // It just transitioned from satisfied to unsatisfied
+                b.unsatisfiedClauses.Add(Index);
+            //check if condition literal enabled
+            if (IsEnabled(solution))
+                b.unsatisfiedClauses.Add(Index);
             else 
-                return satisfiedDisjuncts > MinDisjunctsMinusOne && satisfiedDisjuncts < MaxDisjunctsPlusOne;
+                b.unsatisfiedClauses.Remove(Index);
+        }
+
+        ///<summary>
+        /// transit prop appears as a negative literal in clause from true -> false,
+        /// OR prop appears as a positive literal in clause from false -> true
+        /// </summary>
+        public override void UpdateTrueNegativeAndFalsePositive(BooleanSolver b, Solution solution)
+        {
+            if (OneTooFewDisjuncts(b.TrueDisjunctCount[Index]))
+                // We just satisfied it
+                b.unsatisfiedClauses.Remove(Index);
+            var dCount = ++b.TrueDisjunctCount[Index];
+            if (OneTooManyDisjuncts(dCount))
+                // It just transitioned from satisfied to unsatisfied
+                b.unsatisfiedClauses.Add(Index);
+            //check if condition literal enabled
+            if (IsEnabled(solution))
+                b.unsatisfiedClauses.Add(Index);
+            else 
+                b.unsatisfiedClauses.Remove(Index);
         }
     }
 }

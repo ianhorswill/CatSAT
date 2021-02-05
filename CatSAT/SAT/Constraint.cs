@@ -64,6 +64,8 @@ namespace CatSAT
         /// <returns>Whether the constraint is satisfied.</returns>
         public abstract bool IsSatisfied(ushort satisfiedDisjuncts);
 
+        
+
         /// <summary>
         /// ThreatCountDelta when current clause is getting one more true disjunct.
         /// </summary>
@@ -93,6 +95,7 @@ namespace CatSAT
         /// <returns>Index of the prop to flip</returns>
         public abstract ushort GreedyFlip(BooleanSolver b);
 
+
         internal abstract void Decompile(Problem p, StringBuilder b);
 
         /// <summary>
@@ -109,5 +112,12 @@ namespace CatSAT
         /// Check if this constraint is just a copy of (or identical to) the specified constraint
         /// </summary>
         internal abstract bool EquivalentTo(Constraint c);
+
+
+        /// <summary>
+        /// Check if a constraint's condition literal is satisfied.
+        /// Conditional PBC only. Default true for all other types of constraint.
+        /// </summary>
+        public virtual bool IsEnabled(Solution s) => true;
     }
 }

@@ -479,15 +479,17 @@ namespace CatSAT
 
         /// <summary>
         /// Forcibly add a Conditional PBC to the Problem.
-        /// If the condition is true, add it as a PBC.
-        /// Else ignore it
+        /// If the condition is true, add it as a PBC. Else ignore it
+        /// different name from AddClause() because it always regarding condition literal as the first literal in a disjunct as normal PBC.
         /// </summary>
-        internal void AddClause(ushort min, ushort max, bool condition, params Literal[] disjuncts)
+        internal Constraint AddConditionClause(ushort min, ushort max, Literal condition, params Literal[] disjuncts)
         {
-            var compiled = CompileClause(disjuncts);
-            var clause = new ConditionalPBC(min, max, condition, compiled);
-            if (condition) AddClause(min, max, disjuncts);
-            else return;
+            // Look up the internal numeric literal representations for all the disjuncts in constraint
+            var compiledDisjuncts = CompileClause(disjuncts);
+            var conditionShort = condition.SignedIndex;//CompileClause(new[] {condition})[0] //condition.SignedIndex //condition.BaseProposition
+            var clause = new ConditionalPBC(min, max, conditionShort, compiledDisjuncts);
+            AddClause(clause);
+            return clause;
         }
 
 

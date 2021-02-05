@@ -420,7 +420,6 @@ namespace CatSAT
             totalUtility = 0;
             improvablePropositions.Clear();
             var vars = Problem.SATVariables;
-
             // Initialize propositions[] and compute totalUtility
             for (ushort i = 0; i < Propositions.Length; i++)
             {
@@ -442,7 +441,8 @@ namespace CatSAT
                 var c = Problem.Clauses[i];
                 var satisfiedDisjuncts = c.CountDisjuncts(solution);
                 TrueDisjunctCount[i] = satisfiedDisjuncts;
-                if (!c.IsSatisfied(satisfiedDisjuncts))
+                var enable = c.IsEnabled(solution);
+                if (!c.IsSatisfied(satisfiedDisjuncts) && c.IsEnabled(solution))
                     unsatisfiedClauses.Add(i);
             }
 
