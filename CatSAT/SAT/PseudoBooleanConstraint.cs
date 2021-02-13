@@ -156,7 +156,6 @@ namespace CatSAT
                 // It just transitioned from satisfied to unsatisfied
                 b.unsatisfiedClauses.Add(Index);
         }
-        public virtual void UpdateTruePositiveAndFalseNegative(BooleanSolver b, Solution solution) => throw new NotImplementedException();
 
         ///<summary>
         /// transit prop appears as a negative literal in clause from true -> false,
@@ -173,7 +172,6 @@ namespace CatSAT
                 b.unsatisfiedClauses.Add(Index);
         }
 
-        public virtual void UpdateTrueNegativeAndFalsePositive(BooleanSolver b, Solution solution) => throw new NotImplementedException();
     
 
     public override int GetHashCode() => Hash;

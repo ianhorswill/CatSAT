@@ -23,6 +23,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 using System;
+using System.CodeDom;
 using System.Diagnostics;
 using System.Text;
 
@@ -74,40 +75,38 @@ namespace CatSAT
         /// transit prop appears as a negative literal in clause from false -> true,
         /// OR prop appears as a positive literal in clause from true -> false
         /// </summary>
-        public override void UpdateTruePositiveAndFalseNegative(BooleanSolver b, Solution solution)
+        public override void UpdateTruePositiveAndFalseNegative(BooleanSolver b)
         {
-            if (OneTooManyDisjuncts(b.TrueDisjunctCount[Index]))
-                // We just satisfied it
-                b.unsatisfiedClauses.Remove(Index);
-            var dCount = --b.TrueDisjunctCount[Index];
-            if (OneTooFewDisjuncts(dCount))
-                // It just transitioned from satisfied to unsatisfied
-                b.unsatisfiedClauses.Add(Index);
-            //check if condition literal enabled
-            if (IsEnabled(solution))
-                b.unsatisfiedClauses.Add(Index);
-            else 
-                b.unsatisfiedClauses.Remove(Index);
+            {
+                if (b.unsatisfiedClauses.Contains(Index))
+                {
+                    if ((OneTooManyDisjuncts(b.TrueDisjunctCount[Index]) && IsEnabled(b.Solution))
+                        || !IsEnabled(b.Solution))
+                        // We just satisfied it or condition just disabled
+                        b.unsatisfiedClauses.Remove(Index);
+                }
+                var dCount = --b.TrueDisjunctCount[Index];
+                if (OneTooFewDisjuncts(dCount) && IsEnabled(b.Solution) && !b.unsatisfiedClauses.Contains(Index))
+                    // It just transitioned from satisfied to unsatisfied, or condition just enabled
+                    b.unsatisfiedClauses.Add(Index);
+            }
         }
 
         ///<summary>
         /// transit prop appears as a negative literal in clause from true -> false,
         /// OR prop appears as a positive literal in clause from false -> true
         /// </summary>
-        public override void UpdateTrueNegativeAndFalsePositive(BooleanSolver b, Solution solution)
+        public override void UpdateTrueNegativeAndFalsePositive(BooleanSolver b)
         {
-            if (OneTooFewDisjuncts(b.TrueDisjunctCount[Index]))
-                // We just satisfied it
-                b.unsatisfiedClauses.Remove(Index);
+            if (b.unsatisfiedClauses.Contains(Index)) {
+                if ((OneTooFewDisjuncts(b.TrueDisjunctCount[Index]) && IsEnabled(b.Solution)) || !IsEnabled(b.Solution))
+                // We just satisfied it or it was disabled
+                    b.unsatisfiedClauses.Remove(Index);
+            }
             var dCount = ++b.TrueDisjunctCount[Index];
-            if (OneTooManyDisjuncts(dCount))
-                // It just transitioned from satisfied to unsatisfied
+            if (OneTooManyDisjuncts(dCount) && IsEnabled(b.Solution) &&!b.unsatisfiedClauses.Contains(Index))
+                // It just transitioned from satisfied to unsatisfied, or condition just enabled
                 b.unsatisfiedClauses.Add(Index);
-            //check if condition literal enabled
-            if (IsEnabled(solution))
-                b.unsatisfiedClauses.Add(Index);
-            else 
-                b.unsatisfiedClauses.Remove(Index);
         }
     }
 }

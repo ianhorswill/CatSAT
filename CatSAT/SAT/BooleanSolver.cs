@@ -59,7 +59,7 @@ namespace CatSAT
         /// <summary>
         /// The solution object containing the model we're generating.
         /// </summary>
-        private Solution solution;
+        public Solution Solution;
 
         /// <summary>
         /// States of the different propositions of the Program, indexed by proposition number.
@@ -130,7 +130,7 @@ namespace CatSAT
         /// <returns>True if a satisfying assignment was found.</returns>
         internal bool Solve(Solution s, int timeout, out int unusedFlips, bool continuePreviousSearch = false)
         {
-            solution = s;
+            Solution = s;
             Propositions = s.Propositions;
             if (Propositions.Length == 1 && Problem.TheorySolvers == null)
                 // Trivial problem, since propositions[0] isn't a real proposition.
@@ -199,7 +199,7 @@ namespace CatSAT
 
             if (unsatisfiedClauses.Size == 0 && Problem.TheorySolvers != null)
                 // Ask the theory solvers, if any, to do their work
-                if (!Problem.TheorySolvers.All(p => p.Value.Solve(solution)))
+                if (!Problem.TheorySolvers.All(p => p.Value.Solve(Solution)))
                     // They failed; try again
                     goto restart;
 
@@ -207,7 +207,7 @@ namespace CatSAT
             SolveTimeMicroseconds = Problem.Stopwatch.ElapsedTicks / (Stopwatch.Frequency * 0.000001f);
             SolveFlips = timeout - remainingFlips;
 #endif
-            solution.Utility = totalUtility;
+            Solution.Utility = totalUtility;
             unusedFlips = remainingFlips-1;
             return unsatisfiedClauses.Size == 0;
         }
@@ -439,10 +439,9 @@ namespace CatSAT
             for (ushort i = 0; i < TrueDisjunctCount.Length; i++)
             {
                 var c = Problem.Clauses[i];
-                var satisfiedDisjuncts = c.CountDisjuncts(solution);
+                var satisfiedDisjuncts = c.CountDisjuncts(Solution);
                 TrueDisjunctCount[i] = satisfiedDisjuncts;
-                var enable = c.IsEnabled(solution);
-                if (!c.IsSatisfied(satisfiedDisjuncts) && c.IsEnabled(solution))
+                if (!c.IsSatisfied(satisfiedDisjuncts) && c.IsEnabled(Solution))
                     unsatisfiedClauses.Add(i);
             }
 
@@ -504,6 +503,12 @@ namespace CatSAT
 #endif
                 Size = 0;
             }
+
+            public Boolean Contains(ushort target)
+            {
+                return indices[target] != ushort.MaxValue;
+            }
+
         }
         #endregion
     }
