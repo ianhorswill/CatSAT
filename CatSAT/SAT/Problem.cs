@@ -478,11 +478,10 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// Forcibly add a Conditional PBC to the Problem.
-        /// If the condition is true, add it as a PBC. Else ignore it
-        /// different name from AddClause() because it always regarding condition literal as the first literal in a disjunct as normal PBC.
+        /// Add a Conditional PBC to the Problem.
+        /// Acts like a PBC in models for which the condition is true, has no effect in other models.
         /// </summary>
-        internal Constraint AddConditionClause(ushort min, ushort max, Literal condition, params Literal[] disjuncts)
+        internal Constraint AddConditionalClause(ushort min, ushort max, Literal condition, params Literal[] disjuncts)
         {
             // Look up the internal numeric literal representations for all the disjuncts in constraint
             var compiledDisjuncts = CompileClause(disjuncts);

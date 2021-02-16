@@ -34,7 +34,7 @@ namespace Tests
         public void ConditionalTest1()
         {
             var p = new Problem("MultipleCardinality");
-            p.AddConditionClause(2, 2, "a", "a", "c");
+            p.AddConditionalClause(2, 2, "a", "a", "c");
             p.AddClause(1, 1, "b", "c");
             for (int i = 0; i < 1000; i++)
             {
@@ -61,7 +61,7 @@ namespace Tests
         public void ConditionalTest3()
         {
             var p = new Problem("SingleClause");
-            p.AddConditionClause(2, 2, "a", "b", "c");
+            p.AddConditionalClause(2, 2, "a", "b", "c");
             for (int i = 0; i < 100; i++)
             {
                 var m = p.Solve();
@@ -73,7 +73,7 @@ namespace Tests
         public void ConditionalTest4()
         {
             var p = new Problem("SingleClause2");
-            p.AddConditionClause(1, 1, "a", "b", "c");
+            p.AddConditionalClause(1, 1, "a", "b", "c");
             for (int i = 0; i < 100; i++)
             {
                 var m = p.Solve();
@@ -88,7 +88,7 @@ namespace Tests
         {
             var p = new Problem("MultipleCardinality2");
             p.AddClause(1, 1, "e");
-            p.AddConditionClause(2, 2, "a", "a", "c");
+            p.AddConditionalClause(2, 2, "a", "a", "c");
             p.AddClause(1, 1, "b", "c");
             p.AddClause(1, 1, "d");
             for (int i = 0; i < 100; i++)

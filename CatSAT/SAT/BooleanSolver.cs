@@ -80,7 +80,7 @@ namespace CatSAT
         /// <summary>
         /// Total number of unsatisfied clauses
         /// </summary>
-        public DynamicUShortSet unsatisfiedClauses;
+        public DynamicUShortSet UnsatisfiedClauses;
 
         /// <summary>
         /// Propositions that would increase utility if they were flipped.
@@ -100,7 +100,7 @@ namespace CatSAT
             var clausesCount = problem.Clauses.Count;
             TrueDisjunctCount = new ushort[clausesCount];
             LastFlip = new ushort[clausesCount];
-            unsatisfiedClauses = new DynamicUShortSet(clausesCount);
+            UnsatisfiedClauses = new DynamicUShortSet(clausesCount);
             improvablePropositions = new DynamicUShortSet(problem.SATVariables.Count);
 
         }
@@ -159,10 +159,10 @@ namespace CatSAT
             var flipsSinceImprovement = 0;
             var wp = 0f;
 
-            for (; unsatisfiedClauses.Size > 0 && remainingFlips > 0; remainingFlips--)
+            for (; UnsatisfiedClauses.Size > 0 && remainingFlips > 0; remainingFlips--)
             {
                 // Hill climb: pick an unsatisfied clause at random and flip one of its variables
-                var targetClauseIndex = unsatisfiedClauses.RandomElement;
+                var targetClauseIndex = UnsatisfiedClauses.RandomElement;
                 var targetClause = Problem.Clauses[targetClauseIndex];
                 ushort flipChoice;
 
@@ -174,12 +174,12 @@ namespace CatSAT
                     // Hill climb: pick an unsatisfied clause at random and flip one of its variables;
                     flipChoice = targetClause.GreedyFlip(this);
                 LastFlip[targetClauseIndex] = flipChoice;
-                var oldSatisfactionCount = unsatisfiedClauses.Size;
+                var oldSatisfactionCount = UnsatisfiedClauses.Size;
                 Flip(flipChoice);
                 //do NOT update noise level if it's a Pseudo Boolean Constraint (i.e. not normal)
                 if (targetClause.IsNormalDisjunction)
                 {
-                    if (unsatisfiedClauses.Size < oldSatisfactionCount)
+                    if (UnsatisfiedClauses.Size < oldSatisfactionCount)
                     {
                         // Improvement
                         flipsSinceImprovement = 0;
@@ -197,7 +197,7 @@ namespace CatSAT
                 }
             }
 
-            if (unsatisfiedClauses.Size == 0 && Problem.TheorySolvers != null)
+            if (UnsatisfiedClauses.Size == 0 && Problem.TheorySolvers != null)
                 // Ask the theory solvers, if any, to do their work
                 if (!Problem.TheorySolvers.All(p => p.Value.Solve(Solution)))
                     // They failed; try again
@@ -209,7 +209,7 @@ namespace CatSAT
 #endif
             Solution.Utility = totalUtility;
             unusedFlips = remainingFlips-1;
-            return unsatisfiedClauses.Size == 0;
+            return UnsatisfiedClauses.Size == 0;
         }
 
         /// <summary>
@@ -433,7 +433,7 @@ namespace CatSAT
                     totalUtility += utility;
             }
 
-            unsatisfiedClauses.Clear();
+            UnsatisfiedClauses.Clear();
 
             // Initialize trueDisjunctCount[] and unsatisfiedClauses
             for (ushort i = 0; i < TrueDisjunctCount.Length; i++)
@@ -442,7 +442,7 @@ namespace CatSAT
                 var satisfiedDisjuncts = c.CountDisjuncts(Solution);
                 TrueDisjunctCount[i] = satisfiedDisjuncts;
                 if (!c.IsSatisfied(satisfiedDisjuncts) && c.IsEnabled(Solution))
-                    unsatisfiedClauses.Add(i);
+                    UnsatisfiedClauses.Add(i);
             }
 
             //CheckUtility();
@@ -450,9 +450,16 @@ namespace CatSAT
         #endregion
 
         #region Dynamic sets
-
+        /// <summary>
+        /// Fast implementation of a dynamic set of ushorts less than some maximum value.
+        /// uses O(max) space.
+        /// </summary>
         public struct DynamicUShortSet
         {
+            /// <summary>
+            /// Make an initially empty set of ushorts no larger than max-1.
+            /// </summary>
+            /// <param name="max">Largest allowable ushort + 1</param>
             public DynamicUShortSet(int max)
             {
                 contents = new ushort[max];
@@ -461,19 +468,39 @@ namespace CatSAT
                 Clear();
             }
 
+            /// <summary>
+            /// Array holding the set of ushorts currently in the set
+            /// </summary>
             private readonly ushort[] contents;
+            /// <summary>
+            /// Array for each possible ushort giving the location in contents that that short is listed
+            /// or ushort.MaxValue, if it's not in the set at all.
+            /// </summary>
             private readonly ushort[] indices;
+            /// <summary>
+            /// Number of elements in the set
+            /// </summary>
             public ushort Size;
 
-            // ReSharper disable once UnusedMember.Local
+            /// <summary>
+            /// Returns the i'th element of the set.
+            /// </summary>
+            /// <param name="i">Position in the set, from 0..Size-1</param>
             public ushort this[int i]
             {
                 get => contents[i];
                 set => contents[i] = value;
             }
 
+            /// <summary>
+            /// A randomly chosen element of the set.
+            /// Set must currently be non-empty.
+            /// </summary>
             public ushort RandomElement => contents[Random.Next() % Size];
 
+            /// <summary>
+            /// Adds an element to the set.
+            /// </summary>
             public void Add(ushort elt)
             {
                 var index = Size++;
@@ -482,6 +509,9 @@ namespace CatSAT
                 contents[index] = elt;
             }
 
+            /// <summary>
+            /// Removes an element from the set
+            /// </summary>
             public void Remove(ushort elt)
             {
                 Debug.Assert(indices[elt] != ushort.MaxValue, "Deleting element not in set");
@@ -495,6 +525,9 @@ namespace CatSAT
                 #endif
             }
 
+            /// <summary>
+            /// Remove all elements from the set
+            /// </summary>
             public void Clear()
             {
 #if DEBUG
@@ -504,6 +537,9 @@ namespace CatSAT
                 Size = 0;
             }
 
+            /// <summary>
+            /// True if the set contains this element
+            /// </summary>
             public Boolean Contains(ushort target)
             {
                 return indices[target] != ushort.MaxValue;

@@ -123,7 +123,7 @@ namespace CatSAT
             var dCount = --b.TrueDisjunctCount[Index];
             if (dCount == 0)
                 // It just transitioned from satisfied to unsatisfied
-                b.unsatisfiedClauses.Add(Index);
+                b.UnsatisfiedClauses.Add(Index);
         }
 
         ///<summary>
@@ -134,8 +134,8 @@ namespace CatSAT
         {
             if (b.TrueDisjunctCount[Index] == 0)
                 // We just satisfied it
-                b.unsatisfiedClauses.Remove(Index);
-            ++b.TrueDisjunctCount[Index];
+                b.UnsatisfiedClauses.Remove(Index);
+            b.TrueDisjunctCount[Index]++;
         }
 
         /// <summary>

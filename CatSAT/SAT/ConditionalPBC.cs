@@ -22,16 +22,14 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-using System;
-using System.CodeDom;
+
 using System.Diagnostics;
-using System.Text;
 
 namespace CatSAT
 {
     /// <summary>
     /// Represents a subclass of Pseudo Boolean Constraint in a Problem.
-    /// A Conditional PBC is a PBC with an extra condition boolean.
+    /// A Conditional PBC is a PBC that has no effect in models for which the condition is false.
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebugName) + "}")]
 #pragma warning disable 660,661
@@ -57,15 +55,6 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// Is this constraint satisfied if the specified number of disjuncts is satisfied?
-        /// <param name="satisfiedDisjuncts">Number of satisfied disjuncts</param>
-        /// <param name="solution">The solution object containing the model we're generating </param>
-        /// <returns>Whether the constraint is satisfied.</returns>
-        /// </summary>
-        public override bool IsSatisfied(ushort satisfiedDisjuncts, Solution solution) 
-            => solution.IsTrue(Condition) || base.IsSatisfied(satisfiedDisjuncts, solution);  //base.IsSatisfied(satisfiedDisjuncts)
-
-        /// <summary>
         /// Check if the conditional PBC's condition literal is satisfied.
         /// </summary>
         public override bool IsEnabled(Solution s) => s.IsTrue(Condition);
@@ -77,19 +66,19 @@ namespace CatSAT
         /// </summary>
         public override void UpdateTruePositiveAndFalseNegative(BooleanSolver b)
         {
+            var dCount = --b.TrueDisjunctCount[Index];
+            var isEnabled = IsEnabled(b.Solution);
+            if (b.UnsatisfiedClauses.Contains(Index))
             {
-                if (b.unsatisfiedClauses.Contains(Index))
-                {
-                    if ((OneTooManyDisjuncts(b.TrueDisjunctCount[Index]) && IsEnabled(b.Solution))
-                        || !IsEnabled(b.Solution))
-                        // We just satisfied it or condition just disabled
-                        b.unsatisfiedClauses.Remove(Index);
-                }
-                var dCount = --b.TrueDisjunctCount[Index];
-                if (OneTooFewDisjuncts(dCount) && IsEnabled(b.Solution) && !b.unsatisfiedClauses.Contains(Index))
-                    // It just transitioned from satisfied to unsatisfied, or condition just enabled
-                    b.unsatisfiedClauses.Add(Index);
+                if (OneTooManyDisjuncts((ushort) (dCount+1)) || !isEnabled)
+                    // We just satisfied it or condition just disabled
+                    b.UnsatisfiedClauses.Remove(Index);
             }
+            // I think this needs to be !IsSatisfied rather than OneTooFewDisjuncts to handle
+            // the case where the clause becomes enabled while it's satisfied by not at OneTooFewDisjuncts.
+            else if (!IsSatisfied(dCount) && isEnabled)
+                // It just transitioned from satisfied to unsatisfied, or condition just enabled
+                b.UnsatisfiedClauses.Add(Index);
         }
 
         ///<summary>
@@ -98,15 +87,18 @@ namespace CatSAT
         /// </summary>
         public override void UpdateTrueNegativeAndFalsePositive(BooleanSolver b)
         {
-            if (b.unsatisfiedClauses.Contains(Index)) {
-                if ((OneTooFewDisjuncts(b.TrueDisjunctCount[Index]) && IsEnabled(b.Solution)) || !IsEnabled(b.Solution))
-                // We just satisfied it or it was disabled
-                    b.unsatisfiedClauses.Remove(Index);
-            }
             var dCount = ++b.TrueDisjunctCount[Index];
-            if (OneTooManyDisjuncts(dCount) && IsEnabled(b.Solution) &&!b.unsatisfiedClauses.Contains(Index))
+            var isEnabled = IsEnabled(b.Solution);
+            if (b.UnsatisfiedClauses.Contains(Index)) {
+                if (OneTooFewDisjuncts((ushort)(dCount-1)) || !isEnabled)
+                // We just satisfied it or it was disabled
+                    b.UnsatisfiedClauses.Remove(Index);
+            }
+            // I think this needs to be !IsSatisfied rather than OneTooManyDisjuncts to handle
+            // the case where the clause becomes enabled while it's satisfied by not at OneTooManyDisjuncts.
+            else if (!IsSatisfied(dCount) && isEnabled)
                 // It just transitioned from satisfied to unsatisfied, or condition just enabled
-                b.unsatisfiedClauses.Add(Index);
+                b.UnsatisfiedClauses.Add(Index);
         }
     }
 }

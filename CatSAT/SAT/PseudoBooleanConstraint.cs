@@ -98,8 +98,6 @@ namespace CatSAT
         {
             return satisfiedDisjuncts > MinDisjunctsMinusOne && satisfiedDisjuncts < MaxDisjunctsPlusOne;
         }
-        public virtual bool IsSatisfied(ushort satisfiedDisjuncts, Solution solution) => throw new NotImplementedException();
-        
 
         /// <summary>
         /// Is the specified number of disjuncts one too many for this constraint to be satisfied?
@@ -148,13 +146,13 @@ namespace CatSAT
         /// </summary>
         public override void UpdateTruePositiveAndFalseNegative(BooleanSolver b)
         {
-            if (OneTooManyDisjuncts(b.TrueDisjunctCount[Index]))
-                // We just satisfied it
-                b.unsatisfiedClauses.Remove(Index);
             var dCount = --b.TrueDisjunctCount[Index];
-            if (OneTooFewDisjuncts(dCount))
+            if (OneTooManyDisjuncts((ushort)(dCount+1)))
+                // We just satisfied it
+                b.UnsatisfiedClauses.Remove(Index);
+            else if (OneTooFewDisjuncts(dCount))
                 // It just transitioned from satisfied to unsatisfied
-                b.unsatisfiedClauses.Add(Index);
+                b.UnsatisfiedClauses.Add(Index);
         }
 
         ///<summary>
@@ -163,13 +161,13 @@ namespace CatSAT
         /// </summary>
         public override void UpdateTrueNegativeAndFalsePositive(BooleanSolver b)
         {
-            if (OneTooFewDisjuncts(b.TrueDisjunctCount[Index]))
+            var dCount = b.TrueDisjunctCount[Index]++;
+            if (OneTooFewDisjuncts(dCount))
                 // We just satisfied it
-                b.unsatisfiedClauses.Remove(Index);
-            var dCount = ++b.TrueDisjunctCount[Index];
-            if (OneTooManyDisjuncts(dCount))
+                b.UnsatisfiedClauses.Remove(Index);
+            else if (OneTooManyDisjuncts((ushort) (dCount + 1)))
                 // It just transitioned from satisfied to unsatisfied
-                b.unsatisfiedClauses.Add(Index);
+                b.UnsatisfiedClauses.Add(Index);
         }
 
     
