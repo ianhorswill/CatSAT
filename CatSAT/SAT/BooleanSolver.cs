@@ -409,7 +409,19 @@ namespace CatSAT
             Debug.Assert(Math.Abs(totalUtility - sum) < 0.0001f, "totalUtility incorrect");
             #endif
         }
-
+        /// <summary>
+        /// update the utility of the current initializing proposition.
+        /// </summary>
+        private void UpdateUtility(ushort i)
+        {
+            var satVar = Problem.SATVariables[i];
+            var currentType = Propositions[i];
+            var utility = satVar.Proposition.Utility;
+            if (currentType ^ utility > 0)
+                improvablePropositions.Add(i);
+            if (currentType)
+                totalUtility += utility;
+        }
 
         /// <summary>
         /// Randomly assign values to the propositions,
@@ -426,14 +438,27 @@ namespace CatSAT
                 var satVar = vars[i];
                 var truth = satVar.IsPredetermined?satVar.PredeterminedValue:satVar.RandomInitialState;
                 Propositions[i] = truth;
-                var utility = satVar.Proposition.Utility;
-                if (truth ^ utility > 0)
-                    improvablePropositions.Add(i);
-                if (truth)
-                    totalUtility += utility;
-            }
+                UpdateUtility(i);
 
+                //in cases when only one disjunct left to be assigned and to be satisfied, then assign it to satisfy the clause.
+                foreach (var clause in Problem.Clauses)
+                {
+                    var satisfiedDisjuncts = clause.CountDisjuncts(Solution);
+                    if (!clause.IsSatisfied(satisfiedDisjuncts) && clause.IsNormalDisjunction && i + 1 == clause.Disjuncts.Length - 1) { i++; Propositions[i] = true; UpdateUtility(i); continue;
+                    }
+                    else if (!clause.IsNormalDisjunction && i + 1 == clause.Disjuncts.Length - 1)
+                    {
+                        PseudoBooleanConstraint pbClause = (PseudoBooleanConstraint)clause;
+                        if (pbClause.OneTooFewDisjuncts(satisfiedDisjuncts)) { i++; Propositions[i] = true; UpdateUtility(i); continue;}
+                        else if (pbClause.OneTooManyDisjuncts(satisfiedDisjuncts)) { i++; Propositions[i] = false; UpdateUtility(i); continue;}
+                    }
+                }
+            }
             UnsatisfiedClauses.Clear();
+
+
+            
+
 
             // Initialize trueDisjunctCount[] and unsatisfiedClauses
             for (ushort i = 0; i < TrueDisjunctCount.Length; i++)

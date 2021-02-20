@@ -485,7 +485,7 @@ namespace CatSAT
         {
             // Look up the internal numeric literal representations for all the disjuncts in constraint
             var compiledDisjuncts = CompileClause(disjuncts);
-            var conditionShort = condition.SignedIndex;//CompileClause(new[] {condition})[0] //condition.SignedIndex //condition.BaseProposition
+            var conditionShort = condition.SignedIndex;
             var clause = new ConditionalPBC(min, max, conditionShort, compiledDisjuncts);
             AddClause(clause);
             return clause;
