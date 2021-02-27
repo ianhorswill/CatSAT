@@ -176,7 +176,7 @@ namespace CatSAT
             set
             {
                 _logFile = value;
-                System.IO.File.WriteAllLines(_logFile, new [] {"Name,Create,Compile,Optimize,Clauses,Variables,Floating,SolveMin, SolveMax,SolveAvg,FlipsMin,FlipsMax,FlipsAvg"});
+                System.IO.File.WriteAllLines(_logFile, new [] {"Name,Create,Compile,Optimize,Constraints,Variables,Floating,SolveMin, SolveMax,SolveAvg,FlipsMin,FlipsMax,FlipsAvg"});
             }
 #else
             get => null;
@@ -190,7 +190,7 @@ namespace CatSAT
 #if PerformanceStatistics
             System.IO.File.AppendAllLines(LogFile, new []
             {
-                $"'{Name}',{CreationTime},{CompilationTime},{OptimizationTime},{Clauses.Count},{SATVariables.Count},{SATVariables.Count(v => v.DeterminationStatus == SATVariable.DeterminationState.Floating)},{SolveTimeMicroseconds.Min},{SolveTimeMicroseconds.Max},{SolveTimeMicroseconds.Average},{SolveFlips.Min},{SolveFlips.Max},{SolveFlips.Average}"
+                $"'{Name}',{CreationTime},{CompilationTime},{OptimizationTime},{Constraints.Count},{SATVariables.Count},{SATVariables.Count(v => v.DeterminationStatus == SATVariable.DeterminationState.Floating)},{SolveTimeMicroseconds.Min},{SolveTimeMicroseconds.Max},{SolveTimeMicroseconds.Average},{SolveFlips.Min},{SolveFlips.Max},{SolveFlips.Average}"
             });
 #endif
         }
@@ -218,7 +218,7 @@ namespace CatSAT
             get
             {
                 return
-                    $"{SATVariables.Count} variables, {SATVariables.Count(v => v.DeterminationStatus == SATVariable.DeterminationState.Floating)} floating, {Clauses.Count} clauses";
+                    $"{SATVariables.Count} variables, {SATVariables.Count(v => v.DeterminationStatus == SATVariable.DeterminationState.Floating)} floating, {Constraints.Count} clauses";
             }
         }
         
@@ -231,7 +231,7 @@ namespace CatSAT
             get
             {
                 var b = new StringBuilder();
-                foreach (var c in Clauses)
+                foreach (var c in Constraints)
                 {
                     c.Decompile(this, b);
                     b.AppendLine();
@@ -315,7 +315,7 @@ namespace CatSAT
         /// The constraint in the Problem.
         /// Most of these are normal clauses (disjunctions), but other cardinality constraint are possible.
         /// </summary>
-        internal readonly List<Constraint> Clauses = new List<Constraint>();
+        internal readonly List<Constraint> Constraints = new List<Constraint>();
 
         internal readonly List<ushort> FloatingVariables = new List<ushort>();
 
@@ -498,15 +498,15 @@ namespace CatSAT
         /// </summary>
         private void AddClause(Constraint constraint)
         {
-            foreach (var c in Clauses)
+            foreach (var c in Constraints)
                 if (c.Hash == constraint.Hash && c.EquivalentTo(constraint))
                     return;
 
-            constraint.Index = (ushort)Clauses.Count;
-            Clauses.Add(constraint);
+            constraint.Index = (ushort)Constraints.Count;
+            Constraints.Add(constraint);
 
             // Add the constraint to the appropriate constraint list for all the propositions that appear in the constraint
-            var clauseIndex = (ushort) (Clauses.Count - 1);
+            var clauseIndex = (ushort) (Constraints.Count - 1);
             foreach (var lit in constraint.Disjuncts)
             {
                 if (lit > 0)
@@ -1447,7 +1447,7 @@ namespace CatSAT
 
             // The number of literals in constraint whose values aren't yet known.
             // Or -1 if this constraint now compile-time true.
-            var counts = new short[Clauses.Count];
+            var counts = new short[Constraints.Count];
 
             short UndeterminedDisjunctCount(Constraint c)
             {
@@ -1484,14 +1484,14 @@ namespace CatSAT
                             if (counts[dependent] == 0)
                                 // Never got initialized
                                 // Note we don't have to decrement because the call below sees that v is not predetermined.
-                                counts[dependent] = UndeterminedDisjunctCount(Clauses[dependent]);
+                                counts[dependent] = UndeterminedDisjunctCount(Constraints[dependent]);
                             else
                                 counts[dependent]--;
                             if (counts[dependent] == 0)
-                                throw new ContradictionException(this, Clauses[dependent]);
+                                throw new ContradictionException(this, Constraints[dependent]);
 
                             if (counts[dependent] == 1)
-                                walkQueue.Enqueue(Clauses[dependent]);
+                                walkQueue.Enqueue(Constraints[dependent]);
                         }
                     }
                     else
@@ -1508,13 +1508,13 @@ namespace CatSAT
                             if (counts[dependent] == 0)
                                 // Never got initialized
                                 // Note we don't have to decrement because the call below sees that v is not predetermined.
-                                counts[dependent] = UndeterminedDisjunctCount(Clauses[dependent]);
+                                counts[dependent] = UndeterminedDisjunctCount(Constraints[dependent]);
                             else
                                 counts[dependent]--;
                             if (counts[dependent] == 0)
-                                throw new ContradictionException(this, Clauses[dependent]);
+                                throw new ContradictionException(this, Constraints[dependent]);
                             if (counts[dependent] == 1)
-                                walkQueue.Enqueue(Clauses[dependent]);
+                                walkQueue.Enqueue(Constraints[dependent]);
                         }
                     }
 
@@ -1523,7 +1523,7 @@ namespace CatSAT
                 }
             }
             
-            foreach (var c in Clauses)
+            foreach (var c in Constraints)
                 Walk(c);
             while (walkQueue.Count > 0)
                 Walk(walkQueue.Dequeue());
@@ -1539,7 +1539,7 @@ namespace CatSAT
         /// </summary>
         /// <param name="c">The constraint</param>
         /// <returns>Signed index of the disjunct</returns>
-        short UndeterminedDisjunctOf(Constraint c)
+        internal short UndeterminedDisjunctOf(Constraint c)
         {
             foreach (var d in c.Disjuncts)
             {
@@ -1549,7 +1549,7 @@ namespace CatSAT
             throw new InvalidOperationException("Internal error - UndeterminedDisjunctOf called on constraint with no undetermined disjuncts");
         }
 
-        short CountUndeterminedDisjuncts(Constraint c)
+        internal short CountUndeterminedDisjuncts(Constraint c)
         {
             short count = 0;
             foreach (var d in c.Disjuncts)
@@ -1704,7 +1704,7 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// Reset a previously set proposition ot an undetermined state.
+        /// Reset a previously set proposition to an undetermined state.
         /// </summary>
         /// <param name="p">Proposition to reset</param>
         public void ResetProposition(Proposition p)

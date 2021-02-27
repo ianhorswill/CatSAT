@@ -22,11 +22,12 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CatSAT;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static CatSAT.Language;
 using static CatSAT.Fluents;
 using static CatSAT.Actions;

@@ -46,6 +46,7 @@ namespace CatSAT
             NegativeClauses = new List<ushort>();
             PredeterminedValue = false;
             DeterminationStatus = DeterminationState.Floating;
+            ValueAssigned = false;
         }
 
         /// <summary>
@@ -120,5 +121,10 @@ namespace CatSAT
         /// Randomly chooses an initial state for this SATVariable based on its Proposition's InitialProbability
         /// </summary>
         internal bool RandomInitialState => Random.Float(0, 1) <= Proposition.InitialProbability;
+
+        /// <summary>
+        /// True if the variable is assigned/initialized,
+        /// </summary>
+        public bool ValueAssigned { get; set; }
     }
 }

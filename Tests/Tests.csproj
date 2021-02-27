@@ -62,6 +62,7 @@
     <Compile Include="StoryTests.cs" />
     <Compile Include="NoiseLevelTest.cs" />
     <Compile Include="ConditionalPbcTest.cs" />
+    <Compile Include="PropagationTest.cs" />
     <Compile Include="UtilityTests.cs" />
   </ItemGroup>
   <ItemGroup>

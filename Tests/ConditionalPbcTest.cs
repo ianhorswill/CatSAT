@@ -87,6 +87,9 @@ namespace Tests
         public void ConditionalTest5()
         {
             var p = new Problem("MultipleCardinality2");
+            p.AddClause(10, 29, "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "ll", "mm", "nn", "oo");
+            p.AddClause(20, 29, "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "p", "q", "r", "s", "t", "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj", "pp", "qq", "rr", "ss", "tt");
+            p.AddClause(10, 29, "a", "b", "c", "d", "e", "f", "g", "h", "i", "t", "u", "v", "w", "x", "y", "z", "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj", "kk", "ll", "mm", "nn", "oo");
             p.AddClause(1, 1, "e");
             p.AddConditionalClause(2, 2, "a", "a", "c");
             p.AddClause(1, 1, "b", "c");

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -56,7 +57,37 @@ namespace CatSAT
                     count++;
             return count;
         }
-
+        /// <summary>
+        /// Return the number of disjuncts in the constraint are not assigned in the specified model
+        /// <param name="problem">the working problem</param>
+        /// <returns>total number of not assigned disjuncts</returns>
+        /// </summary>
+        internal short CountNonAssignedDisjuncts(Problem problem)
+        {
+            short count = 0;
+            foreach (var d in Disjuncts)
+            {
+                if (!problem.SATVariables[Math.Abs(d)].ValueAssigned)
+                    count++;
+            }
+            return count;
+        }
+        /// <summary>
+        /// Find the not assigned disjunct of the constraint
+        /// <param name="problem">the working problem</param>
+        /// <returns>index of the not assigned disjuncts</returns>
+        /// </summary>
+        internal short[] NonAssignedDisjuncts(Problem problem)
+        {
+            var disjuncts = new short[Disjuncts.Length];
+            foreach (var d in Disjuncts)
+            {
+                if (!problem.SATVariables[Math.Abs(d)].ValueAssigned)
+                    disjuncts[d] = d;
+            }
+            return disjuncts;
+        }
+        
         /// <summary>
         /// Is this constraint satisfied if the specified number of disjuncts is satisfied?
         /// </summary>

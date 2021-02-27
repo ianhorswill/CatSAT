@@ -92,18 +92,25 @@ namespace CatSAT
         /// </summary>
         private float totalUtility;
 
+        /// <summary>
+        /// Arrays to hold state information; indexed by clause number.
+        /// </summary>
+        private bool[] alreadySatisfied;
+        private ushort[] falseLiterals;
         #endregion
 
         internal BooleanSolver(Problem problem)
         {
             Problem = problem;
-            var clausesCount = problem.Clauses.Count;
+            var clausesCount = problem.Constraints.Count;
             TrueDisjunctCount = new ushort[clausesCount];
             LastFlip = new ushort[clausesCount];
             UnsatisfiedClauses = new DynamicUShortSet(clausesCount);
             improvablePropositions = new DynamicUShortSet(problem.SATVariables.Count);
+            alreadySatisfied = new bool[Problem.Constraints.Count];
+            falseLiterals = new ushort[Problem.Constraints.Count];
 
-        }
+    }
         /// <summary>
         /// A string listing the performance statistics of the solver run that generated this solution.
         /// </summary>
@@ -122,7 +129,6 @@ namespace CatSAT
         #region Solver
         private const int Theta = 3;
         private const float Phi = 0.2f;
-
         /// <summary>
         /// Try to find an assignment of truth values to propositions that satisfied the Program.
         /// Implements the WalkSAT algorithm
@@ -163,7 +169,7 @@ namespace CatSAT
             {
                 // Hill climb: pick an unsatisfied clause at random and flip one of its variables
                 var targetClauseIndex = UnsatisfiedClauses.RandomElement;
-                var targetClause = Problem.Clauses[targetClauseIndex];
+                var targetClause = Problem.Constraints[targetClauseIndex];
                 ushort flipChoice;
 
                 if (Random.InRange(100) < 100 * wp)
@@ -188,7 +194,7 @@ namespace CatSAT
                     else
                     {
                         flipsSinceImprovement++;
-                        if (flipsSinceImprovement > Problem.Clauses.Count / Theta)
+                        if (flipsSinceImprovement > Problem.Constraints.Count / Theta)
                         {
                             wp = wp + (1 - wp) * Phi;
                             flipsSinceImprovement = 0;
@@ -240,7 +246,7 @@ namespace CatSAT
             foreach (var cIndex in increasingClauses)
             {
                 // This clause is getting one more disjunct
-                var clause = Problem.Clauses[cIndex];
+                var clause = Problem.Constraints[cIndex];
                 var count = TrueDisjunctCount[cIndex];
                 threatCount += clause.ThreatCountDeltaIncreasing(count);
             }
@@ -248,7 +254,7 @@ namespace CatSAT
             foreach (var cIndex in decreasingClauses)
             {
                 // This clause is getting one more disjunct
-                var clause = Problem.Clauses[cIndex];
+                var clause = Problem.Constraints[cIndex];
                 var count = TrueDisjunctCount[cIndex];
                 threatCount += clause.ThreatCountDeltaDecreasing(count);
             }
@@ -336,7 +342,7 @@ namespace CatSAT
                     {
                         // prop appears as a positive literal in clause.
                         // We just made it false, so clause now has fewer satisfied disjuncts.
-                        var clause = Problem.Clauses[cIndex];
+                        var clause = Problem.Constraints[cIndex];
                         clause.UpdateTruePositiveAndFalseNegative(this);
                     }
 
@@ -345,7 +351,7 @@ namespace CatSAT
                     {
                         // prop appears as a negative literal in clause.
                         // We just made it false, so clause now has more satisfied disjuncts.
-                        var clause = Problem.Clauses[cIndex];
+                        var clause = Problem.Constraints[cIndex];
                         clause.UpdateTrueNegativeAndFalsePositive(this);
                     }
                 }
@@ -360,7 +366,7 @@ namespace CatSAT
                     {
                         // prop appears as a positive literal in clause.
                         // We just made it true, so clause now has more satisfied disjuncts.
-                        var clause = Problem.Clauses[cIndex];
+                        var clause = Problem.Constraints[cIndex];
                         clause.UpdateTrueNegativeAndFalsePositive(this);
                     }
 
@@ -369,7 +375,7 @@ namespace CatSAT
                     {
                         // prop appears as a negative literal in clause.
                         // We just made it true, so clause now has fewer satisfied disjuncts.
-                        var clause = Problem.Clauses[cIndex];
+                        var clause = Problem.Constraints[cIndex];
                         clause.UpdateTruePositiveAndFalseNegative(this);
                     }
                 }
@@ -409,22 +415,75 @@ namespace CatSAT
             Debug.Assert(Math.Abs(totalUtility - sum) < 0.0001f, "totalUtility incorrect");
             #endif
         }
+
         /// <summary>
         /// update the utility of the current initializing proposition.
+        /// <param name="pIndex">Index of the variable/proposition to be updated</param>
         /// </summary>
-        private void UpdateUtility(ushort i)
+        private void UpdateUtility(ushort pIndex)
         {
-            var satVar = Problem.SATVariables[i];
-            var currentType = Propositions[i];
+            var satVar = Problem.SATVariables[pIndex];
+            var currentType = Propositions[pIndex];
             var utility = satVar.Proposition.Utility;
             if (currentType ^ utility > 0)
-                improvablePropositions.Add(i);
+                improvablePropositions.Add(pIndex);
             if (currentType)
                 totalUtility += utility;
         }
 
+        
+        /// <summary>
+        /// propagate a proposition
+        /// <param name="pIndex">Index of the variable/proposition to be propagated</param>
+        /// </summary>
+        private void Propagation(ushort pIndex)
+        {
+            var satVar = Problem.SATVariables[pIndex];
+            var currentType = Propositions[pIndex];
+            var increasedClauses = new List<ushort>();
+            var notIncreasedClauses = new List<ushort>();
+            if (currentType)
+            {
+                increasedClauses = satVar.PositiveClauses;
+                notIncreasedClauses = satVar.NegativeClauses;
+            }
+            else
+            {
+                increasedClauses = satVar.NegativeClauses;
+                notIncreasedClauses = satVar.PositiveClauses;
+            }
+
+            foreach (var cIndex in increasedClauses)
+            {
+                var clause = Problem.Constraints[cIndex];
+                if (clause.IsNormalDisjunction) alreadySatisfied[cIndex] = true;
+            }
+
+            foreach (var cIndex in notIncreasedClauses)
+            {
+                var clause = Problem.Constraints[cIndex];
+                if (clause.IsNormalDisjunction && !alreadySatisfied[cIndex])
+                {
+                    falseLiterals[cIndex]++;
+                    if (falseLiterals[cIndex] == clause.Disjuncts.Length - 1)
+                    {
+                        if (clause.CountNonAssignedDisjuncts(Problem)==1)
+                        {
+                            //the only ONE disjunct in clause that dosen't have a value;
+                            var literal = clause.NonAssignedDisjuncts(Problem)[1];
+                            //set the variable for literal to the value that will make lit be true and thus to satisfy c)
+                            var propIndex = (ushort) Math.Abs(literal);
+                            Propositions[propIndex] = true;
+                            Propagation(propIndex);
+                            alreadySatisfied[clause.Index] = true;
+                        }
+                    }
+                }
+            }
+        }
         /// <summary>
         /// Randomly assign values to the propositions,
+        /// propagate through the initialization,
         /// and initialize the other state information accordingly.
         /// </summary>
         private void MakeRandomAssignment()
@@ -438,32 +497,21 @@ namespace CatSAT
                 var satVar = vars[i];
                 var truth = satVar.IsPredetermined?satVar.PredeterminedValue:satVar.RandomInitialState;
                 Propositions[i] = truth;
+                satVar.ValueAssigned = true;
+                /*var utility = satVar.Proposition.Utility;
+                if (truth ^ utility > 0)
+                    improvablePropositions.Add(i);
+                if (truth)
+                    totalUtility += utility;*/
+                Propagation(i);
                 UpdateUtility(i);
-
-                //in cases when only one disjunct left to be assigned and to be satisfied, then assign it to satisfy the clause.
-                foreach (var clause in Problem.Clauses)
-                {
-                    var satisfiedDisjuncts = clause.CountDisjuncts(Solution);
-                    if (!clause.IsSatisfied(satisfiedDisjuncts) && clause.IsNormalDisjunction && i + 1 == clause.Disjuncts.Length - 1) { i++; Propositions[i] = true; UpdateUtility(i); continue;
-                    }
-                    else if (!clause.IsNormalDisjunction && i + 1 == clause.Disjuncts.Length - 1)
-                    {
-                        PseudoBooleanConstraint pbClause = (PseudoBooleanConstraint)clause;
-                        if (pbClause.OneTooFewDisjuncts(satisfiedDisjuncts)) { i++; Propositions[i] = true; UpdateUtility(i); continue;}
-                        else if (pbClause.OneTooManyDisjuncts(satisfiedDisjuncts)) { i++; Propositions[i] = false; UpdateUtility(i); continue;}
-                    }
-                }
             }
             UnsatisfiedClauses.Clear();
-
-
-            
-
 
             // Initialize trueDisjunctCount[] and unsatisfiedClauses
             for (ushort i = 0; i < TrueDisjunctCount.Length; i++)
             {
-                var c = Problem.Clauses[i];
+                var c = Problem.Constraints[i];
                 var satisfiedDisjuncts = c.CountDisjuncts(Solution);
                 TrueDisjunctCount[i] = satisfiedDisjuncts;
                 if (!c.IsSatisfied(satisfiedDisjuncts) && c.IsEnabled(Solution))
