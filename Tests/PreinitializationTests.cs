@@ -65,7 +65,7 @@ namespace Tests
             {
                 // ReSharper disable once AccessToModifiedClosure
                 if (preset)
-                    p.SetPredeterminedValue("x", true, SATVariable.DeterminationState.Preinitialized);
+                    p.Initialize("x", true);
             }
 
             p.AddClause("x", "y");

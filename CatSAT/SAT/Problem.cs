@@ -332,9 +332,7 @@ namespace CatSAT
         /// Most of these are normal clauses (disjunctions), but other cardinality constraints are possible.
         /// </summary>
         internal readonly List<Clause> Clauses = new List<Clause>();
-
-        internal readonly List<ushort> FloatingVariables = new List<ushort>();
-
+        
         /// <summary>
         /// All the Propositions used in the Problem.
         /// </summary>
@@ -595,8 +593,6 @@ namespace CatSAT
             if (LogPerformanceDataToConsole && previousState != CompilationState.Compiled)
                 Console.WriteLine(PerformanceStatistics);
 #endif
-            if (FloatingVariables.Count == 0)
-                RecomputeFloatingVariables();
         }
 
         /// <summary>
@@ -727,9 +723,10 @@ namespace CatSAT
         /// </summary>
         /// <param name="p">Proposition to assign a value to</param>
         /// <param name="value">Truth value to assign to the proposition</param>
-        public void SetPreinitializedValue(Proposition p, bool value)
+        public void Initialize(Proposition p, bool value)
         {
-            SetPredeterminedValue(p, value, SATVariable.DeterminationState.Preinitialized);
+            if (SATVariables[p.Index].DeterminationStatus == SATVariable.DeterminationState.Floating)
+                SetPredeterminedValue(p, value, SATVariable.DeterminationState.Preinitialized);
         }
 
         /// <summary>
@@ -1760,16 +1757,6 @@ namespace CatSAT
                     SATVariables[i] = v;
                 }
             }
-
-            RecomputeFloatingVariables();
-        }
-
-        private void RecomputeFloatingVariables()
-        {
-            FloatingVariables.Clear();
-            for (ushort i = 0; i < SATVariables.Count; i++)
-                if (SATVariables[i].DeterminationStatus == SATVariable.DeterminationState.Floating)
-                    FloatingVariables.Add(i);
         }
 
         /// <summary>
