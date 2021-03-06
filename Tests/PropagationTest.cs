@@ -163,7 +163,7 @@ namespace Tests
             }
 
             int average = flip.Sum() / flip.Length;
-            Console.WriteLine(average); // average 1 flip 35ms with propagation,  1 flip 26ms w/o
+            Console.WriteLine(average); // average 1 flip 35ms with propagation, 1 flip 26ms w/o
         }
 
         [TestMethod]
