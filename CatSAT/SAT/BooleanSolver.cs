@@ -593,9 +593,7 @@ namespace CatSAT
                 var replacement = contents[--Size];
                 contents[index] = replacement;
                 indices[replacement] = index;
-                #if DEBUG
                 indices[elt] = ushort.MaxValue;
-                #endif
             }
 
             /// <summary>
@@ -603,10 +601,8 @@ namespace CatSAT
             /// </summary>
             public void Clear()
             {
-#if DEBUG
                 for (int i = 0; i < indices.Length; i++)
                     indices[i] = ushort.MaxValue;
-#endif
                 Size = 0;
             }
 
