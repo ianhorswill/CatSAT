@@ -455,6 +455,7 @@ namespace CatSAT
             foreach (var cIndex in notIncreasedClauses)
             {
                 var clause = Problem.Constraints[cIndex];
+                // TODO: add support for pseudoboolean clauses and conditional clauses
                 if (clause.IsNormalDisjunction && !alreadySatisfied[cIndex])
                 {
                     falseLiterals[cIndex]++;
@@ -488,13 +489,15 @@ namespace CatSAT
         /// </summary>
         private void MakeRandomAssignment()
         {
+            // TODO: add an option to skip the propagation stuff (maybe? is it needed?)
             Array.Clear(falseLiterals, 0, falseLiterals.Length);
             Array.Clear(varInitialized, 0, varInitialized.Length);
             Array.Clear(alreadySatisfied, 0, alreadySatisfied.Length);
             totalUtility = 0;
             improvablePropositions.Clear();
             var vars = Problem.SATVariables;
-            // Initialize propositions[] and compute totalUtility
+            
+            // TODO: The order we initialize variables in should be randomized at some point
             for (ushort i = 1; i < Propositions.Length; i++)
             {
                 if (!varInitialized[i])
@@ -502,6 +505,7 @@ namespace CatSAT
                     var satVar = vars[i];
                     var truth = satVar.IsPredetermined ? satVar.PredeterminedValue : satVar.RandomInitialState;
                     Propagate(i, truth);
+                    // TODO: fix the utility stuff
                     /*var utility = satVar.Proposition.Utility;
                     if (truth ^ utility > 0)
                         improvablePropositions.Add(i);
