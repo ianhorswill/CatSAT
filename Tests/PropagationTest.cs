@@ -47,6 +47,10 @@ namespace Tests
                 p.AddClause(Not(b), a);
             }
             
+            // This only has two models: a=b=c=d=true, and a=b=c=d=false
+            // This is the best-case for the Propagation step in BooleanSolver.MakeRandomAssignment
+            // because once it chooses the value of the first variable, it should immediately propagate
+            // to all other variables.
             IfAndOnlyIf("a", "b");
             IfAndOnlyIf("b", "c");
             IfAndOnlyIf("c", "d");
@@ -56,7 +60,12 @@ namespace Tests
             for (var i = 0; i < 100; i++)
             {
                 var m = p.Solve();
+                
+                // This shouldn't have used any flips because propagation in initialization
+                // should always produce a valid model
                 Assert.AreEqual(0, p.SolveFlips.Max);
+                
+                // Make sure all variables have the same value
                 if (m["a"])
                 {
                     trueCount++;
@@ -70,6 +79,7 @@ namespace Tests
                 }
             }
             
+            // True and false models ought to be more or less equally likely.
             Assert.IsTrue(trueCount > 40);
             Assert.IsTrue(trueCount < 60);
         }
