@@ -97,6 +97,7 @@ namespace CatSAT
         /// </summary>
         private bool[] alreadySatisfied;
         private ushort[] falseLiterals;
+        private bool[] varInitialized;
         #endregion
 
         internal BooleanSolver(Problem problem)
@@ -109,8 +110,8 @@ namespace CatSAT
             improvablePropositions = new DynamicUShortSet(problem.SATVariables.Count);
             alreadySatisfied = new bool[Problem.Constraints.Count];
             falseLiterals = new ushort[Problem.Constraints.Count];
-
-    }
+            varInitialized = new bool[Problem.SATVariables.Count];
+        }
         /// <summary>
         /// A string listing the performance statistics of the solver run that generated this solution.
         /// </summary>
@@ -436,23 +437,15 @@ namespace CatSAT
         /// propagate a proposition
         /// <param name="pIndex">Index of the variable/proposition to be propagated</param>
         /// </summary>
-        private void Propagation(ushort pIndex)
+        private void Propagate(ushort pIndex, bool initialValue)
         {
             var satVar = Problem.SATVariables[pIndex];
-            var currentType = Propositions[pIndex];
-            var increasedClauses = new List<ushort>();
-            var notIncreasedClauses = new List<ushort>();
-            if (currentType)
-            {
-                increasedClauses = satVar.PositiveClauses;
-                notIncreasedClauses = satVar.NegativeClauses;
-            }
-            else
-            {
-                increasedClauses = satVar.NegativeClauses;
-                notIncreasedClauses = satVar.PositiveClauses;
-            }
+            Propositions[pIndex] = initialValue;
+            varInitialized[pIndex] = true;
 
+            var increasedClauses = initialValue ? satVar.PositiveClauses : satVar.NegativeClauses;
+            var notIncreasedClauses = initialValue ? satVar.NegativeClauses : satVar.PositiveClauses;
+            
             foreach (var cIndex in increasedClauses)
             {
                 var clause = Problem.Constraints[cIndex];
@@ -465,17 +458,24 @@ namespace CatSAT
                 if (clause.IsNormalDisjunction && !alreadySatisfied[cIndex])
                 {
                     falseLiterals[cIndex]++;
+
                     if (falseLiterals[cIndex] == clause.Disjuncts.Length - 1)
                     {
-                        if (clause.CountNonAssignedDisjuncts(Problem)==1)
+                        foreach (var lit in clause.Disjuncts)
                         {
-                            //the only ONE disjunct in clause that dosen't have a value;
-                            var literal = clause.NonAssignedDisjuncts(Problem)[1];
-                            //set the variable for literal to the value that will make lit be true and thus to satisfy c)
-                            var propIndex = (ushort) Math.Abs(literal);
-                            Propositions[propIndex] = true;
-                            Propagation(propIndex);
-                            alreadySatisfied[clause.Index] = true;
+                            var prop = (ushort)Math.Abs(lit);
+                            if (!varInitialized[prop])
+                            {
+                                if (!Problem.SATVariables[prop].IsPredetermined)
+                                {
+                                    alreadySatisfied[clause.Index] = true;
+                                    // Found the one uninitialized variable; make sure it's true
+                                    Propagate(prop, lit > 0);
+                                }
+
+                                // Don't need to look for further disjuncts
+                                break;
+                            }
                         }
                     }
                 }
@@ -488,22 +488,27 @@ namespace CatSAT
         /// </summary>
         private void MakeRandomAssignment()
         {
+            Array.Clear(falseLiterals, 0, falseLiterals.Length);
+            Array.Clear(varInitialized, 0, varInitialized.Length);
+            Array.Clear(alreadySatisfied, 0, alreadySatisfied.Length);
             totalUtility = 0;
             improvablePropositions.Clear();
             var vars = Problem.SATVariables;
             // Initialize propositions[] and compute totalUtility
-            for (ushort i = 0; i < Propositions.Length; i++)
+            for (ushort i = 1; i < Propositions.Length; i++)
             {
-                var satVar = vars[i];
-                var truth = satVar.IsPredetermined?satVar.PredeterminedValue:satVar.RandomInitialState;
-                Propositions[i] = truth;
-                satVar.ValueAssigned = true;
-                /*var utility = satVar.Proposition.Utility;
-                if (truth ^ utility > 0)
-                    improvablePropositions.Add(i);
-                if (truth)
-                    totalUtility += utility;*/
-                Propagation(i);
+                if (!varInitialized[i])
+                {
+                    var satVar = vars[i];
+                    var truth = satVar.IsPredetermined ? satVar.PredeterminedValue : satVar.RandomInitialState;
+                    Propagate(i, truth);
+                    /*var utility = satVar.Proposition.Utility;
+                    if (truth ^ utility > 0)
+                        improvablePropositions.Add(i);
+                    if (truth)
+                        totalUtility += utility;*/
+                }
+
                 UpdateUtility(i);
             }
             UnsatisfiedClauses.Clear();

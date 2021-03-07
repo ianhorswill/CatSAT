@@ -83,7 +83,7 @@ namespace CatSAT
         /// <param name="min">Minimum number of disjuncts that must be true to consider the clause satisfied</param>
         /// <param name="max">Maximum number of disjuncts that are allowed to be true to consider the clause satisfied, or 0 if the is no maximum</param>
         /// <param name="disjuncts">The disjuncts, encoded as signed proposition indices</param>
-        internal PseudoBooleanConstraint(ushort min, ushort max, short[] disjuncts) : base(min, disjuncts, min ^ max)
+        internal PseudoBooleanConstraint(ushort min, ushort max, short[] disjuncts) : base(false, min, disjuncts, min ^ max)
         {
             MinDisjunctsMinusOne = (short)(min - 1);
             MaxDisjunctsPlusOne = (ushort)(max == 0 ? disjuncts.Length + 1 : max + 1);

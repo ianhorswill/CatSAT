@@ -458,7 +458,7 @@ namespace CatSAT
         {
             // Look up the internal numeric literal representations for all the disjuncts
             var compiled = CompileClause(disjuncts);
-            var clause = new Clause(min, compiled);
+            var clause = (min == 1) ? (Constraint)new Clause(compiled) : new PseudoBooleanConstraint(min, 0, compiled);
             AddClause(clause);
 
             return clause;
@@ -471,7 +471,8 @@ namespace CatSAT
         {
             // Look up the internal numeric literal representations for all the disjuncts
             var compiled = CompileClause(disjuncts);
-            var clause = new PseudoBooleanConstraint(min, max, compiled);
+            var normalClause = min == 1 && max == 0;
+            var clause = normalClause ? (Constraint)new Clause(compiled) : new PseudoBooleanConstraint(min, max, compiled);
             AddClause(clause);
 
             return clause;
@@ -804,18 +805,18 @@ namespace CatSAT
         {
             // Compile the forward implication
             var disjuncts = DisjunctsFromImplication(equivalence.Head, equivalence.Body);
-            AddClause(new Clause(1,  disjuncts));
+            AddClause(new Clause(disjuncts));
 
             // Now compile the backward implication: if the head is true, all the body literals have to be true.
             for (var i = 1; i < disjuncts.Length; i++)
             {
-                AddClause(new Clause(1, new [] { (short)-disjuncts[0], (short)-disjuncts[i]}));
+                AddClause(new Clause(new [] { (short)-disjuncts[0], (short)-disjuncts[i]}));
             }
         }
 
         private Constraint CompileImplication(Implication implication)
         {
-            return new Clause(1,  DisjunctsFromImplication(implication.Head, implication.Body));
+            return new Clause(DisjunctsFromImplication(implication.Head, implication.Body));
         }
 
         private short[] DisjunctsFromImplication(Literal head, Expression body)
@@ -829,7 +830,7 @@ namespace CatSAT
 
         private Constraint CompileNegatedConjunction(Expression body)
         {
-            return new Clause(1,  DisjunctsFromBody(body));
+            return new Clause(DisjunctsFromBody(body));
         }
 
         private short[] DisjunctsFromBody(Expression body)
@@ -970,7 +971,7 @@ namespace CatSAT
                     var disjuncts = DisjunctsFromImplication(p, body);
                     compiledBodies[i] = disjuncts;
 
-                    AddClause(new Clause(1, disjuncts));
+                    AddClause(new Clause(disjuncts));
 
                     if (disjuncts.Length == 2)
                         justifications[i] = (short) -disjuncts[1];
@@ -983,8 +984,7 @@ namespace CatSAT
                         for (var j = 1; j < disjuncts.Length; j++)
                         {
                             // justificationProp => disjuncts[j]
-                            AddClause(new Clause(1, 
-                                new[] {(short) -justificationProp, (short) -disjuncts[j]}));
+                            AddClause(new Clause(new[] {(short) -justificationProp, (short) -disjuncts[j]}));
                         }
                     }
                 }
@@ -994,7 +994,7 @@ namespace CatSAT
 
                 Array.Copy(justifications, 0, reverseClause, 1, justifications.Length);
 
-                AddClause(new Clause(1, reverseClause));
+                AddClause(new Clause(reverseClause));
             }
         }
         #endregion
@@ -1006,7 +1006,7 @@ namespace CatSAT
         /// <param name="lits">outlawed literals</param>
         public void Inconsistent(params Literal[] lits)
         {
-            AddClause(new Clause(1, lits.Select(l => (short)(-l.SignedIndex)).Distinct().ToArray()));
+            AddClause(new Clause(lits.Select(l => (short)(-l.SignedIndex)).Distinct().ToArray()));
         }
 
         /// <summary>
@@ -1031,7 +1031,7 @@ namespace CatSAT
             foreach (var l in enumerable)
                 l.BaseProposition.IsQuantified = true;
 
-            AddClause(new Clause(1, enumerable.Select(l => (short)(-l.SignedIndex)).Distinct().ToArray()));
+            AddClause(new Clause(enumerable.Select(l => (short)(-l.SignedIndex)).Distinct().ToArray()));
         }
 
         /// <summary>
@@ -1106,8 +1106,8 @@ namespace CatSAT
 
         internal void Quantify(int min, int max, short[] disjuncts)
         {
-            if (max==0)
-                AddClause(new Clause((ushort)min, disjuncts));
+            if (min == 1 && max==0)
+                AddClause(new Clause(disjuncts));
             else
             {
                 AddClause(new PseudoBooleanConstraint((ushort)min, (ushort)max, disjuncts));

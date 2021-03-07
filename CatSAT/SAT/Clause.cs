@@ -65,10 +65,8 @@ namespace CatSAT
         /// </summary>
         /// <param name="min">Minimum number of disjuncts that must be true to consider the clause satisfied</param>
         /// <param name="disjuncts">The disjuncts, encoded as signed proposition indices</param>
-        internal Clause(ushort min, short[] disjuncts) : base(min, disjuncts, min ^ 0)
-        {
-            IsNormalDisjunction = true;
-        }
+        internal Clause(short[] disjuncts) : base(true, 1, disjuncts, 1)
+        { }
 
         public override int GetHashCode() => Hash;
 

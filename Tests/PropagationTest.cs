@@ -33,6 +33,46 @@ namespace Tests
     [TestClass]
     public class PropagationTests
     {
+        [TestMethod]
+        public void BiconditionalTest()
+        {
+            var p = new Problem(nameof(BiconditionalTest));
+
+            // Assert a <-> b
+            void IfAndOnlyIf(Proposition a, Proposition b)
+            {
+                // a -> b
+                p.AddClause(Not(a), b);
+                // b -> a
+                p.AddClause(Not(b), a);
+            }
+            
+            IfAndOnlyIf("a", "b");
+            IfAndOnlyIf("b", "c");
+            IfAndOnlyIf("c", "d");
+
+            var trueCount = 0;
+            
+            for (var i = 0; i < 100; i++)
+            {
+                var m = p.Solve();
+                Assert.AreEqual(0, p.SolveFlips.Max);
+                if (m["a"])
+                {
+                    trueCount++;
+                    Assert.IsTrue(m["b"]);
+                    Assert.IsTrue(m["c"]);
+                }
+                else
+                {
+                    Assert.IsFalse(m["b"]);
+                    Assert.IsFalse(m["c"]);
+                }
+            }
+            
+            Assert.IsTrue(trueCount > 40);
+            Assert.IsTrue(trueCount < 60);
+        }
 
         /// <summary>
         /// used to test the number of calls of Flip() with new propagation

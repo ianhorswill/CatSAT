@@ -22,10 +22,11 @@ namespace CatSAT
         /// <summary>
         /// True if this is a plain old boring disjunction
         /// </summary>
-        public bool IsNormalDisjunction { get; protected set; }
+        public readonly bool IsNormalDisjunction;
 
-        protected Constraint(ushort min, short[] disjuncts, int extraHash)
+        protected Constraint(bool isDisjunction, ushort min, short[] disjuncts, int extraHash)
         {
+            IsNormalDisjunction = isDisjunction;
             Disjuncts = Disjuncts = disjuncts.Distinct().ToArray();
             Hash = ComputeHash(Disjuncts) ^ extraHash;
             if ((min != 1) && disjuncts.Length != Disjuncts.Length)
@@ -56,36 +57,6 @@ namespace CatSAT
                 if (solution.IsTrue(d))
                     count++;
             return count;
-        }
-        /// <summary>
-        /// Return the number of disjuncts in the constraint are not assigned in the specified model
-        /// <param name="problem">the working problem</param>
-        /// <returns>total number of not assigned disjuncts</returns>
-        /// </summary>
-        internal short CountNonAssignedDisjuncts(Problem problem)
-        {
-            short count = 0;
-            foreach (var d in Disjuncts)
-            {
-                if (!problem.SATVariables[Math.Abs(d)].ValueAssigned)
-                    count++;
-            }
-            return count;
-        }
-        /// <summary>
-        /// Find the not assigned disjunct of the constraint
-        /// <param name="problem">the working problem</param>
-        /// <returns>index of the not assigned disjuncts</returns>
-        /// </summary>
-        internal short[] NonAssignedDisjuncts(Problem problem)
-        {
-            var disjuncts = new short[Disjuncts.Length];
-            foreach (var d in Disjuncts)
-            {
-                if (!problem.SATVariables[Math.Abs(d)].ValueAssigned)
-                    disjuncts[d] = d;
-            }
-            return disjuncts;
         }
         
         /// <summary>
