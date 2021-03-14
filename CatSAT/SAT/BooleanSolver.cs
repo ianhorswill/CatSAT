@@ -446,6 +446,7 @@ namespace CatSAT
             var satVar = Problem.SATVariables[pIndex];
             Propositions[pIndex] = initialValue;
             varInitialized[pIndex] = true;
+            UpdateUtility(pIndex);
 
             var increasedClauses = initialValue ? satVar.PositiveClauses : satVar.NegativeClauses;
             var notIncreasedClauses = initialValue ? satVar.NegativeClauses : satVar.PositiveClauses;
@@ -547,8 +548,6 @@ namespace CatSAT
                     if (truth)
                         totalUtility += utility;*/
                 }
-
-                UpdateUtility(i);
             }
             UnsatisfiedClauses.Clear();
 

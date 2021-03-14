@@ -82,7 +82,7 @@ namespace Tests
             // True and false models ought to be more or less equally likely.
             /*Assert.IsTrue(trueCount > 40);
             Assert.IsTrue(trueCount < 60);*/
-            Console.WriteLine(trueCount + ",flips:" + p.SolveFlips.Max);
+            Console.WriteLine(trueCount + ",flips:" + p.SolveFlips.Max); //22 true count with 8 flips
         }
 
         /// <summary>
