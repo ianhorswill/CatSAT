@@ -97,6 +97,10 @@ namespace CatSAT
         /// </summary>
         private bool[] alreadySatisfied;
         private ushort[] falseLiterals;
+
+        /// <summary>
+        /// Arrays to hold state information; indexed by proposition number.
+        /// </summary>
         private bool[] varInitialized;
         #endregion
 
@@ -449,14 +453,13 @@ namespace CatSAT
             foreach (var cIndex in increasedClauses)
             {
                 var clause = Problem.Constraints[cIndex];
-                if (clause.IsNormalDisjunction) alreadySatisfied[cIndex] = true;
+                if (clause.IsNormalDisjunction || clause.IsSatisfied(TrueDisjunctCount[cIndex])) alreadySatisfied[cIndex] = true; 
             }
 
             foreach (var cIndex in notIncreasedClauses)
             {
                 var clause = Problem.Constraints[cIndex];
-                // TODO: add support for pseudoboolean clauses and conditional clauses
-                if (clause.IsNormalDisjunction && !alreadySatisfied[cIndex])
+                if (clause.IsNormalDisjunction && !alreadySatisfied[cIndex]) //normal clauses
                 {
                     falseLiterals[cIndex]++;
 
@@ -465,18 +468,50 @@ namespace CatSAT
                         foreach (var lit in clause.Disjuncts)
                         {
                             var prop = (ushort)Math.Abs(lit);
-                            if (!varInitialized[prop])
+                            if (!varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined)
                             {
-                                if (!Problem.SATVariables[prop].IsPredetermined)
-                                {
-                                    alreadySatisfied[clause.Index] = true;
-                                    // Found the one uninitialized variable; make sure it's true
-                                    Propagate(prop, lit > 0);
-                                }
-
-                                // Don't need to look for further disjuncts
-                                break;
+                                alreadySatisfied[clause.Index] = true;
+                                // Found the one uninitialized variable; make sure it's true
+                                Propagate(prop, lit > 0);
                             }
+                            // Don't need to look for further disjuncts
+                            break;
+                        }
+                    }
+                } else if (!clause.IsNormalDisjunction && !alreadySatisfied[cIndex]) 
+                {
+                    falseLiterals[cIndex]++;
+                    PseudoBooleanConstraint pbClause = (PseudoBooleanConstraint)clause;
+                    // conditional clauses;
+                    // with one less true disjunct to be satisfied, and condition is enabled
+                    if (pbClause.IsConditional && pbClause.OneTooFewDisjuncts(TrueDisjunctCount[cIndex]) && pbClause.IsEnabled(Solution))
+                    {
+                        foreach (var lit in clause.Disjuncts)
+                        {
+                            var prop = (ushort)Math.Abs(lit);
+                            if (!varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined)
+                            {
+                                alreadySatisfied[clause.Index] = true;
+                                // Found the one uninitialized variable; make sure it's true
+                                Propagate(prop, lit > 0);
+                            }
+                            break;
+                        }
+                    }
+                    // pseudoboolean clauses
+                    // if one less true disjunct to be satisfied
+                    else if (!pbClause.IsConditional && pbClause.OneTooFewDisjuncts(TrueDisjunctCount[cIndex]))
+                    {
+                        foreach (var lit in clause.Disjuncts)
+                        {
+                            var prop = (ushort)Math.Abs(lit);
+                            if (!varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined)
+                            {
+                                alreadySatisfied[clause.Index] = true;
+                                // Found the one uninitialized variable; make sure it's true
+                                Propagate(prop, lit > 0);
+                            }
+                            break;
                         }
                     }
                 }
