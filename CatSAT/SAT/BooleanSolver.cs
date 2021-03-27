@@ -460,59 +460,65 @@ namespace CatSAT
             foreach (var cIndex in notIncreasedClauses)
             {
                 var clause = Problem.Constraints[cIndex];
-                if (clause.IsNormalDisjunction && !alreadySatisfied[cIndex]) //normal clauses
+                if (!alreadySatisfied[cIndex])
                 {
-                    falseLiterals[cIndex]++;
+                    if (clause.IsNormalDisjunction) //normal clauses
+                    {
+                        falseLiterals[cIndex]++;
 
-                    if (falseLiterals[cIndex] == clause.Disjuncts.Length - 1)
-                    {
-                        foreach (var lit in clause.Disjuncts)
+                        if (falseLiterals[cIndex] == clause.Disjuncts.Length - 1)
                         {
-                            var prop = (ushort)Math.Abs(lit);
-                            if (!varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined)
+                            foreach (var lit in clause.Disjuncts)
                             {
-                                alreadySatisfied[clause.Index] = true;
-                                // Found the one uninitialized variable; make sure it's true
-                                Propagate(prop, lit > 0);
+                                var prop = (ushort) Math.Abs(lit);
+                                if (!varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined)
+                                {
+                                    alreadySatisfied[clause.Index] = true;
+                                    // Found the one uninitialized variable; make sure it's true
+                                    Propagate(prop, lit > 0);
+                                    
+                                    // Don't need to look for further disjuncts
+                                    break;
+                                }
                             }
-                            // Don't need to look for further disjuncts
-                            break;
                         }
                     }
-                } else if (!clause.IsNormalDisjunction && !alreadySatisfied[cIndex]) 
-                {
-                    falseLiterals[cIndex]++;
-                    PseudoBooleanConstraint pbClause = (PseudoBooleanConstraint)clause;
-                    // conditional clauses;
-                    // with one less true disjunct to be satisfied, and condition is enabled
-                    if (pbClause.IsConditional && pbClause.OneTooFewDisjuncts(TrueDisjunctCount[cIndex]) && pbClause.IsEnabled(Solution))
+                    else
                     {
-                        foreach (var lit in clause.Disjuncts)
+                        falseLiterals[cIndex]++;
+                        PseudoBooleanConstraint pbClause = (PseudoBooleanConstraint) clause;
+                        // conditional clauses;
+                        // with one less true disjunct to be satisfied, and condition is enabled
+                        if (pbClause.IsConditional && pbClause.OneTooFewDisjuncts(TrueDisjunctCount[cIndex]) &&
+                            pbClause.IsEnabled(Solution))
                         {
-                            var prop = (ushort)Math.Abs(lit);
-                            if (!varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined)
+                            foreach (var lit in clause.Disjuncts)
                             {
-                                alreadySatisfied[clause.Index] = true;
-                                // Found the one uninitialized variable; make sure it's true
-                                Propagate(prop, lit > 0);
+                                var prop = (ushort) Math.Abs(lit);
+                                if (!varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined)
+                                {
+                                    alreadySatisfied[clause.Index] = true;
+                                    // Found the one uninitialized variable; make sure it's true
+                                    Propagate(prop, lit > 0);
+                                }
+
+                                break;
                             }
-                            break;
                         }
-                    }
-                    // pseudoboolean clauses
-                    // if one less true disjunct to be satisfied
-                    else if (!pbClause.IsConditional && pbClause.OneTooFewDisjuncts(TrueDisjunctCount[cIndex]))
-                    {
-                        foreach (var lit in clause.Disjuncts)
+                        // pseudoboolean clauses
+                        // if one less true disjunct to be satisfied
+                        else if (!pbClause.IsConditional && pbClause.OneTooFewDisjuncts(TrueDisjunctCount[cIndex]))
                         {
-                            var prop = (ushort)Math.Abs(lit);
-                            if (!varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined)
+                            foreach (var lit in clause.Disjuncts)
                             {
-                                alreadySatisfied[clause.Index] = true;
-                                // Found the one uninitialized variable; make sure it's true
-                                Propagate(prop, lit > 0);
+                                var prop = (ushort) Math.Abs(lit);
+                                if (!varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined)
+                                {
+                                    alreadySatisfied[clause.Index] = true;
+                                    // Found the one uninitialized variable; make sure it's true
+                                    Propagate(prop, lit > 0);
+                                }
                             }
-                            break;
                         }
                     }
                 }
