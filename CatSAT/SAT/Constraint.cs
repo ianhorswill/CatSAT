@@ -121,5 +121,15 @@ namespace CatSAT
         /// Conditional PBC only. Default true for all other types of constraint.
         /// </summary>
         public virtual bool IsEnabled(Solution s) => true;
+
+
+        /// <summary>
+        /// Return the max number of false literals in a constraint.
+        /// </summary>
+        public abstract bool MaxFalseLiterals(int falseLiterals);
+        /// <summary>
+        /// Return the max number of true literals in a constraint.
+        /// </summary>
+        public abstract bool MaxTrueLiterals(int trueLiterals);
     }
 }

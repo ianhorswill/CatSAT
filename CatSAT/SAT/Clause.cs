@@ -135,7 +135,20 @@ namespace CatSAT
                 b.UnsatisfiedClauses.Remove(Index);
             b.TrueDisjunctCount[Index]++;
         }
-
+        /// <summary>
+        /// Return the max number of false literals in a normal clause.
+        /// </summary>
+        public override bool MaxFalseLiterals(int falseLiterals)
+        {
+            return falseLiterals == Disjuncts.Length - 1;
+        }
+        /// <summary>
+        /// Return the max number of true literals in a normal clause.
+        /// </summary>
+        public override bool MaxTrueLiterals(int trueLiterals)
+        {
+            return trueLiterals == Disjuncts.Length;
+        }
         /// <summary>
         /// Find the proposition from the specified clause that will do the least damage to the clauses that are already satisfied.
         /// </summary>

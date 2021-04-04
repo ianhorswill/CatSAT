@@ -96,6 +96,7 @@ namespace CatSAT
         /// Arrays to hold state information; indexed by clause number.
         /// </summary>
         private bool[] alreadySatisfied;
+        private ushort[] trueLiterals;
         private ushort[] falseLiterals;
 
         /// <summary>
@@ -114,6 +115,7 @@ namespace CatSAT
             improvablePropositions = new DynamicUShortSet(problem.SATVariables.Count);
             alreadySatisfied = new bool[Problem.Constraints.Count];
             falseLiterals = new ushort[Problem.Constraints.Count];
+            trueLiterals = new ushort[Problem.Constraints.Count];
             varInitialized = new bool[Problem.SATVariables.Count];
         }
         /// <summary>
@@ -436,10 +438,11 @@ namespace CatSAT
                 totalUtility += utility;
         }
 
-        
+
         /// <summary>
         /// propagate a proposition
         /// <param name="pIndex">Index of the variable/proposition to be propagated</param>
+        /// <param name="initialValue">the truth value will be assigned to proposition pIndex</param>
         /// </summary>
         private void Propagate(ushort pIndex, bool initialValue)
         {
@@ -454,17 +457,33 @@ namespace CatSAT
             foreach (var cIndex in increasedClauses)
             {
                 var clause = Problem.Constraints[cIndex];
-                if (clause.IsNormalDisjunction || clause.IsSatisfied(TrueDisjunctCount[cIndex])) alreadySatisfied[cIndex] = true; 
+                trueLiterals[cIndex]++;
+                if (clause.IsNormalDisjunction || clause.IsSatisfied(TrueDisjunctCount[cIndex]))
+                    alreadySatisfied[cIndex] = true;
+                else if (clause.MaxTrueLiterals(trueLiterals[cIndex]))// if we get to max true literals
+                {
+                    foreach (var lit in clause.Disjuncts)
+                    {
+                        var prop = (ushort)Math.Abs(lit);
+                        if (!varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined)
+                        {
+                            alreadySatisfied[clause.Index] = true;
+                            // Found the last one uninitialized variable; make sure it's false
+                            Propagate(prop, lit < 0);
+                        }
+                        // Don't need to look for further disjuncts
+                        break;
+                    }
+                }
             }
 
             foreach (var cIndex in notIncreasedClauses)
             {
                 var clause = Problem.Constraints[cIndex];
-                if (clause.IsNormalDisjunction && !alreadySatisfied[cIndex]) //normal clauses
+                if (!alreadySatisfied[cIndex]) 
                 {
                     falseLiterals[cIndex]++;
-
-                    if (falseLiterals[cIndex] == clause.Disjuncts.Length - 1)
+                    if (clause.MaxFalseLiterals(falseLiterals[cIndex]))// if we get to max false literals
                     {
                         foreach (var lit in clause.Disjuncts)
                         {
@@ -476,42 +495,6 @@ namespace CatSAT
                                 Propagate(prop, lit > 0);
                             }
                             // Don't need to look for further disjuncts
-                            break;
-                        }
-                    }
-                } else if (!clause.IsNormalDisjunction && !alreadySatisfied[cIndex]) 
-                {
-                    falseLiterals[cIndex]++;
-                    PseudoBooleanConstraint pbClause = (PseudoBooleanConstraint)clause;
-                    // conditional clauses;
-                    // with one less true disjunct to be satisfied, and condition is enabled
-                    if (pbClause.IsConditional && pbClause.OneTooFewDisjuncts(TrueDisjunctCount[cIndex]) && pbClause.IsEnabled(Solution))
-                    {
-                        foreach (var lit in clause.Disjuncts)
-                        {
-                            var prop = (ushort)Math.Abs(lit);
-                            if (!varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined)
-                            {
-                                alreadySatisfied[clause.Index] = true;
-                                // Found the one uninitialized variable; make sure it's true
-                                Propagate(prop, lit > 0);
-                            }
-                            break;
-                        }
-                    }
-                    // pseudoboolean clauses
-                    // if one less true disjunct to be satisfied
-                    else if (!pbClause.IsConditional && pbClause.OneTooFewDisjuncts(TrueDisjunctCount[cIndex]))
-                    {
-                        foreach (var lit in clause.Disjuncts)
-                        {
-                            var prop = (ushort)Math.Abs(lit);
-                            if (!varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined)
-                            {
-                                alreadySatisfied[clause.Index] = true;
-                                // Found the one uninitialized variable; make sure it's true
-                                Propagate(prop, lit > 0);
-                            }
                             break;
                         }
                     }

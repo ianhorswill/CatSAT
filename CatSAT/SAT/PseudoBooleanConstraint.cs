@@ -194,7 +194,20 @@ namespace CatSAT
 
         public static bool operator !=(PseudoBooleanConstraint a, PseudoBooleanConstraint b) => !(a == b);
 
-
+        /// <summary>
+        /// Return the max number of false literals in a PseudoBoolean constraint.
+        /// </summary>
+        public override bool MaxFalseLiterals(int falseLiterals)
+        {
+            return falseLiterals == (Disjuncts.Length - MinDisjunctsMinusOne + 1);
+        }
+        /// <summary>
+        /// Return the max number of true literals in a PseudoBoolean constraint.
+        /// </summary>
+        public override bool MaxTrueLiterals(int trueLiterals)
+        {
+            return trueLiterals == MaxDisjunctsPlusOne - 1;
+        }
         /// <summary>
         /// Find the proposition from the specified clause that will do the least damage to the clauses that are already satisfied.
         /// </summary>
