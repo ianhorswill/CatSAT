@@ -63,7 +63,7 @@ namespace Tests
                 
                 // This shouldn't have used any flips because propagation in initialization
                 // should always produce a valid model
-               // Assert.AreEqual(0, p.SolveFlips.Max);
+               Assert.AreEqual(0, p.SolveFlips.Max);
                 
                 // Make sure all variables have the same value
                 if (m["a"])
@@ -80,9 +80,8 @@ namespace Tests
             }
 
             // True and false models ought to be more or less equally likely.
-            /*Assert.IsTrue(trueCount > 40);
-            Assert.IsTrue(trueCount < 60);*/
-            Console.WriteLine(trueCount + ",flips:" + p.SolveFlips.Max); //26 true count with 6 flips
+            Assert.IsTrue(trueCount > 40);
+            Assert.IsTrue(trueCount < 60);
         }
 
         /// <summary>
@@ -124,7 +123,6 @@ namespace Tests
             {
                 var m = p.Solve();
                 flip[i] = m.Problem.BooleanSolver.SolveFlips;
-                //Console.WriteLine(m.Problem.BooleanSolver.PerformanceStatistics);
             }
 
             int average = flip.Sum() / flip.Length;
@@ -166,7 +164,6 @@ namespace Tests
             {
                 var m = p.Solve();
                 flip[i] = m.Problem.BooleanSolver.SolveFlips;
-                //Console.WriteLine(m.Problem.BooleanSolver.PerformanceStatistics);
             }
 
             int average = flip.Sum() / flip.Length;
@@ -187,7 +184,6 @@ namespace Tests
             {
                 var m = prob.Solve();
                 flip[i] = m.Problem.BooleanSolver.SolveFlips;
-                //Console.WriteLine(m.Problem.BooleanSolver.PerformanceStatistics);
             }
 
             int average = flip.Sum() / flip.Length;
@@ -210,7 +206,6 @@ namespace Tests
             {
                 var m = p.Solve();
                 flip[i] = m.Problem.BooleanSolver.SolveFlips;
-                //Console.WriteLine(m.Problem.BooleanSolver.PerformanceStatistics);
             }
 
             int average = flip.Sum() / flip.Length;
@@ -233,11 +228,10 @@ namespace Tests
             {
                 var m = p.Solve();
                 flip[i] = m.Problem.BooleanSolver.SolveFlips;
-                //Console.WriteLine(m.Problem.BooleanSolver.PerformanceStatistics);
             }
 
             int average = flip.Sum() / flip.Length;
-            Console.WriteLine(average); // average 1 flips 15 ms with propagation, 2 flips 6 ms w/o
+            Console.WriteLine(average); // average 2 flips 15 ms with propagation, 2 flips 6 ms w/o
         }
 
 
@@ -265,7 +259,6 @@ namespace Tests
             {
                 var m = p.Solve();
                 flip[i] = m.Problem.BooleanSolver.SolveFlips;
-                //Console.WriteLine(m.Problem.BooleanSolver.PerformanceStatistics);
             }
 
             int average = flip.Sum() / flip.Length;
@@ -298,11 +291,10 @@ namespace Tests
             {
                 var m = p.Solve();
                 flip[i] = m.Problem.BooleanSolver.SolveFlips;
-                //Console.WriteLine(m.Problem.BooleanSolver.PerformanceStatistics);
             }
 
             int average = flip.Sum() / flip.Length;
-            Console.WriteLine(average); // average 3 flip 6 ms w/ propagation, 4 flip 6 ms w/o
+            Console.WriteLine(average); // average 2 flip 10 ms w/ propagation, 4 flip 6 ms w/o
         }
     }
 }

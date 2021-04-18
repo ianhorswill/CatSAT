@@ -458,24 +458,22 @@ namespace CatSAT
             {
                 var clause = Problem.Constraints[cIndex];
                 trueLiterals[cIndex]++;
-                // IAN: I think the || needs to be &&.  Otherwise, if we mark a PBC as already satisfied
-                // when it gets enough true literals, we won't notice if it later gets too many.
-                if (clause.IsNormalDisjunction || clause.IsSatisfied(TrueDisjunctCount[cIndex]))
+                if (clause.IsNormalDisjunction && clause.IsSatisfied(trueLiterals[cIndex]))
                     alreadySatisfied[cIndex] = true;
                 else if (clause.MaxTrueLiterals(trueLiterals[cIndex]))// if we get to max true literals
                 {
+                    alreadySatisfied[clause.Index] = true;
                     foreach (var lit in clause.Disjuncts)
                     {
                         var prop = (ushort)Math.Abs(lit);
                         if (!varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined)
                         {
-                            // IAN: this seems like it should be outside of the loop over the literals
-                            alreadySatisfied[clause.Index] = true;
                             // Found the last one uninitialized variable; make sure it's false
                             Propagate(prop, lit < 0);
+                            // Don't need to look for further disjuncts
+                            break;
                         }
-                        // Don't need to look for further disjuncts
-                        break;
+                        
                     }
                 }
             }
@@ -488,18 +486,17 @@ namespace CatSAT
                     falseLiterals[cIndex]++;
                     if (clause.MaxFalseLiterals(falseLiterals[cIndex]))// if we get to max false literals
                     {
+                        alreadySatisfied[clause.Index] = true;
                         foreach (var lit in clause.Disjuncts)
                         {
                             var prop = (ushort)Math.Abs(lit);
                             if (!varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined)
                             {
-                                // IAN: this also looks like it should be pulled outside of this loop
-                                alreadySatisfied[clause.Index] = true;
                                 // Found the one uninitialized variable; make sure it's true
                                 Propagate(prop, lit > 0);
+                                // Don't need to look for further disjuncts
+                                break;
                             }
-                            // Don't need to look for further disjuncts
-                            break;
                         }
                     }
                 }
@@ -528,12 +525,6 @@ namespace CatSAT
                     var satVar = vars[i];
                     var truth = satVar.IsPredetermined ? satVar.PredeterminedValue : satVar.RandomInitialState;
                     Propagate(i, truth);
-                    // TODO: fix the utility stuff
-                    /*var utility = satVar.Proposition.Utility;
-                    if (truth ^ utility > 0)
-                        improvablePropositions.Add(i);
-                    if (truth)
-                        totalUtility += utility;*/
                 }
             }
             UnsatisfiedClauses.Clear();
