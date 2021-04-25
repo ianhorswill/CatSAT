@@ -516,9 +516,18 @@ namespace CatSAT
             totalUtility = 0;
             improvablePropositions.Clear();
             var vars = Problem.SATVariables;
-            
+
             // TODO: The order we initialize variables in should be randomized at some point
-            for (ushort i = 1; i < Propositions.Length; i++)
+            var length = Propositions.Length;
+            HashSet<ushort> props = new HashSet<ushort>();
+            var random = new System.Random();
+            while (props.Count < length - 1)
+            {
+                if (random is null)
+                    throw new ArgumentNullException(nameof(random));
+                props.Add((ushort)random.Next(1, length));
+            }
+            foreach (var i in props)
             {
                 if (!varInitialized[i])
                 {
