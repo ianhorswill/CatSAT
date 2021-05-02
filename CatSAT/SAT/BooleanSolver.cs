@@ -509,7 +509,6 @@ namespace CatSAT
         /// </summary>
         private void MakeRandomAssignment()
         {
-            // TODO: add an option to skip the propagation stuff (maybe? is it needed?)
             Array.Clear(falseLiterals, 0, falseLiterals.Length);
             Array.Clear(varInitialized, 0, varInitialized.Length);
             Array.Clear(alreadySatisfied, 0, alreadySatisfied.Length);
@@ -517,7 +516,8 @@ namespace CatSAT
             improvablePropositions.Clear();
             var vars = Problem.SATVariables;
 
-            // TODO: The order we initialize variables in should be randomized at some point
+            // Randomly assign values to the propositions with propagation,
+            // and initialize the other state information accordingly.
             var length = Propositions.Length;
             HashSet<ushort> props = new HashSet<ushort>();
             var random = new System.Random();
@@ -533,9 +533,20 @@ namespace CatSAT
                 {
                     var satVar = vars[i];
                     var truth = satVar.IsPredetermined ? satVar.PredeterminedValue : satVar.RandomInitialState;
-                    Propagate(i, truth);
+                    // Skip the propagation if user specified
+                    if (Problem.SkipPropagation)
+                    {
+                        Propositions[i] = truth;
+                        UpdateUtility(i);
+                    }
+                    else
+                    {
+                        Propagate(i, truth);
+                    }
                 }
             }
+
+
             UnsatisfiedClauses.Clear();
 
             // Initialize trueDisjunctCount[] and unsatisfiedClauses

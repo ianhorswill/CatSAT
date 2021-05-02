@@ -320,6 +320,11 @@ namespace CatSAT
         internal readonly List<ushort> FloatingVariables = new List<ushort>();
 
         /// <summary>
+        /// The constraint in the Problem.
+        /// Most of these are normal clauses (disjunctions), but other cardinality constraint are possible.
+        /// </summary>
+        public bool SkipPropagation { get; set; }
+        /// <summary>
         /// All the Propositions used in the Problem.
         /// </summary>
         // ReSharper disable once UnusedMember.Global

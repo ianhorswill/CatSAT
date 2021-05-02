@@ -296,5 +296,37 @@ namespace Tests
             int average = flip.Sum() / flip.Length;
             Console.WriteLine(average); // average 2 flip 10 ms w/ propagation, 4 flip 6 ms w/o
         }
+
+        [TestMethod]
+        public void SkipPropagationTest()
+        {
+            var p = new Problem("Skip last test's propagation during initialzation");
+            p.AddClause("b", "c");
+            p.AddClause("a", "d");
+            p.AddClause("d", "c");
+            p.AddClause("e", "c");
+            p.AddClause("f", "g");
+            p.AddClause("g", "c");
+            p.AddClause("h", "k");
+            p.AddClause("i", "c");
+            p.AddClause("j", "g");
+            p.AddClause("k", "c");
+            p.AddClause("l", "c");
+            p.AddClause("m", "c");
+            p.AddClause("n", "r");
+            p.AddClause(1, 1, "e", "f");
+            p.AddClause("w");
+            p.AddConditionalClause(2, 2, "a", "a", "c");
+            p.AddClause(1, 1, "b", "c");
+            p.SkipPropagation = true;
+            int[] flip = new int[1000];
+            for (int i = 0; i < 1000; i++)
+            {
+                var m = p.Solve();
+                flip[i] = m.Problem.BooleanSolver.SolveFlips;
+            }
+            int average = flip.Sum() / flip.Length;
+            p.Assert(average == 4);
+        }
     }
 }
