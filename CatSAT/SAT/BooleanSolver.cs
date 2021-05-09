@@ -516,18 +516,25 @@ namespace CatSAT
             improvablePropositions.Clear();
             var vars = Problem.SATVariables;
 
-            // Randomly assign values to the propositions with propagation,
-            // and initialize the other state information accordingly.
-            var length = Propositions.Length;
-            HashSet<ushort> props = new HashSet<ushort>();
-            var random = new System.Random();
-            while (props.Count < length - 1)
+            //
+            // Set indices to a randomly permuted series of 1 .. Propositions.Length - 1
+            // This gives us a random order in which to initialize the variables
+            //
+            var indices = new ushort[Propositions.Length - 1];
+            for (var i = 0; i < indices.Length; i++)
+                indices[i] = (ushort)(i + 1);
+
+            // Fisher-Yates shuffle algorithm (https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle)
+            var lastIndex = indices.Length-1;
+            for (var i = 0; i < indices.Length-2; i++)
             {
-                if (random is null)
-                    throw new ArgumentNullException(nameof(random));
-                props.Add((ushort)random.Next(1, length));
+                var swapWith = Random.InRange(i, lastIndex);
+                var temp = indices[i];
+                indices[i] = indices[swapWith];
+                indices[swapWith] = temp;
             }
-            foreach (var i in props)
+            
+            foreach (var i in indices)
             {
                 if (!varInitialized[i])
                 {
