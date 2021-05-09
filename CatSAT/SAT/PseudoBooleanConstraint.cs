@@ -58,11 +58,6 @@ namespace CatSAT
             }
         }
 
-        /// <summary>
-        /// Minimum number of disjuncts that must be true in order for the constraint
-        /// to be satisfied, minus one.  For a normal clause, this is 0 (i.e. the real min number is 1)
-        /// </summary>
-        public readonly short MinDisjunctsMinusOne;
 
         /// <summary>
         /// Maximum number of disjuncts that are allowed to be true in order for the
@@ -85,7 +80,6 @@ namespace CatSAT
         /// <param name="disjuncts">The disjuncts, encoded as signed proposition indices</param>
         internal PseudoBooleanConstraint(ushort min, ushort max, short[] disjuncts) : base(false, min, disjuncts, min ^ max)
         {
-            MinDisjunctsMinusOne = (short)(min - 1);
             MaxDisjunctsPlusOne = (ushort)(max == 0 ? disjuncts.Length + 1 : max + 1);
         }
 
@@ -207,61 +201,6 @@ namespace CatSAT
         public override bool MaxTrueLiterals(int trueLiterals)
         {
             return trueLiterals == MaxDisjunctsPlusOne - 1;
-        }
-        /// <summary>
-        /// Find the proposition from the specified clause that will do the least damage to the clauses that are already satisfied.
-        /// </summary>
-        /// <param name="b">Current BooleanSolver</param>
-        /// <returns>Index of the prop to flip</returns>
-        public override ushort GreedyFlip(BooleanSolver b)
-        {
-            // If true, the clause has too few disjuncts true
-            bool increaseTrueDisjuncts = b.TrueDisjunctCount[Index] <= MinDisjunctsMinusOne;
-            //Signed indices of the disjuncts of the clause
-            short[] disjuncts = Disjuncts;
-            //Variable that was last chosen for flipping in this clause
-            ushort lastFlipOfThisClause = b.LastFlip[Index];
-
-
-            var bestCount = int.MaxValue;
-            var best = 0;
-
-            //Walk disjuncts in a reasonably random order
-            var dCount = (uint)disjuncts.Length;
-            var index = Random.InRange(dCount);
-            uint prime;
-            do prime = Random.Prime(); while (prime <= dCount);
-            for (var i = 0; i < dCount; i++)
-            {
-                var value = disjuncts[index];
-                index = (index + prime) % dCount;
-                var selectedVar = (ushort)Math.Abs(value);
-                var truth = b.Propositions[selectedVar];
-                if (value < 0) truth = !truth;
-                if (truth == increaseTrueDisjuncts)
-                    // This is already the right polarity
-                    continue;
-
-                if (selectedVar == lastFlipOfThisClause)
-                    continue;
-                var threatCount = b.UnsatisfiedClauseDelta(selectedVar);
-                if (threatCount <= 0)
-                    // Fast path - we've found an improvement; take it
-                    // Real WalkSAT would continue searching for the best possible choice, but this
-                    // gives better performance in my tests
-                    // TODO - see if a faster way of computing ThreatenedClauseCount would improve things.
-                    return selectedVar;
-
-                if (threatCount < bestCount)
-                {
-                    best = selectedVar;
-                    bestCount = threatCount;
-                }
-            }
-
-            if (best == 0)
-                return (ushort)Math.Abs(disjuncts.RandomElement());
-            return (ushort)best;
         }
 
         internal override void Decompile(Problem p, StringBuilder b)

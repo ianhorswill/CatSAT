@@ -149,61 +149,6 @@ namespace CatSAT
         {
             return trueLiterals == Disjuncts.Length;
         }
-        /// <summary>
-        /// Find the proposition from the specified clause that will do the least damage to the clauses that are already satisfied.
-        /// </summary>
-        /// <param name="b">Current BooleanSolver</param>
-        /// <returns>Index of the prop to flip</returns>
-        public override ushort GreedyFlip(BooleanSolver b)
-        {
-            // If true, the clause has too few disjuncts true
-            bool increaseTrueDisjuncts = b.TrueDisjunctCount[Index] <= 0;
-            //Signed indices of the disjuncts of the clause
-            short[] disjuncts = Disjuncts;
-            //Variable that was last chosen for flipping in this clause
-            ushort lastFlipOfThisClause = b.LastFlip[Index];
-
-
-            var bestCount = int.MaxValue;
-            var best = 0;
-
-            //Walk disjuncts in a reasonably random order
-            var dCount = (uint)disjuncts.Length;
-            var index = Random.InRange(dCount);
-            uint prime;
-            do prime = Random.Prime(); while (prime <= dCount);
-            for (var i = 0; i < dCount; i++)
-            {
-                var value = disjuncts[index];
-                index = (index + prime) % dCount;
-                var selectedVar = (ushort)Math.Abs(value);
-                var truth = b.Propositions[selectedVar];
-                if (value < 0) truth = !truth;
-                if (truth == increaseTrueDisjuncts)
-                    // This is already the right polarity
-                    continue;
-
-                if (selectedVar == lastFlipOfThisClause)
-                    continue;
-                var threatCount = b.UnsatisfiedClauseDelta(selectedVar);
-                if (threatCount <= 0)
-                    // Fast path - we've found an improvement; take it
-                    // Real WalkSAT would continue searching for the best possible choice, but this
-                    // gives better performance in my tests
-                    // TODO - see if a faster way of computing ThreatenedClauseCount would improve things.
-                    return selectedVar;
-
-                if (threatCount < bestCount)
-                {
-                    best = selectedVar;
-                    bestCount = threatCount;
-                }
-            }
-
-            if (best == 0)
-                return (ushort)Math.Abs(disjuncts.RandomElement());
-            return (ushort)best;
-        }
 
         internal override void Decompile(Problem p, StringBuilder b)
         {
