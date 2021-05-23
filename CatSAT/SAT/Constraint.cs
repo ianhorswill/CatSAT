@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 using System.Text;
 
 namespace CatSAT
@@ -11,6 +12,11 @@ namespace CatSAT
         /// The literals of the constraint
         /// </summary>
         internal readonly short[] Disjuncts;
+
+        /// <summary>
+        /// The not predeteremined disjuncts of the constraint
+        /// </summary>
+        internal List<short> UnPredeterminedDisjuncts;
 
         public readonly int Hash;
 
@@ -33,7 +39,7 @@ namespace CatSAT
         protected Constraint(bool isDisjunction, ushort min, short[] disjuncts, int extraHash)
         {
             IsNormalDisjunction = isDisjunction;
-            Disjuncts = Disjuncts = disjuncts.Distinct().ToArray();
+            Disjuncts = disjuncts.Distinct().ToArray();
             MinDisjunctsMinusOne = (short)(min - 1);
             Hash = ComputeHash(Disjuncts) ^ extraHash;
             if ((min != 1) && disjuncts.Length != Disjuncts.Length)
@@ -107,22 +113,21 @@ namespace CatSAT
             // If true, the clause has too few disjuncts true
             bool increaseTrueDisjuncts = IsNormalDisjunction ? b.TrueDisjunctCount[Index] <= 0 : b.TrueDisjunctCount[Index] <= MinDisjunctsMinusOne;
             //Signed indices of the disjuncts of the clause
-            short[] disjuncts = Disjuncts;
+            List<short> disjuncts = UnPredeterminedDisjuncts;
             //Variable that was last chosen for flipping in this clause
             ushort lastFlipOfThisClause = b.LastFlip[Index];
-
 
             var bestCount = int.MaxValue;
             var best = 0;
 
             //Walk disjuncts in a reasonably random order
-            var dCount = (uint)disjuncts.Length;
+            var dCount = (uint)disjuncts.Count;
             var index = Random.InRange(dCount);
             uint prime;
             do prime = Random.Prime(); while (prime <= dCount);
             for (var i = 0; i < dCount; i++)
             {
-                var value = disjuncts[index];
+                var value = disjuncts[(int)index];
                 index = (index + prime) % dCount;
                 var selectedVar = (ushort)Math.Abs(value);
                 var truth = b.Propositions[selectedVar];

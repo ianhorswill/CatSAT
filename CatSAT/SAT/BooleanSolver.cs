@@ -171,18 +171,25 @@ namespace CatSAT
 
             var flipsSinceImprovement = 0;
             var wp = 0f;
-
+            
             for (; UnsatisfiedClauses.Size > 0 && remainingFlips > 0; remainingFlips--)
             {
                 // Hill climb: pick an unsatisfied clause at random and flip one of its variables
                 var targetClauseIndex = UnsatisfiedClauses.RandomElement;
                 var targetClause = Problem.Constraints[targetClauseIndex];
                 ushort flipChoice;
+                targetClause.UnPredeterminedDisjuncts = new List<short>();
+                foreach (short lit in targetClause.Disjuncts)
+                {
+                    if (!Problem.SATVariables[(ushort)Math.Abs(lit)].IsPredetermined)
+                        targetClause.UnPredeterminedDisjuncts.Add(lit);
+                    else { targetClause.UnPredeterminedDisjuncts.Remove(lit); }
+                }
 
                 if (Random.InRange(100) < 100 * wp)
                     // Flip a completely random variable
                     // This is to pull us out of local minima
-                    flipChoice = (ushort) Math.Abs(targetClause.Disjuncts.RandomElement());
+                    flipChoice = (ushort) Math.Abs(targetClause.UnPredeterminedDisjuncts.RandomElement());
                 else
                     // Hill climb: pick an unsatisfied clause at random and flip one of its variables;
                     flipChoice = targetClause.GreedyFlip(this);
@@ -316,10 +323,7 @@ namespace CatSAT
         private void Flip(ushort pIndex)
         {
             var prop = Problem.SATVariables[pIndex];
-            if (prop.IsPredetermined)
-                // Can't flip it.
-                return;
-
+            Debug.Assert(!prop.IsPredetermined, "The prop is predetermined, can't flip it.");
             var currentlyTrue = Propositions[pIndex];
             var utility = prop.Proposition.Utility;
             // ReSharper disable once CompareOfFloatsByEqualityOperator
