@@ -178,6 +178,7 @@ namespace CatSAT
                 var targetClauseIndex = UnsatisfiedClauses.RandomElement;
                 var targetClause = Problem.Constraints[targetClauseIndex];
                 ushort flipChoice;
+                // Make sure we don't change the predetermined propositions
                 targetClause.UnPredeterminedDisjuncts = new List<short>();
                 foreach (short lit in targetClause.Disjuncts)
                 {
