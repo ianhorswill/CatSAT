@@ -328,5 +328,35 @@ namespace Tests
             int average = flip.Sum() / flip.Length;
             p.Assert(average == 4);
         }
+
+        [TestMethod]
+        public void UniqueConstraintPropagationTest()
+        {
+            // This should come out of the initialization process with a valid model
+            // So this shouldn't require any flips
+            var p = new Problem("normal clauses mixed with large PBCs and conditional PBCs2");
+            p.AddClause(1, 1, "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m");
+
+            for (int i = 0; i < 1000; i++)
+            {
+                var m = p.Solve();
+                Assert.AreEqual(0, m.Problem.BooleanSolver.SolveFlips);
+            }
+        }
+
+        [TestMethod]
+        public void RangeConstraintPropagationTest()
+        {
+            // This should come out of the initialization process with a valid model
+            // So this shouldn't require any flips
+            var p = new Problem("normal clauses mixed with large PBCs and conditional PBCs2");
+            p.AddClause(3, 5, "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m");
+
+            for (int i = 0; i < 1000; i++)
+            {
+                var m = p.Solve();
+                Assert.AreEqual(0, m.Problem.BooleanSolver.SolveFlips);
+            }
+        }
     }
 }

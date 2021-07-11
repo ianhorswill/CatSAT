@@ -93,10 +93,15 @@ namespace CatSAT
         private float totalUtility;
 
         /// <summary>
-        /// Arrays to hold state information; indexed by clause number.
+        /// Used during MakeRandomAssignment/Propagate
+        /// Number of literals established so far as being true in the specified constraint
         /// </summary>
-        private bool[] alreadySatisfied;
         private ushort[] trueLiterals;
+        
+        /// <summary>
+        /// Used during MakeRandomAssignment/Propagate
+        /// Number of literals established so far as being false in the specified constraint
+        /// </summary>
         private ushort[] falseLiterals;
 
         /// <summary>
@@ -113,7 +118,6 @@ namespace CatSAT
             LastFlip = new ushort[clausesCount];
             UnsatisfiedClauses = new DynamicUShortSet(clausesCount);
             improvablePropositions = new DynamicUShortSet(problem.SATVariables.Count);
-            alreadySatisfied = new bool[Problem.Constraints.Count];
             falseLiterals = new ushort[Problem.Constraints.Count];
             trueLiterals = new ushort[Problem.Constraints.Count];
             varInitialized = new bool[Problem.SATVariables.Count];
@@ -463,50 +467,52 @@ namespace CatSAT
             {
                 var clause = Problem.Constraints[cIndex];
                 trueLiterals[cIndex]++;
-                if (clause.IsNormalDisjunction && clause.IsSatisfied(trueLiterals[cIndex]))
-                    alreadySatisfied[cIndex] = true;
-                else if (clause.MaxTrueLiterals(trueLiterals[cIndex]))// if we get to max true literals
+
+                // If we're at the max true literals, we need to set remaining ones to false.
+                if (clause.MaxTrueLiterals(trueLiterals[cIndex]))
                 {
-                    alreadySatisfied[clause.Index] = true;
                     foreach (var lit in clause.Disjuncts)
                     {
                         var prop = (ushort)Math.Abs(lit);
-                        if (!varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined)
+                        if (CanPropagate(prop))
                         {
-                            // Found the last one uninitialized variable; make sure it's false
                             Propagate(prop, lit < 0);
-                            // Don't need to look for further disjuncts
-                            break;
                         }
-                        
                     }
                 }
             }
 
             foreach (var cIndex in notIncreasedClauses)
             {
+                // This assignment made the literal in which the proposition appears false.
+                // So it doesn't help with satisfying the clause
+
                 var clause = Problem.Constraints[cIndex];
-                if (!alreadySatisfied[cIndex]) 
+                falseLiterals[cIndex]++;
+
+                if (clause.MaxFalseLiterals(falseLiterals[cIndex]))
                 {
-                    falseLiterals[cIndex]++;
-                    if (clause.MaxFalseLiterals(falseLiterals[cIndex]))// if we get to max false literals
+                    // We can't have anymore false literals in this clause and have it be satisfied
+                    // So attempt to set all remaining variables so their literals will be true.
+                    foreach (var lit in clause.Disjuncts)
                     {
-                        alreadySatisfied[clause.Index] = true;
-                        foreach (var lit in clause.Disjuncts)
+                        var prop = (ushort)Math.Abs(lit);
+                        if (CanPropagate(prop))
                         {
-                            var prop = (ushort)Math.Abs(lit);
-                            if (!varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined)
-                            {
-                                // Found the one uninitialized variable; make sure it's true
-                                Propagate(prop, lit > 0);
-                                // Don't need to look for further disjuncts
-                                break;
-                            }
+                            Propagate(prop, lit > 0);
                         }
                     }
                 }
             }
         }
+
+        /// <summary>
+        /// True if Propagate() can set the value of this proposition
+        /// This will be when it's neither predetermined nor already initialized.
+        /// </summary>
+        /// <param name="prop">Index of the proposition</param>
+        private bool CanPropagate(ushort prop) => !varInitialized[prop] && !Problem.SATVariables[prop].IsPredetermined;
+
         /// <summary>
         /// Randomly assign values to the propositions,
         /// propagate through the initialization,
@@ -515,8 +521,9 @@ namespace CatSAT
         private void MakeRandomAssignment()
         {
             Array.Clear(falseLiterals, 0, falseLiterals.Length);
+            Array.Clear(trueLiterals, 0, trueLiterals.Length);
             Array.Clear(varInitialized, 0, varInitialized.Length);
-            Array.Clear(alreadySatisfied, 0, alreadySatisfied.Length);
+
             totalUtility = 0;
             improvablePropositions.Clear();
             var vars = Problem.SATVariables;

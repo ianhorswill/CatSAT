@@ -193,7 +193,7 @@ namespace CatSAT
         /// </summary>
         public override bool MaxFalseLiterals(int falseLiterals)
         {
-            return falseLiterals == (Disjuncts.Length - MinDisjunctsMinusOne + 1);
+            return falseLiterals == (Disjuncts.Length - (MinDisjunctsMinusOne + 1));
         }
         /// <summary>
         /// Return the max number of true literals in a PseudoBoolean constraint.
