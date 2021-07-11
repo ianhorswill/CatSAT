@@ -174,7 +174,7 @@ namespace Tests
         public void NormalClause3()
         {
             var prob = new Problem("normal clause - more disjuncts and less clauses");
-            var clause = prob.AddClause("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "ll", "mm", "nn", "oo");
+            prob.AddClause("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "ll", "mm", "nn", "oo");
             prob.AddClause( "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "p", "q", "r", "s", "t", "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj", "pp", "qq", "rr", "ss", "tt");
             prob.AddClause("a", "b", "c", "d", "e", "f", "g", "h", "i", "t", "u", "v", "w", "x", "y", "z", "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj", "kk", "ll", "mm", "nn", "oo");
             prob.AddClause("a", "b", "c", "d", "e", "f", "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "s", "t", "u", "v", "w", "x", "y", "z", "ab", "cd", "ac", "ad");
@@ -195,7 +195,7 @@ namespace Tests
         public void NormalAndPbc1()
         {
             var p = new Problem("normal clauses mixed with PBCs");
-            var clause = p.AddClause("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "ll", "mm", "nn", "oo");
+            p.AddClause("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "ll", "mm", "nn", "oo");
             p.AddClause("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "p", "q", "r", "s", "t", "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj", "pp", "qq", "rr", "ss", "tt");
             p.AddClause("a", "b", "c", "d", "e", "f", "g", "h", "i", "t", "u", "v", "w", "x", "y", "z", "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj", "kk", "ll", "mm", "nn", "oo");
             p.AddClause(1, 1, "e", "f");
@@ -216,7 +216,7 @@ namespace Tests
         public void NormalAndPbc2()
         {
             var p = new Problem("normal clauses mixed with small PBCs");
-            var clause = p.AddClause("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "ll", "mm", "nn", "oo");
+            p.AddClause("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "ll", "mm", "nn", "oo");
             p.AddClause("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "p", "q", "r", "s", "t", "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj", "pp", "qq", "rr", "ss", "tt");
             p.AddClause("a", "b", "c", "d", "e", "f", "g", "h", "i", "t", "u", "v", "w", "x", "y", "z", "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj", "kk", "ll", "mm", "nn", "oo");
             p.AddClause(1, 1, "e", "f");
@@ -300,7 +300,7 @@ namespace Tests
         [TestMethod]
         public void SkipPropagationTest()
         {
-            var p = new Problem("Skip last test's propagation during initialzation");
+            var p = new Problem("Skip last test's propagation during initialization");
             p.AddClause("b", "c");
             p.AddClause("a", "d");
             p.AddClause("d", "c");
@@ -318,7 +318,7 @@ namespace Tests
             p.AddClause("w");
             p.AddConditionalClause(2, 2, "a", "a", "c");
             p.AddClause(1, 1, "b", "c");
-            p.SkipPropagation = true;
+            p.PropagateConstraintsDuringInitialization = false;
             int[] flip = new int[1000];
             for (int i = 0; i < 1000; i++)
             {

@@ -320,10 +320,10 @@ namespace CatSAT
         internal readonly List<ushort> FloatingVariables = new List<ushort>();
 
         /// <summary>
-        /// The constraint in the Problem.
-        /// Most of these are normal clauses (disjunctions), but other cardinality constraint are possible.
+        /// Do constraint propagation during the process of randomly initializing the truth assignment for a solution.
         /// </summary>
-        public bool SkipPropagation { get; set; }
+        public bool PropagateConstraintsDuringInitialization = true;
+        
         /// <summary>
         /// All the Propositions used in the Problem.
         /// </summary>

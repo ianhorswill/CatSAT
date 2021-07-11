@@ -96,18 +96,18 @@ namespace CatSAT
         /// Used during MakeRandomAssignment/Propagate
         /// Number of literals established so far as being true in the specified constraint
         /// </summary>
-        private ushort[] trueLiterals;
+        private readonly ushort[] trueLiterals;
         
         /// <summary>
         /// Used during MakeRandomAssignment/Propagate
         /// Number of literals established so far as being false in the specified constraint
         /// </summary>
-        private ushort[] falseLiterals;
+        private readonly ushort[] falseLiterals;
 
         /// <summary>
         /// Arrays to hold state information; indexed by proposition number.
         /// </summary>
-        private bool[] varInitialized;
+        private readonly bool[] varInitialized;
         #endregion
 
         internal BooleanSolver(Problem problem)
@@ -449,11 +449,13 @@ namespace CatSAT
 
 
         /// <summary>
-        /// propagate a proposition
+        /// Update true/false literal counts for constraints involved with this proposition
+        /// and set values of other propositions appearing in the constraint when the number
+        /// of false propositions requires all remaining ones to be true, or vice-versa.
         /// <param name="pIndex">Index of the variable/proposition to be propagated</param>
         /// <param name="initialValue">the truth value will be assigned to proposition pIndex</param>
         /// </summary>
-        private void Propagate(ushort pIndex, bool initialValue)
+        private void PropagateConstraints(ushort pIndex, bool initialValue)
         {
             var satVar = Problem.SATVariables[pIndex];
             Propositions[pIndex] = initialValue;
@@ -476,7 +478,7 @@ namespace CatSAT
                         var prop = (ushort)Math.Abs(lit);
                         if (CanPropagate(prop))
                         {
-                            Propagate(prop, lit < 0);
+                            PropagateConstraints(prop, lit < 0);
                         }
                     }
                 }
@@ -499,7 +501,7 @@ namespace CatSAT
                         var prop = (ushort)Math.Abs(lit);
                         if (CanPropagate(prop))
                         {
-                            Propagate(prop, lit > 0);
+                            PropagateConstraints(prop, lit > 0);
                         }
                     }
                 }
@@ -553,14 +555,14 @@ namespace CatSAT
                     var satVar = vars[i];
                     var truth = satVar.IsPredetermined ? satVar.PredeterminedValue : satVar.RandomInitialState;
                     // Skip the propagation if user specified
-                    if (Problem.SkipPropagation)
+                    if (!Problem.PropagateConstraintsDuringInitialization)
                     {
                         Propositions[i] = truth;
                         UpdateUtility(i);
                     }
                     else
                     {
-                        Propagate(i, truth);
+                        PropagateConstraints(i, truth);
                     }
                 }
             }
