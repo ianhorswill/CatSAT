@@ -27,8 +27,19 @@ using System.Collections.Generic;
 
 namespace CatSAT.NonBoolean.SMT.MenuVariables
 {
+    /// <summary>
+    /// A theory variable whose possible values come from a fixed, finite domain of specified values
+    /// </summary>
+    /// <typeparam name="T">Underlying type for the variable's values</typeparam>
     public class MenuVariable<T> : TheoryVariable<T>
     {
+        /// <summary>
+        /// Make a variable whose allowable values from some the specified menu
+        /// </summary>
+        /// <param name="name">Name of the variable, for debugging purposes</param>
+        /// <param name="baseMenu">Default menu of allowable values</param>
+        /// <param name="problem">Problem object to which this variable belongs</param>
+        /// <param name="condition">Literal that must be true within a given solution in order for this variable to be defined in that solution</param>
         public MenuVariable(object name, Menu<T> baseMenu, Problem problem, Literal condition = null) : base(name, problem, condition)
         {
             BaseMenu = baseMenu;
@@ -40,16 +51,22 @@ namespace CatSAT.NonBoolean.SMT.MenuVariables
         internal List<T> Inclusions = new List<T>();
         internal List<T> Exclusions = new List<T>();
 
+        /// <summary>
+        /// When true, this variable takes its value from the specified menu
+        /// </summary>
         public Proposition In(Menu<T> menu)
         {
             return Problem.GetSpecialProposition<MenuProposition<T>>(Call.FromArgs(Problem, "In", this, menu));
         }
 
+        /// <summary>
+        /// Default menu of values to use when no In assertion is true.
+        /// </summary>
         public readonly Menu<T> BaseMenu;
 
         internal T CurrentValue;
 
-        public override object ValueInternal(Solution s)
+        internal override object ValueInternal(Solution s)
         {
             return CurrentValue;
         }

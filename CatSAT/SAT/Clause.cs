@@ -63,7 +63,6 @@ namespace CatSAT
         /// <summary>
         /// Make a new normal clause (but doesn't add it to a Program)
         /// </summary>
-        /// <param name="min">Minimum number of disjuncts that must be true to consider the clause satisfied</param>
         /// <param name="disjuncts">The disjuncts, encoded as signed proposition indices</param>
         internal Clause(short[] disjuncts) : base(true, 1, disjuncts, 1)
         { }

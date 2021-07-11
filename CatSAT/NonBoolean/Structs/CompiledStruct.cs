@@ -78,7 +78,7 @@ namespace CatSAT
         }
 
         /// <inheritdoc />
-        public override object ValueInternal(Solution s)
+        internal override object ValueInternal(Solution s)
         {
             throw new System.NotImplementedException();
         }

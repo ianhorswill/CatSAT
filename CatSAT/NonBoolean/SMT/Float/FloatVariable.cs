@@ -147,7 +147,7 @@ namespace CatSAT
         }
 
         /// <inheritdoc />
-        public override object ValueInternal(Solution s)
+        internal override object ValueInternal(Solution s)
         {
             Debug.Assert(Representative.Bounds.IsUnique);
             return Representative.Bounds.Lower;
@@ -441,6 +441,12 @@ namespace CatSAT
             return c * v;
         }
 
+        /// <summary>
+        /// The sum of a set of float variables
+        /// </summary>
+        /// <param name="vars">set of variables to sum</param>
+        /// <returns>Variable constrained to be the sum of vars</returns>
+        /// <exception cref="ArgumentException">When one of the variables has a condition on its existence</exception>
         public static FloatVariable Sum(params FloatVariable[] vars)
         {
             var domainBounds = Interval.Zero;
@@ -454,6 +460,12 @@ namespace CatSAT
             return sum;
         }
 
+        /// <summary>
+        /// Computes the average value of the specified FloatVariables
+        /// </summary>
+        /// <param name="vars">Variables to average</param>
+        /// <returns>A new FloatVariable constrained to be the average of vars</returns>
+        /// <exception cref="ArgumentException">When one of the vars has a condition on it (i.e. isn't defined in all models)</exception>
         public static FloatVariable Average(params FloatVariable[] vars)
         {
             var domainBounds = Interval.Zero;

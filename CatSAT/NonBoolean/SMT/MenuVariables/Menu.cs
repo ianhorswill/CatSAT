@@ -22,23 +22,31 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CatSAT.NonBoolean.SMT.MenuVariables
 {
+    /// <summary>
+    /// A fixed, finite collection of values for MenuVariable
+    /// </summary>
+    /// <typeparam name="T">Underlying type of the variable</typeparam>
     public class Menu<T> : Domain<T>
     {
+        /// <summary>
+        /// Create a Menu (domain of enumerated values) for a MenuVariable from a fixed set of values
+        /// </summary>
+        /// <param name="name">Name to give to the menu (for debugging purposes)</param>
+        /// <param name="selections">Allowable values</param>
         public Menu(string name, T[] selections) : base(name)
         {
             Selections = selections;
         }
 
+        /// <summary>
+        /// Fixed set of values in the domain
+        /// </summary>
         public readonly T[] Selections;
 
+        /// <inheritdoc />
         public override Variable Instantiate(object name, Problem p, Literal condition = null)
         {
             return new MenuVariable<T>(name, this, p, condition);

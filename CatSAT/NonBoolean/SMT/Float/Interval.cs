@@ -24,7 +24,6 @@
 #endregion
 using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace CatSAT
 {
@@ -51,7 +50,10 @@ namespace CatSAT
         /// <param name="singletonValue">The single value in the interval</param>
         public Interval(float singletonValue) : this(singletonValue, singletonValue) { }
 
-        public static Interval Zero = new Interval(0,0);
+        /// <summary>
+        /// The interval consisting of just the value zero
+        /// </summary>
+        public static readonly Interval Zero = new Interval(0,0);
 
         /// <summary>
         /// An interval representing all possible float values
@@ -85,6 +87,7 @@ namespace CatSAT
         /// <summary>
         /// True if interval includes positive, negative, and zero values
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public bool CrossesZero => Lower < 0 && Upper > 0;
 
         /// <summary>

@@ -130,7 +130,7 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// Returns the Prooposition representing that this variable has the specified value
+        /// Returns the Proposition representing that this variable has the specified value
         /// </summary>
         /// <param name="value">Value to compare to</param>
         /// <returns>The unique Proposition object representing that this variable has the specified value.</returns>
@@ -142,7 +142,7 @@ namespace CatSAT
             throw new ArgumentException($"{value} is not a valid value for FDVariable {Name}");
         }
 
-        public override object ValueInternal(Solution s)
+        internal override object ValueInternal(Solution s)
         {
             foreach (var p in ValuePropositions)
                 if (s[p])

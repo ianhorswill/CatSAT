@@ -90,7 +90,7 @@ namespace CatSAT
         /// Returns the value of a variable, immediately after the solver is run.
         /// Not guaranteed to be valid afterward.
         /// </summary>
-        public abstract object ValueInternal(Solution s);
+        internal abstract object ValueInternal(Solution s);
 
         /// <inheritdoc />
         public override string ToString()

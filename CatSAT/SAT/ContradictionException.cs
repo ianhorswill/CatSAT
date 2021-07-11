@@ -41,6 +41,7 @@ namespace CatSAT
             Problem = problem;
         }
 
+        /// <inheritdoc />
         public ContradictionException(Problem problem, string message) : base($"Contradiction found: {message}")
         {
             Problem = problem;

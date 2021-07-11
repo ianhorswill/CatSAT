@@ -24,10 +24,8 @@
 #endregion
 
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
 using static CatSAT.Language;
@@ -157,7 +155,7 @@ namespace CatSAT
         // ReSharper disable once UnassignedField.Global
         public TimingData SolveFlips;
 
-        private static string _logFile;
+        private static string logFile;
 #endif
 
 
@@ -172,11 +170,11 @@ namespace CatSAT
         public static string LogFile
         {
 #if PerformanceStatistics
-            get => _logFile;
+            get => logFile;
             set
             {
-                _logFile = value;
-                System.IO.File.WriteAllLines(_logFile, new [] {"Name,Create,Compile,Optimize,Constraints,Variables,Floating,SolveMin, SolveMax,SolveAvg,FlipsMin,FlipsMax,FlipsAvg"});
+                logFile = value;
+                System.IO.File.WriteAllLines(logFile, new [] {"Name,Create,Compile,Optimize,Constraints,Variables,Floating,SolveMin, SolveMax,SolveAvg,FlipsMin,FlipsMax,FlipsAvg"});
             }
 #else
             get => null;
@@ -459,6 +457,7 @@ namespace CatSAT
         /// <summary>
         /// Forcibly add a normal constraint to the Problem.
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         internal Constraint AddClause(ushort min, params Literal[] disjuncts)
         {
             // Look up the internal numeric literal representations for all the disjuncts
@@ -749,6 +748,7 @@ namespace CatSAT
         /// </summary>
         /// <param name="p">Proposition to assign a value to</param>
         /// <param name="value">Truth value to assign to the proposition</param>
+        // ReSharper disable once UnusedMember.Global
         public void SetPreinitializedValue(Proposition p, bool value)
         {
             SetPredeterminedValue(p, value, SATVariable.DeterminationState.Preinitialized);
