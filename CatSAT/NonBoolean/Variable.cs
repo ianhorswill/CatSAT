@@ -82,7 +82,7 @@ namespace CatSAT
         /// <param name="solution">Solution to check</param>
         public virtual bool IsDefinedInInternal(Solution solution)
         {
-            return (object)Condition == null || solution[Condition];
+            return ReferenceEquals(Condition, null) || solution[Condition];
         }
 
         /// <summary>

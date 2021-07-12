@@ -43,7 +43,7 @@ namespace CatSAT.NonBoolean.SMT.MenuVariables
         public MenuVariable(object name, Menu<T> baseMenu, Problem problem, Literal condition = null) : base(name, problem, condition)
         {
             BaseMenu = baseMenu;
-            problem.GetSolver<MenuSolver<T>>().variables.Add(this);
+            problem.GetSolver<MenuSolver<T>>().Variables.Add(this);
         }
 
         internal List<Menu<T>> MenuInclusions = new List<Menu<T>>();

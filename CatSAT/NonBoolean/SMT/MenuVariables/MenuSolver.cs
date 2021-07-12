@@ -29,23 +29,33 @@ namespace CatSAT.NonBoolean.SMT.MenuVariables
 {
     class MenuSolver<T> : TheorySolver
     {
-        internal readonly List<MenuVariable<T>> variables = new List<MenuVariable<T>>();
+        /// <summary>
+        /// All the MenuVariables used in this Problem.
+        /// </summary>
+        internal readonly List<MenuVariable<T>> Variables = new List<MenuVariable<T>>();
+        /// <summary>
+        /// All the SpecialPropositions, i.e. possible constraints, on MenuVariables inside this
+        /// problem.
+        /// </summary>
         internal readonly List<MenuProposition<T>> Propositions = new List<MenuProposition<T>>();
 
         public override bool Solve(Solution s)
         {
-            foreach (var v in variables)
+            // Compute new MenuInclusions lists for each variable
+            
+            foreach (var v in Variables)
                 v.MenuInclusions.Clear();
-
             foreach (var p in Propositions)
             {
                 if (!s[p])
+                    // The proposition is false anyway, so who cares?
                     continue;
 
                 var c = (Call)p.Name;
                 switch (c.Name)
                 {
                     case "In":
+                        // Add the menu to the variable's MenuInclusions
                         var v = (MenuVariable<T>)c.Args[0];
                         var m = (Menu<T>) c.Args[1];
                         v.MenuInclusions.Add(m);
@@ -56,17 +66,19 @@ namespace CatSAT.NonBoolean.SMT.MenuVariables
                 }
             }
 
-            // Assign variables
-            foreach (var v in variables)
+            // Assign values to variables
+            foreach (var v in Variables)
             {
-                if (ReferenceEquals(v.Condition, null) || s[v.Condition])
-                    if (!SelectValue(v))
-                        return false;
+                if (v.IsDefinedInInternal(s) && !SelectValue(v))
+                    return false;
             }
 
             return true;
         }
 
+        /// <summary>
+        /// Choose a specific value for v in the current solution
+        /// </summary>
         private static bool SelectValue(MenuVariable<T> v)
         {
             if (v.BaseMenu != null)
