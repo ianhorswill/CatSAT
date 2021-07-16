@@ -749,7 +749,7 @@ namespace CatSAT
         /// <param name="p">Proposition to assign a value to</param>
         /// <param name="value">Truth value to assign to the proposition</param>
         // ReSharper disable once UnusedMember.Global
-        public void SetPreinitializedValue(Proposition p, bool value)
+        public void Initialize(Proposition p, bool value)
         {
             SetPredeterminedValue(p, value, SATVariable.DeterminationState.Preinitialized);
         }
@@ -1299,7 +1299,7 @@ namespace CatSAT
         }
 #endregion
 
-#region Mapping between Literals objects and SATVariables
+        #region Mapping between Literals objects and SATVariables
         /// <summary>
         /// True if the problem has a proposition with the specified name
         /// </summary>
@@ -1436,7 +1436,7 @@ namespace CatSAT
         }
 #endregion
 
-#region Optimization (unit resolution)
+        #region Optimization (unit resolution)
         /// <summary>
         /// Performs unit resolution, aka Boolean constraint propagation aka constant folding on the clauses of the problem.
         /// </summary>
@@ -1598,7 +1598,7 @@ namespace CatSAT
         }
 #endregion
 
-#region Manipulation of predetermined values of variables
+        #region Manipulation of predetermined values of variables
         /// <summary>
         /// Gets or sets the predetermined value of the proposition.
         /// </summary>
