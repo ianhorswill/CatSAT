@@ -34,7 +34,7 @@ namespace Tests
         public void ConditionalTest1()
         {
             var p = new Problem("MultipleCardinality");
-            p.AddConditionalClause(2, 2, "a", "a", "c");
+            p.AddConditionalPBC("a", 2, 2, "a", "c");
             p.AddClause(1, 1, "b", "c");
             for (int i = 0; i < 1000; i++)
             {
@@ -61,7 +61,7 @@ namespace Tests
         public void ConditionalTest3()
         {
             var p = new Problem("SingleClause");
-            p.AddConditionalClause(2, 2, "a", "b", "c");
+            p.AddConditionalPBC("a", 2, 2, "b", "c");
             for (int i = 0; i < 100; i++)
             {
                 var m = p.Solve();
@@ -73,7 +73,7 @@ namespace Tests
         public void ConditionalTest4()
         {
             var p = new Problem("SingleClause2");
-            p.AddConditionalClause(1, 1, "a", "b", "c");
+            p.AddConditionalPBC("a", 1, 1, "b", "c");
             for (int i = 0; i < 100; i++)
             {
                 var m = p.Solve();
@@ -91,7 +91,7 @@ namespace Tests
             p.AddClause(20, 29, "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "p", "q", "r", "s", "t", "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj", "pp", "qq", "rr", "ss", "tt");
             p.AddClause(10, 29, "a", "b", "c", "d", "e", "f", "g", "h", "i", "t", "u", "v", "w", "x", "y", "z", "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj", "kk", "ll", "mm", "nn", "oo");
             p.AddClause(1, 1, "e");
-            p.AddConditionalClause(2, 2, "a", "a", "c");
+            p.AddConditionalPBC("a", 2, 2, "a", "c");
             p.AddClause(1, 1, "b", "c");
             p.AddClause(1, 1, "d");
             for (int i = 0; i < 100; i++)

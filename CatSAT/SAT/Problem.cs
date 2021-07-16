@@ -486,7 +486,7 @@ namespace CatSAT
         /// Add a Conditional PBC to the Problem.
         /// Acts like a PBC in models for which the condition is true, has no effect in other models.
         /// </summary>
-        internal Constraint AddConditionalClause(ushort min, ushort max, Literal condition, params Literal[] disjuncts)
+        internal Constraint AddConditionalPBC(Literal condition, ushort min, ushort max, params Literal[] disjuncts)
         {
             // Look up the internal numeric literal representations for all the disjuncts in constraint
             var compiledDisjuncts = CompileClause(disjuncts);
