@@ -488,12 +488,14 @@ namespace CatSAT
         /// </summary>
         internal Constraint AddConditionalPBC(Literal condition, ushort min, ushort max, params Literal[] disjuncts)
         {
+            if (min == 1 && max == 1)
+                return AddClause(1, 1, disjuncts.Prepend(Not(condition)).ToArray());
             // Look up the internal numeric literal representations for all the disjuncts in constraint
             var compiledDisjuncts = CompileClause(disjuncts);
             var conditionShort = condition.SignedIndex;
-            var clause = new ConditionalPBC(min, max, conditionShort, compiledDisjuncts);
-            AddClause(clause);
-            return clause;
+            var constraint = new ConditionalPBC(min, max, conditionShort, compiledDisjuncts);
+            AddClause(constraint);
+            return constraint;
         }
 
 
