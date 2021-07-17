@@ -1,12 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
 namespace CatSAT
 {
+    [DebuggerDisplay("{" + nameof(DebugName) + "}")]
     internal abstract class Constraint
     {
+        internal virtual string DebugName
+        {
+            get
+            {
+                var b = new StringBuilder();
+                var firstOne = true;
+                b.Append("<");
+                foreach (var d in Disjuncts)
+                {
+                    if (firstOne)
+                        firstOne = false;
+                    else
+                        b.Append(" ");
+                    b.Append(d);
+                }
+                b.Append(">");
+                return b.ToString();
+            }
+        }
+
         /// <summary>
         /// The literals of the constraint
         /// </summary>
@@ -15,7 +37,7 @@ namespace CatSAT
         /// <summary>
         /// The not predeteremined disjuncts of the constraint
         /// </summary>
-        internal List<short> UnPredeterminedDisjuncts;
+        internal List<short> UnPredeterminedDisjuncts = new List<short>();
 
         public readonly int Hash;
 

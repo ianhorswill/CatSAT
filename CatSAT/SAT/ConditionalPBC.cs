@@ -35,6 +35,8 @@ namespace CatSAT
 #pragma warning disable 660,661
     internal class ConditionalPBC : PseudoBooleanConstraint
     {
+        internal override string DebugName => $"{Condition} => {base.DebugName}";
+
         /// <summary>
         /// The condition Boolean in the clause that needs to be true
         /// If false, ignore the whole constraint.

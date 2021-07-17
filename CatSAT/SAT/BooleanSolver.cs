@@ -182,14 +182,6 @@ namespace CatSAT
                 var targetClauseIndex = UnsatisfiedClauses.RandomElement;
                 var targetClause = Problem.Constraints[targetClauseIndex];
                 ushort flipChoice;
-                // Make sure we don't change the predetermined propositions
-                targetClause.UnPredeterminedDisjuncts = new List<short>();
-                foreach (short lit in targetClause.Disjuncts)
-                {
-                    if (!Problem.SATVariables[(ushort)Math.Abs(lit)].IsPredetermined)
-                        targetClause.UnPredeterminedDisjuncts.Add(lit);
-                    else { targetClause.UnPredeterminedDisjuncts.Remove(lit); }
-                }
 
                 if (Random.InRange(100) < 100 * wp)
                     // Flip a completely random variable
@@ -567,6 +559,14 @@ namespace CatSAT
                 }
             }
 
+            foreach (var targetClause in Problem.Constraints)
+            {
+                // Make sure we don't change the predetermined propositions
+                targetClause.UnPredeterminedDisjuncts.Clear();
+                foreach (short lit in targetClause.Disjuncts)
+                    if (!Problem.SATVariables[(ushort) Math.Abs(lit)].IsPredetermined)
+                        targetClause.UnPredeterminedDisjuncts.Add(lit);
+            }
 
             UnsatisfiedClauses.Clear();
 
@@ -576,7 +576,7 @@ namespace CatSAT
                 var c = Problem.Constraints[i];
                 var satisfiedDisjuncts = c.CountDisjuncts(Solution);
                 TrueDisjunctCount[i] = satisfiedDisjuncts;
-                if (!c.IsSatisfied(satisfiedDisjuncts) && c.IsEnabled(Solution))
+                if (!c.IsSatisfied(satisfiedDisjuncts) && c.IsEnabled(Solution)) 
                     UnsatisfiedClauses.Add(i);
             }
 

@@ -221,7 +221,7 @@ namespace Tests
             p.AddClause("a", "b", "c", "d", "e", "f", "g", "h", "i", "t", "u", "v", "w", "x", "y", "z", "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj", "kk", "ll", "mm", "nn", "oo");
             p.AddClause(1, 1, "e", "f");
             p.AddClause("w");
-            p.AddConditionalPBC("a", 2, 2, "a", "c");
+            p.QuantifyIf("a", 2, 2, "a", "c");
             p.AddClause(1, 1, "b", "c");
             int[] flip = new int[1000];
             for (int i = 0; i < 1000; i++)
@@ -251,8 +251,8 @@ namespace Tests
             p.AddClause("n", "r");
             p.AddClause(1, 1, "e", "f");
             p.AddClause("w");
-            p.AddConditionalPBC("a", 2, 2, "a", "c");
-            p.AddConditionalPBC("r", 2, 2, "r", "b");
+            p.QuantifyIf("a", 2, 2, "a", "c");
+            p.QuantifyIf("r", 2, 2, "r", "b");
             p.AddClause(1, 1, "b", "c");
             int[] flip = new int[1000];
             for (int i = 0; i < 1000; i++)
@@ -284,7 +284,7 @@ namespace Tests
             p.AddClause("n", "r");
             p.AddClause(1, 1, "e", "f");
             p.AddClause("w");
-            p.AddConditionalPBC("a", 2, 2, "a", "c");
+            p.QuantifyIf("a", 2, 2, "a", "c");
             p.AddClause(1, 1, "b", "c");
             int[] flip = new int[1000];
             for (int i = 0; i < 1000; i++)
@@ -316,7 +316,7 @@ namespace Tests
             p.AddClause("n", "r");
             p.AddClause(1, 1, "e", "f");
             p.AddClause("w");
-            p.AddConditionalPBC("a", 2, 2, "a", "c");
+            p.QuantifyIf("a", 2, 2, "a", "c");
             p.AddClause(1, 1, "b", "c");
             p.PropagateConstraintsDuringInitialization = false;
             int[] flip = new int[1000];

@@ -38,26 +38,7 @@ namespace CatSAT
 #pragma warning disable 660,661
     internal class PseudoBooleanConstraint : Constraint
     {
-        internal string DebugName
-        {
-            get
-            {
-                var b = new StringBuilder();
-                var firstOne = true;
-                b.Append("<");
-                foreach (var d in Disjuncts)
-                {
-                    if (firstOne)
-                        firstOne = false;
-                    else
-                        b.Append(" ");
-                    b.Append(d);
-                }
-                b.Append(">");
-                return b.ToString();
-            }
-        }
-
+        internal override string DebugName => $"{MinDisjunctsMinusOne + 1} {base.DebugName} {MaxDisjunctsPlusOne - 1}";
 
         /// <summary>
         /// Maximum number of disjuncts that are allowed to be true in order for the

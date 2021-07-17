@@ -39,25 +39,6 @@ namespace CatSAT
     internal class Clause : Constraint
 #pragma warning restore 660,661
     {
-        internal string DebugName
-        {
-            get
-            {
-                var b = new StringBuilder();
-                var firstOne = true;
-                b.Append("<");
-                foreach (var d in Disjuncts)
-                {
-                    if (firstOne)
-                        firstOne = false;
-                    else
-                        b.Append(" ");
-                    b.Append(d);
-                }
-                b.Append(">");
-                return b.ToString();
-            }
-        }
 
 
         /// <summary>

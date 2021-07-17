@@ -155,7 +155,7 @@ namespace CatSAT
         // ReSharper disable once UnassignedField.Global
         public TimingData SolveFlips;
 
-        private static string logFile;
+        private static string _logFile;
 #endif
 
 
@@ -170,11 +170,11 @@ namespace CatSAT
         public static string LogFile
         {
 #if PerformanceStatistics
-            get => logFile;
+            get => _logFile;
             set
             {
-                logFile = value;
-                System.IO.File.WriteAllLines(logFile, new [] {"Name,Create,Compile,Optimize,Constraints,Variables,Floating,SolveMin, SolveMax,SolveAvg,FlipsMin,FlipsMax,FlipsAvg"});
+                _logFile = value;
+                System.IO.File.WriteAllLines(_logFile, new [] {"Name,Create,Compile,Optimize,Constraints,Variables,Floating,SolveMin, SolveMax,SolveAvg,FlipsMin,FlipsMax,FlipsAvg"});
             }
 #else
             get => null;
@@ -486,12 +486,12 @@ namespace CatSAT
         /// Add a Conditional PBC to the Problem.
         /// Acts like a PBC in models for which the condition is true, has no effect in other models.
         /// </summary>
-        internal Constraint AddConditionalPBC(Literal condition, ushort min, ushort max, params Literal[] disjuncts)
+        internal Constraint AddConditionalPBC(Literal condition, ushort min, ushort max, IEnumerable<Literal> disjuncts)
         {
             if (min == 1 && max == 1)
                 return AddClause(1, 1, disjuncts.Prepend(Not(condition)).ToArray());
             // Look up the internal numeric literal representations for all the disjuncts in constraint
-            var compiledDisjuncts = CompileClause(disjuncts);
+            var compiledDisjuncts = CompileClause(disjuncts.ToArray());
             var conditionShort = condition.SignedIndex;
             var constraint = new ConditionalPBC(min, max, conditionShort, compiledDisjuncts);
             AddClause(constraint);
@@ -1074,7 +1074,58 @@ namespace CatSAT
         /// <param name="literals">Literals being quantified</param>
         public void Quantify(int min, int max, IEnumerable<Literal> literals)
         {
-            // TODO: change all this so that max=0 doesn't mean no upper bound; it's turning out ot be a bad design decision.
+            var (trueCount, set) = PreprocessConstraintLiterals(min, max, literals);
+
+            if (max > 0 && max == trueCount)
+            {
+                foreach (var l in set)
+                    Assert(Not(l));
+            }
+            else if (min - trueCount == set.Count)
+            {
+                foreach (var l in set)
+                    Assert(l);
+            }
+            else
+                Quantify(Math.Max(0, min-trueCount), max==0?0:max-trueCount, set.Select(l => l.SignedIndex).ToArray());
+        }
+
+        /// <summary>
+        /// Whenever condition is true, bounds on the number of literals in the specified set that must be true
+        /// </summary>
+        /// <param name="condition">Condition under which the constraint applies</param>
+        /// <param name="min">Minimum number of literals that must be true in a solution</param>
+        /// <param name="max">Maximum number of literals that may be true in a solution</param>
+        /// <param name="literals">Literals being quantified</param>
+        public void QuantifyIf(Literal condition, int min, int max, params Literal[] literals)
+            => QuantifyIf(condition, min, max, (IEnumerable <Literal>) literals);
+
+        /// <summary>
+        /// Whenever condition is true, bounds on the number of literals in the specified set that must be true
+        /// </summary>
+        /// <param name="condition">Condition under which the constraint applies</param>
+        /// <param name="min">Minimum number of literals that must be true in a solution</param>
+        /// <param name="max">Maximum number of literals that may be true in a solution</param>
+        /// <param name="literals">Literals being quantified</param>
+        public void QuantifyIf(Literal condition, int min, int max, IEnumerable<Literal> literals)
+        {
+            var (trueCount, set) = PreprocessConstraintLiterals(min, max, literals);
+
+            AddConditionalPBC(condition,
+                    (ushort)Math.Max(0, min - trueCount),
+                    (ushort)(max == 0 ? 0 : max - trueCount),
+                    set);
+        }
+
+        /// <summary>
+        /// Remove duplications and constant-valued literals from literals to be included in constraint
+        /// </summary>
+        /// <param name="min">Specified minimum number of literals to satisfy constraint</param>
+        /// <param name="max">Specified maximum number of literals to satisfy constraint</param>
+        /// <param name="literals">Literals specified for the constraint</param>
+        /// <returns></returns>
+        private (int trueCount, HashSet<Literal> set) PreprocessConstraintLiterals(int min, int max, IEnumerable<Literal> literals)
+        {
             if (max > 0 && min > max)
                 throw new ContradictionException(this, "minimum number of disjuncts is more than the maximum number");
             var trueCount = 0;
@@ -1092,23 +1143,12 @@ namespace CatSAT
             }
 
             if (min - trueCount > set.Count)
-                throw new ContradictionException(this, "Minimum in quantification is larger than the number of non-false elements in the constraint");
+                throw new ContradictionException(this,
+                    "Minimum in quantification is larger than the number of non-false elements in the constraint");
 
             if (max > 0 && trueCount > max)
                 throw new ContradictionException(this, "Quantification constraint can never be satisfied");
-
-            if (max > 0 && max == trueCount)
-            {
-                foreach (var l in set)
-                    Assert(Not(l));
-            }
-            else if (min - trueCount == set.Count)
-            {
-                foreach (var l in set)
-                    Assert(l);
-            }
-            else
-                Quantify(Math.Max(0, min-trueCount), max==0?0:max-trueCount, set.Select(l => l.SignedIndex).ToArray());
+            return (trueCount, set);
         }
 
         internal void Quantify(int min, int max, short[] disjuncts)
