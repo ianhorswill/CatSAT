@@ -345,6 +345,31 @@ namespace Tests
         }
 
         [TestMethod]
+        public void ConditionalConstraintPropagationTest()
+        {
+            // This should come out of the initialization process with a valid model
+            // So this shouldn't require any flips
+            var p = new Problem("normal clauses mixed with large PBCs and conditional PBCs2");
+            var lits = new[] { "a", "b", "c" }.Select(s => (Literal)s).ToArray();
+            p.QuantifyIf("condition",2, 3, lits);
+            var enabledCount = 0;
+            var tries = 10000;
+
+            for (int i = 0; i < tries; i++)
+            {
+                var m = p.Solve();
+                var count = lits.Count(l => m[l]);
+                var enabled = m["condition"];
+                if (enabled)
+                    enabledCount++;
+                Assert.AreEqual(0, m.Problem.BooleanSolver.SolveFlips);
+                Assert.IsTrue(!enabled || (count >= 2 && count <= 3));
+            }
+            Assert.IsTrue(enabledCount > 0, "condition is never enabled");
+            Assert.IsTrue(enabledCount < tries, "condition is always enabled");
+        }
+
+        [TestMethod]
         public void RangeConstraintPropagationTest()
         {
             // This should come out of the initialization process with a valid model
