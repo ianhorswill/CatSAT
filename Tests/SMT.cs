@@ -23,6 +23,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CatSAT;
@@ -321,6 +322,61 @@ namespace Tests
             }
         }
 
+
+        [TestMethod]
+        public void UnsignedDivisionConstraintTest()
+        {
+            var p = new Problem(nameof(UnsignedDivisionConstraintTest));
+            var dom = new FloatDomain("unit", 1, 50);
+            var dom2 = new FloatDomain("unit2", 1, 10);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = (FloatVariable)dom2.Instantiate("y");
+            var quotient = x / y;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                Assert.IsTrue(Math.Abs(quotient.Value(s) - (x.Value(s) / y.Value(s))) < 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void SignedDifferenceTest()
+        {
+            var p = new Problem(nameof(SignedDifferenceTest));
+            var dom = new FloatDomain("signed unit", -1, 1);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = (FloatVariable)dom.Instantiate("y");
+            var diff = x - y;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                Assert.IsTrue(Math.Abs(diff.Value(s) - (x.Value(s) - y.Value(s))) < 0.00001f);
+            }
+        }
+
+
+        [TestMethod]
+        public void SignedQuotientTest()
+        {
+            var p = new Problem(nameof(SignedQuotientTest));
+            var dom = new FloatDomain("signed unit", 1, 10);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = (FloatVariable)dom.Instantiate("y");
+            //p.Assert("foo");
+            var diff = x / y;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                Assert.IsTrue(Math.Abs(diff.Value(s) - (x.Value(s) / y.Value(s))) < 0.00001f);
+            }
+        }
+
         [TestMethod]
         public void NaiveSquareTest()
         {
@@ -457,6 +513,268 @@ namespace Tests
                 Assert.AreEqual(sum.IsDefinedInInternal(s), x.IsDefinedInInternal(s) & y.IsDefinedInInternal(s));
                 if (sum.IsDefinedInInternal(s))
                     Assert.IsTrue(Math.Abs(sum.Value(s) - (x.Value(s) + y.Value(s))) < 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void SumTableTest()
+        {
+            var dom = new FloatDomain("unit", 0, 1);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = (FloatVariable)dom.Instantiate("y");
+            var z = (FloatVariable)dom.Instantiate("z");
+
+            Assert.AreEqual(x + y, x + y);
+            Assert.AreNotEqual(x + y, x + z);
+        }
+
+        [TestMethod]
+        public void ProductTableTest()
+        {
+            var dom = new FloatDomain("unit", 0, 1);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = (FloatVariable)dom.Instantiate("y");
+            var z = (FloatVariable)dom.Instantiate("z");
+            Assert.AreEqual(x * y, x * y);
+            Assert.AreNotEqual(x * y, x * z);
+        }
+
+        [TestMethod][ExpectedException(typeof(ArgumentException))]
+        public void QuantizationSumErrorTest()
+        {
+            var dom1 = new FloatDomain("unit1", 1, 2, 0.5f);
+            var dom2 = new FloatDomain("unit2", 0, 1, 1.0f);
+
+            var badSum = dom1 + dom2;
+        }
+
+
+        [TestMethod][ExpectedException(typeof(ArgumentException))]
+        public void QuantizationProductErrorTest()
+        {
+            var dom1 = new FloatDomain("unit1", 1, 2, 0.5f);
+            var dom2 = new FloatDomain("unit2", 0, 1, 1.0f);
+
+            var badProduct = dom1 * dom2;
+        }
+
+        [TestMethod][ExpectedException(typeof(ArgumentException))]
+        public void QuantizationDifferenceErrorTest()
+        {
+            var dom1 = new FloatDomain("unit1", 1, 2, 0.5f);
+            var dom2 = new FloatDomain("unit2", 0, 1, 1.0f);
+
+            var badDiff = dom1 - dom2;
+        }
+
+        [TestMethod]
+        public void DomainSumTest()
+        {
+            var p = new Problem(nameof(DomainSumTest));
+            var dom = new FloatDomain("unit", -2, 4, 0.5f);
+            var dom2 = new FloatDomain("unit2", 0, 1, 0.5f);
+            var newDom = dom + dom2;
+
+            Assert.AreEqual(newDom.Bounds.Lower, -2);
+            Assert.AreEqual(newDom.Bounds.Upper, 5);
+            Assert.AreEqual(newDom.Quantization, 0.5f);
+        }
+
+        [TestMethod]
+        public void DomainProductTest()
+        {
+            var p = new Problem(nameof(DomainProductTest));
+            var dom = new FloatDomain("unit", -2, 4, 0.5f);
+            var dom2 = new FloatDomain("unit2", 0, 1, 0.5f);
+            var newDom = dom * dom2;
+
+            Assert.AreEqual(newDom.Bounds.Lower, 0);
+            Assert.AreEqual(newDom.Bounds.Upper, 4);
+            Assert.AreEqual(newDom.Quantization, 0.5f);
+        }
+
+
+        [TestMethod]
+        public void DomainDifferenceTest()
+        {
+            var p = new Problem(nameof(DomainDifferenceTest));
+            var dom = new FloatDomain("unit", -2, 4, 0.5f);
+            var dom2 = new FloatDomain("unit2", 0, 1, 0.5f);
+            var newDom = dom - dom2;
+
+            Assert.AreEqual(newDom.Bounds.Lower, -3);
+            Assert.AreEqual(newDom.Bounds.Upper, 4);
+            Assert.AreEqual(newDom.Quantization, 0.5f);
+        }
+
+
+        void CheckVariables(Solution s, params FloatVariable[] variables)
+        {
+            foreach (var v in variables)
+                Assert.IsTrue(v.FloatDomain.Contains(v.Value(s)));
+        }
+
+        [TestMethod]
+        public void QuantizedSumTest()
+        {
+            var p = new Problem(nameof(QuantizedSumTest));
+            var dom = new FloatDomain("unit", -1, 2, 1);
+            var dom2 = new FloatDomain("unit2", 0, 1, 1);
+            var newDom = dom * dom2;
+
+            var x = (FloatVariable)newDom.Instantiate("x");
+            var y = (FloatVariable)newDom.Instantiate("y");
+
+            var sum = x + y;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                CheckVariables(s,x,y,sum);
+                Assert.IsTrue(Math.Abs(sum.Value(s) - (x.Value(s) + y.Value(s))) < 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void QuantizedBoundTest()
+        {
+            var p = new Problem(nameof(QuantizedBoundTest));
+            var dom = new FloatDomain("unit", -1, 70, 7);
+
+            var x = (FloatVariable)dom.Instantiate("x");
+
+            //Assert.AreEqual(x.Bounds.Upper, 70);
+            //Assert.AreEqual(x.Bounds.Lower, 0);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                CheckVariables(s, x);
+            }
+        }
+
+
+        [TestMethod]
+        public void QuantizedBoundTest2()
+        {
+            var p = new Problem(nameof(QuantizedBoundTest2));
+            var dom = new FloatDomain("unit", -14.3f, 97.1f, .7f);
+
+            var x = (FloatVariable)dom.Instantiate("x");
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                CheckVariables(s, x);
+            }
+        }
+
+
+        [TestMethod]
+        public void QuantizedBoundTest3()
+        {
+            var p = new Problem(nameof(QuantizedBoundTest3));
+            var dom = new FloatDomain("unit", 1, 11, .9f);
+
+            var x = (FloatVariable)dom.Instantiate("x");
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                CheckVariables(s, x);
+            }
+        }
+
+        [TestMethod]
+        public void QuantizedSumConstraintTest()
+        {
+            var p = new Problem(nameof(QuantizedSumConstraintTest));
+            var dom = new FloatDomain("unit", 0, 1, 0.5f);
+            var dom2 = new FloatDomain("unit2", 0, 5, 0.5f);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = (FloatVariable)dom2.Instantiate("y");
+            //p.Assert("foo");
+            var sum = x + y;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                CheckVariables(s, sum, x, y);
+                Assert.IsTrue(Math.Abs(sum.Value(s) - (x.Value(s) + y.Value(s))) < 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void QuantizedProductTest()
+        {
+            var p = new Problem(nameof(QuantizedProductTest));
+            var dom = new FloatDomain("unit", 0, 1, 0.5f);
+            var dom2 = new FloatDomain("unit2", 0, 5, 0.5f);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = (FloatVariable)dom2.Instantiate("y");
+            var prod = x * y;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                CheckVariables(s, prod, x, y);
+                Assert.IsTrue(Math.Abs(prod.Value(s) - (x.Value(s) * y.Value(s))) < 0.00001f);
+            }
+        }
+
+
+        [TestMethod]
+        public void QuantizedSelfDivTest()
+        {
+            var p = new Problem(nameof(QuantizedSelfDivTest));
+            var dom = new FloatDomain("unit", 1, 10, 0.9f);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var div = x / x;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                CheckVariables(s, div, x);
+                Assert.IsTrue(Math.Abs(div.Value(s) - (x.Value(s) / x.Value(s))) < 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void QuantizedSelfSubtractionTest()
+        {
+            var p = new Problem(nameof(QuantizedSelfSubtractionTest));
+            var dom = new FloatDomain("unit", 1, 10, 0.9f);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var diff = x - x;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                CheckVariables(s, diff, x);
+                Assert.IsTrue(Math.Abs(diff.Value(s) - (x.Value(s) - x.Value(s))) < 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void QuantizedNaiveSquareTest()
+        {
+            var p = new Problem(nameof(QuantizedNaiveSquareTest));
+            var dom = new FloatDomain("signed unit", -1, 1, 0.5f);
+            var x = (FloatVariable)dom.Instantiate("x");
+            //p.Assert("foo");
+            var square = x * x;
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                CheckVariables(s, square, x);
+                Assert.IsTrue(Math.Abs(square.Value(s) - x.Value(s) * x.Value(s)) < 0.00001f);
             }
         }
 

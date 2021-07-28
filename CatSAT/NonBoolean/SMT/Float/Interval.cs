@@ -164,6 +164,52 @@ namespace CatSAT
             return Math.Max(Math.Max(a, b), Math.Max(c, d));
         }
 
+        /// <summary>
+        /// Round num up to the nearest multiple of quantization
+        /// </summary>
+        public static float RoundUp(float num, float quantization)
+        {
+            var multiple = num / quantization;
+            var error = multiple - Math.Round(multiple);
+            if (error < .00001f && error >= 0)
+            {
+                return num;
+            }
+            return ((float)Math.Ceiling(num / quantization)) * quantization;
+        }
+
+        /// <summary>
+        /// Round num down to the nearest multiple of quantization
+        /// </summary>
+        public static float RoundDown(float num, float quantization)
+        {
+            var multiple = num / quantization;
+            var error = Math.Round(multiple) - multiple;
+            if (error < .00001f && error >= 0)
+            {
+                return num;
+            }
+            return ((float)Math.Floor(num / quantization)) * quantization;
+        }
+
+        /// <summary>
+        /// Narrow the interval to the nearest quantized values
+        /// </summary>
+        public Interval Quantize(float Quantization)
+        {
+            if (Quantization == 0)
+            {
+                return this;
+            }
+            float lowerBound = RoundUp(Lower, Quantization);
+            float upperBound = RoundDown(Upper, Quantization);
+            Interval newBounds = new Interval(lowerBound, upperBound);
+
+            return newBounds;
+        }
+
+        public static Interval Quantize(Interval i, float Quantization) => i.Quantize(Quantization);
+
         /// <inheritdoc />
         public override string ToString()
         {
@@ -171,5 +217,6 @@ namespace CatSAT
         }
 
         private string DebuggerDisplay => ToString();
+
     }
 }

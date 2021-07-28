@@ -77,15 +77,30 @@ namespace CatSAT
         /// <inheritdoc />
         public override Domain<float> Domain => FloatDomain;
 
+        public float Quantization => FloatDomain.Quantization;
+
         /// <summary>
         /// Saved bounds for current SMT Solution, after initial constraint processing, but before sampling
         /// </summary>
         internal Interval SolutionBounds;
 
+        private Interval _bounds;
+
         /// <summary>
         /// Current bounds to which the variable has been narrowed
         /// </summary>
-        internal Interval Bounds;
+        internal Interval Bounds
+        {
+            get => _bounds;
+            set
+            {
+                _bounds = value;
+                //if (Quantization == 0)
+                //    _bounds = value;
+                //else
+                //    _bounds = value.Quantize(Quantization);
+            }
+        }
 
         /// <summary>
         /// The predetermined value for the variable, if any.
@@ -140,10 +155,10 @@ namespace CatSAT
 
         private string DebugValueString => Bounds.IsUnique ? Bounds.Lower.ToString(CultureInfo.InvariantCulture) : Bounds.ToString();
 
-        internal bool PickRandom(Queue<Tuple<FloatVariable,bool>> q)
+        internal void PickValue(float r, Queue<Tuple<FloatVariable, bool>> q)
         {
-            var f = Random.Float(Bounds.Lower, Bounds.Upper);
-            return BoundAbove(f, q) && BoundBelow(f, q);
+            var success = BoundAbove(r, q, false) && BoundBelow(r, q, false);
+            Debug.Assert(success);
         }
 
         /// <inheritdoc />
@@ -174,7 +189,7 @@ namespace CatSAT
 
         internal void ResetSolverState()
         {
-            Bounds = PredeterminedValueInternal == null ? FloatDomain.Bounds : new Interval(PredeterminedValueInternal.Value);
+            Bounds = Interval.Quantize(PredeterminedValueInternal == null ? FloatDomain.Bounds : new Interval(PredeterminedValueInternal.Value), Quantization);
             equivalence = null;
             UpperVariableBounds?.Clear();
             LowerVariableBounds?.Clear();
@@ -189,8 +204,14 @@ namespace CatSAT
         /// <returns>True is resulting bounds are consistent</returns>
         internal bool BoundAbove(float bound)
         {
+            if (Quantization != 0)
+            {
+                bound = Interval.RoundDown(bound, Quantization);
+            }
             if (!(bound < Bounds.Upper)) return true;
-            Bounds.Upper = bound;
+            var b = Bounds;
+            b.Upper = bound;
+            Bounds = b;
             return Bounds.IsNonEmpty;
         }
 
@@ -202,8 +223,17 @@ namespace CatSAT
         /// <returns>True is resulting bounds are consistent</returns>
         internal bool BoundBelow(float bound)
         {
+            if (Quantization != 0)
+            {
+                bound = Interval.RoundUp(bound, Quantization);
+            }
             if (!(bound > Bounds.Lower)) return true;
-            Bounds.Lower = bound;
+            if (!(bound > Bounds.Upper))
+            {
+                var b = Bounds;
+                b.Lower = bound;
+                Bounds = b;
+            }
             return Bounds.IsNonEmpty;
         }
 
@@ -214,10 +244,16 @@ namespace CatSAT
         /// <param name="bound">Upper bound on variable</param>
         /// <param name="q">Propagation queue</param>
         /// <returns>True is resulting bounds are consistent</returns>
-        internal bool BoundAbove(float bound, Queue<Tuple<FloatVariable,bool>> q)
+        internal bool BoundAbove(float bound, Queue<Tuple<FloatVariable,bool>> q, bool requantize=true)
         {
+            if (Quantization != 0 && requantize)
+            {
+                bound = Interval.RoundDown(bound, Quantization);
+            }
             if (!(bound < Bounds.Upper)) return true;
-            Bounds.Upper = bound;
+            var b = Bounds;
+            b.Upper = bound;
+            Bounds = b;
             EnsurePresent(q, new Tuple<FloatVariable, bool>(this, true));
             return Bounds.IsNonEmpty;
         }
@@ -326,10 +362,18 @@ namespace CatSAT
         /// <param name="bound">Lower bound on variable</param>
         /// <param name="q">Propagation queue</param>
         /// <returns>True is resulting bounds are consistent</returns>
-        internal bool BoundBelow(float bound, Queue<Tuple<FloatVariable,bool>> q)
+        internal bool BoundBelow(float bound, Queue<Tuple<FloatVariable, bool>> q, bool requantize=true)
         {
-            if (!(bound > Bounds.Lower)) return true;
-            Bounds.Lower = bound;
+            if (Quantization != 0 && requantize)
+            {
+                bound = Interval.RoundUp(bound, Quantization);
+            }
+            if (!(bound > Bounds.Lower)) {
+                    return true;
+            }
+            var b = Bounds;
+            b.Lower = bound;
+            Bounds = b;
             EnsurePresent(q, new Tuple<FloatVariable, bool>(this, false));
             return Bounds.IsNonEmpty;
         }
@@ -405,10 +449,16 @@ namespace CatSAT
         /// </summary>
         public static FloatVariable operator +(FloatVariable v1, FloatVariable v2)
         {
+            var sumTable = Problem.Current.GetSolver<FloatSolver>().SumTable;
+            if (sumTable.TryGetValue((v1, v2), out FloatVariable val))
+            {
+                return val;
+            }
             var sum = new FloatVariable($"{v1.Name}+{v2.Name}",
-                v1.FloatDomain.Bounds.Lower+v2.FloatDomain.Bounds.Lower,
-                v1.FloatDomain.Bounds.Upper+v2.FloatDomain.Bounds.Upper,
+                v1.FloatDomain.Bounds.Lower + v2.FloatDomain.Bounds.Lower,
+                v1.FloatDomain.Bounds.Upper + v2.FloatDomain.Bounds.Upper,
                 FunctionalConstraint.CombineConditions(v1.Condition, v2.Condition));
+            sumTable[(v1, v2)] = sum;
             Problem.Current.Assert(Problem.Current.GetSpecialProposition<BinarySumConstraint>(Call.FromArgs(Problem.Current, "IsSum", sum, v1, v2)));
             return sum;
         }
@@ -418,12 +468,44 @@ namespace CatSAT
         /// </summary>
         public static FloatVariable operator *(FloatVariable v1, FloatVariable v2)
         {
+            var productTable = Problem.Current.GetSolver<FloatSolver>().ProductTable;
+            if (productTable.TryGetValue((v1, v2), out FloatVariable val))
+            {
+                return val;
+            }
             var range = v1.FloatDomain.Bounds * v2.FloatDomain.Bounds;
-            var product = new FloatVariable($"{v1.Name}*{v2.Name}", range.Lower, range.Upper,
-                FunctionalConstraint.CombineConditions(v1.Condition, v2.Condition));
+            var product = new FloatVariable($"{v1.Name}*{v2.Name}", range.Lower, range.Upper, FunctionalConstraint.CombineConditions(v1.Condition, v2.Condition));
+            productTable[(v1, v2)] = product;
             Problem.Current.Assert(Problem.Current.GetSpecialProposition<ProductConstraint>(Call.FromArgs(Problem.Current, "IsProduct", product, v1, v2)));
             return product;
         }
+        
+        /// <summary>
+        /// A FloatVariable constrained to be the difference between two other FloatVariables
+        /// </summary>
+        public static FloatVariable operator -(FloatVariable v1, FloatVariable v2)
+        {
+            //var negv2 = new Interval(-1 * v2.FloatDomain.Bounds.Lower, -1 * v2.FloatDomain.Bounds.Upper);
+            var range = v1.FloatDomain - v2.FloatDomain;
+            var difference = new FloatVariable($"{v1.Name}-{v2.Name}", range.Bounds.Lower, range.Bounds.Upper, FunctionalConstraint.CombineConditions(v1.Condition, v2.Condition));
+            Problem.Current.Assert(Problem.Current.GetSpecialProposition<BinarySumConstraint>(Call.FromArgs(Problem.Current, "IsSum", v1, v2, difference)));
+            return difference;
+        }
+
+
+
+        /// <summary>
+        /// A FloatVariable constrained to be the quotient of two other FloatVariables
+        /// </summary>
+        public static FloatVariable operator /(FloatVariable v1, FloatVariable v2)
+        {
+            var range = v1.FloatDomain.Bounds / v2.FloatDomain.Bounds;
+            var quotient = new FloatVariable($"{v1.Name}/{v2.Name}", range.Lower, range.Upper, FunctionalConstraint.CombineConditions(v1.Condition, v2.Condition));
+            Problem.Current.Assert(Problem.Current.GetSpecialProposition<ProductConstraint>(Call.FromArgs(Problem.Current, "IsProduct", v1, v2, quotient)));
+            return quotient;
+        }
+
+
 
         /// <summary>
         /// A FloatVariable constrained to be the product of another FloatVariable and a constant

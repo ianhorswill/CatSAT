@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 
 namespace CatSAT.NonBoolean.SMT.Float
 {
@@ -38,7 +39,13 @@ namespace CatSAT.NonBoolean.SMT.Float
         // Representatives of the equivalence classes of FloatVariables
         private readonly List<FloatVariable> representatives = new List<FloatVariable>();
 
+        /// <summary>
+        /// (v, true) in this queue means v's upper bound has recently been tightened; (v, false) means v's lower bound has recently been tightened.
+        /// </summary>
         private readonly Queue<Tuple<FloatVariable,bool>> propagationQueue = new Queue<Tuple<FloatVariable, bool>>();
+
+        public Dictionary<(FloatVariable, FloatVariable), FloatVariable> ProductTable = new Dictionary<(FloatVariable, FloatVariable), FloatVariable>();
+        public Dictionary<(FloatVariable, FloatVariable), FloatVariable> SumTable = new Dictionary<(FloatVariable, FloatVariable), FloatVariable>();
 
         /// <summary>
         /// Add clauses that follow from user-defined bounds, e.g. from transitivity.
@@ -50,7 +57,7 @@ namespace CatSAT.NonBoolean.SMT.Float
             {
                 foreach (var p in Propositions)
                     p.Validate();
-                constraints.Sort((a, b) => sign*Comparer.Default.Compare(a.Bound, b.Bound));
+                constraints.Sort((a, b) => sign * Comparer.Default.Compare(a.Bound, b.Bound));
 
                 // Add forward inferences: if v < bounds[i], then v < bounds[i+1]
                 for (int i = 0; i < constraints.Count - 1; i++)
@@ -114,7 +121,7 @@ namespace CatSAT.NonBoolean.SMT.Float
             FindEquivalenceClasses(s);
             FindActiveFunctionalConstraints(s);
 
-            if (!FindSolutionBounds(s)) 
+            if (!FindSolutionBounds(s))
                 // Constraint are contradictory
                 return false;
 
@@ -246,7 +253,9 @@ namespace CatSAT.NonBoolean.SMT.Float
 
             // Save bounds
             foreach (var v in representatives)
+            {
                 v.SolutionBounds = v.Bounds;
+            }
 
             return true;
         }
@@ -264,9 +273,25 @@ namespace CatSAT.NonBoolean.SMT.Float
             Random.Shuffle(representatives);
             foreach (var v in representatives)
             {
-                v.PickRandom(propagationQueue);
+                if (v.FloatDomain.Quantization == 0)
+                {
+
+                    v.PickValue(Random.Float(v.Bounds.Lower, v.Bounds.Upper), propagationQueue);
+                }
+
+                else
+                {
+                    int possibilities = (int)((v.Bounds.Upper - v.Bounds.Lower) / v.FloatDomain.Quantization);
+
+                    int randStep = CatSAT.Random.InRange(0, possibilities-1);
+
+                    float rand = (float)(randStep * v.FloatDomain.Quantization) + v.Bounds.Lower;
+
+                    v.PickValue(rand, propagationQueue);
+                }
+
                 if (!PropagateUpdates()) 
-                    return false;
+                        return false;
             }
 
             return true;
