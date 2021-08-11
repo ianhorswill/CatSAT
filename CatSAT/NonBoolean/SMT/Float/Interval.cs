@@ -98,6 +98,16 @@ namespace CatSAT
             return Lower <= value && value <= Upper;
         }
 
+        public static bool operator ==(Interval a, Interval b)
+        {
+            return (a.Lower - b.Lower < .00001f && a.Upper - b.Upper < .00001f);
+        }
+
+        public static bool operator !=(Interval a, Interval b)
+        {
+            return (!(a == b));
+        }
+
         /// <summary>
         /// The interval sum of two intervals.
         /// This is the interval bounding all possible sums of values taken from the original intervals.

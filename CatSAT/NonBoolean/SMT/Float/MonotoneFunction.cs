@@ -32,7 +32,9 @@ namespace CatSAT.NonBoolean.SMT.Float
     {
         public static FloatVariable MonotoneFunction(string name, Func<float, float> function, Func<float, float> inverseFunction, bool increasing, FloatVariable input)
         {
-            var output = new FloatVariable($"{name}({input.Name})", float.NegativeInfinity, float.PositiveInfinity, input.Condition);
+            var lower = function(input.Bounds.Lower);
+            var upper = function(input.Bounds.Upper);
+            var output = new FloatVariable($"{name}({input.Name})", increasing ? lower : upper, increasing ? upper : lower, input.Condition);
             AddConstraint(name, function, inverseFunction, increasing, input, output);
             return output;
         }

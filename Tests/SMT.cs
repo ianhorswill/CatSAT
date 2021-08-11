@@ -519,11 +519,12 @@ namespace Tests
         [TestMethod]
         public void SumTableTest()
         {
+            var problem = new Problem("SumTableTest");
             var dom = new FloatDomain("unit", 0, 1);
             var x = (FloatVariable)dom.Instantiate("x");
             var y = (FloatVariable)dom.Instantiate("y");
             var z = (FloatVariable)dom.Instantiate("z");
-
+            var s = problem.Solve();
             Assert.AreEqual(x + y, x + y);
             Assert.AreNotEqual(x + y, x + z);
         }
@@ -531,12 +532,63 @@ namespace Tests
         [TestMethod]
         public void ProductTableTest()
         {
+            var problem = new Problem("ProductTableTest");
             var dom = new FloatDomain("unit", 0, 1);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = (FloatVariable)dom.Instantiate("y");
+            var z = (FloatVariable)dom.Instantiate("z");
+            var s = problem.Solve();
+            Assert.AreEqual(x * y, x * y);
+            Assert.AreNotEqual(x * y, x * z);
+        }
+
+        [TestMethod]
+        public void ProductTableTest2()
+        {
+            var problem = new Problem("ProductTableTest");
+            var s = problem.Solve();
+            var dom = new FloatDomain("signed unit", -1, 1);
             var x = (FloatVariable)dom.Instantiate("x");
             var y = (FloatVariable)dom.Instantiate("y");
             var z = (FloatVariable)dom.Instantiate("z");
             Assert.AreEqual(x * y, x * y);
             Assert.AreNotEqual(x * y, x * z);
+        }
+
+        [TestMethod]
+        public void ProductTableTest3()
+        {
+            var problem = new Problem("ProductTableTest3");
+            var s = problem.Solve();
+            var dom = new FloatDomain("signed unit", -9, 40, .3f);
+            var a = (FloatVariable)dom.Instantiate("a");
+            var b = (FloatVariable)dom.Instantiate("b");
+            var c = (FloatVariable)dom.Instantiate("c");
+            var d = (FloatVariable)dom.Instantiate("d");
+            var e = (FloatVariable)dom.Instantiate("e");
+            var f = (FloatVariable)dom.Instantiate("f");
+
+            var vars = new FloatVariable[5];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (a * b) + (c * c * d) * (f * e * a * d);
+            var toavg = FloatVariable.Average(vars);
+            var final = toavg * a * b * c * d * e * f;
+        }
+
+        [TestMethod]
+        public void SquareTableTest()
+        {
+            var problem = new Problem("SquareTableTest");
+            var dom = new FloatDomain("unit", 0, 1);
+            var x = (FloatVariable)dom.Instantiate("x");
+            Assert.AreEqual(FloatVariable.Square(x), FloatVariable.Square(x));
+            var square = FloatVariable.Square(x);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = problem.Solve();
+                Assert.IsTrue(Math.Abs(square.Value(s) - (x.Value(s) * x.Value(s))) < 0.00001f);
+            }
         }
 
         [TestMethod][ExpectedException(typeof(ArgumentException))]
@@ -779,6 +831,417 @@ namespace Tests
         }
 
         [TestMethod]
+        public void GeneralQuantizedSumConstraintTest()
+        {
+            var p = new Problem(nameof(GeneralQuantizedSumConstraintTest));
+            var dom = new FloatDomain("unit", 10, 60, 6);
+            var vars = new FloatVariable[10];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var sum = FloatVariable.Sum(vars);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                var realSum = vars.Select(v => v.Value(s)).Sum();
+                Assert.IsTrue(Math.Abs(sum.Value(s) - realSum) < 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void GeneralQuantizedSumConstraintTest2()
+        {
+            var p = new Problem(nameof(GeneralQuantizedSumConstraintTest2));
+            var dom = new FloatDomain("unit", 10, 50, 0.5f);
+            var vars = new FloatVariable[10];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var sum = FloatVariable.Sum(vars);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                var realSum = vars.Select(v => v.Value(s)).Sum();
+                Assert.IsTrue(Math.Abs(sum.Value(s) - realSum) < 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void GeneralQuantizedSumConstraintTest3()
+        {
+            var p = new Problem(nameof(GeneralQuantizedSumConstraintTest3));
+            var dom = new FloatDomain("unit", -10, 49, 7);
+            var vars = new FloatVariable[10];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var sum = FloatVariable.Sum(vars);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                var realSum = vars.Select(v => v.Value(s)).Sum();
+                Assert.IsTrue(Math.Abs(sum.Value(s) - realSum) < 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void QuantizedAverageConstraintTest()
+        {
+            var p = new Problem(nameof(QuantizedAverageConstraintTest));
+            var dom = new FloatDomain("unit", -10, 49, 7);
+            var vars = new FloatVariable[10];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var average = FloatVariable.Average(vars);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                var avg = vars.Select(v => v.Value(s)).Average();
+                Assert.IsTrue(Math.Abs(average.Value(s) - avg) < 0.00001f);
+            }
+        }
+        
+        [TestMethod]
+        public void ArraySumTableTest()
+        {
+            var p = new Problem(nameof(ArraySumTableTest));
+            var dom = new FloatDomain("unit", 1, 3);
+            var vars = new FloatVariable[5];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var vars2 = new FloatVariable[5];
+            for (int i = 0; i < vars2.Length; i++)
+                vars2[i] = vars[i];
+            var sum = FloatVariable.Sum(vars);
+            var sum2 = FloatVariable.Sum(vars2);
+
+            Assert.AreEqual(sum, sum2);
+        }
+
+        [TestMethod]
+        public void AverageTableTest()
+        {
+            var p = new Problem(nameof(AverageTableTest));
+            var dom = new FloatDomain("unit", 1, 3);
+            var vars = new FloatVariable[5];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var vars2 = new FloatVariable[5];
+            for (int i = 0; i < vars2.Length; i++)
+                vars2[i] = vars[i];
+            var avg = FloatVariable.Average(vars);
+            var avg2 = FloatVariable.Average(vars2);
+
+            Assert.AreEqual(avg, avg2);
+        }
+
+        [TestMethod]
+        public void AverageTableTest2()
+        {
+            var p = new Problem(nameof(AverageTableTest2));
+            var dom = new FloatDomain("unit", -6, 9.7f, .1f);
+            var vars = new FloatVariable[5];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+
+            var vars2 = new FloatVariable[5];
+            for (int i = 0; i < vars2.Length; i++)
+                vars2[i] = vars[i];
+
+            var vars3 = new FloatVariable[5];
+            for (int i = 0; i < vars3.Length; i++)
+                vars3[i] = (FloatVariable)dom.Instantiate("x" + i);
+
+            var avg = FloatVariable.Average(vars);
+            var avg2 = FloatVariable.Average(vars2);
+            var avg3 = FloatVariable.Average(vars3);
+
+            Assert.AreEqual(avg, avg2);
+            Assert.AreNotEqual(avg2, avg3);
+        }
+
+        [TestMethod]
+        public void NewAverageTest()
+        {
+            var p = new Problem(nameof(NewAverageTest));
+            var dom = new FloatDomain("unit", -6, 9.7f);
+            var vars = new FloatVariable[5];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var average = FloatVariable.Average(vars);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                var avg = vars.Select(v => v.Value(s)).Average();
+
+                Assert.IsTrue(Math.Abs(average.Value(s) - avg) < .00001f);
+            }
+
+        }
+
+        [TestMethod]
+        public void VarianceValueTest()
+        {
+            var p = new Problem(nameof(VarianceValueTest));
+            var dom = new FloatDomain("unit", 1, 1);
+            var vars = new FloatVariable[5];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var variance = FloatVariable.Variance(vars);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+
+                Assert.AreEqual(variance.Value(s), 0);
+            }
+        }
+
+        [TestMethod]
+        public void VarianceValueTest2()
+        {
+            var p = new Problem(nameof(VarianceValueTest2));
+            var dom = new FloatDomain("unit", 1, 2);
+            var vars = new FloatVariable[5];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var variance = FloatVariable.Variance(vars);
+
+            for (int i = 0; i < 5; i++)
+            {
+                var s = p.Solve();
+                Assert.IsTrue(variance.Value(s) <= 1);
+            }
+        }
+
+        [TestMethod]
+        public void VarianceTest()
+        {
+            var p = new Problem(nameof(VarianceTest));
+            var dom = new FloatDomain("unit", -6, 9.7f);
+            var vars = new FloatVariable[1];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var variance = FloatVariable.Variance(vars);
+             
+            for (int i = 0; i < 5; i++)
+            {
+                var s = p.Solve();
+                var avg = vars.Select(v => v.Value(s)).Average();
+                float squareSum = 0;
+                for (int j = 0; j < vars.Length; j++)
+                {
+                    squareSum += (vars[j].Value(s) - avg) * (vars[j].Value(s) - avg);
+                }
+
+                Assert.IsTrue(Math.Abs(variance.Value(s) - squareSum/vars.Length)< .00001f);
+            }
+
+        }
+
+        [TestMethod]
+        public void SquareTest()
+        {
+            var problem = new Problem("SquareTest");
+            var dom = new FloatDomain("signed unit", -1, 10, .2f);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var square = FloatVariable.Square(x);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = problem.Solve();
+                Assert.IsTrue(Math.Abs(square.Value(s) - (x.Value(s) * x.Value(s))) < 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void MonotoneSumConstraintTest()
+        {
+            var p = new Problem(nameof(MonotoneSumConstraintTest));
+            var dom = new FloatDomain("unit", 1, 2);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var sum = x + 3;
+            var s = p.Solve();
+            Assert.IsTrue(Math.Abs(sum.Value(s) - (x.Value(s) + 3)) < 0.00001f);
+        }
+
+        [TestMethod]
+        public void MonotoneSumConstraintTest2()
+        {
+            var p = new Problem(nameof(MonotoneSumConstraintTest2));
+            var dom = new FloatDomain("unit", 1, 2);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var sum2 = 3 + x;
+            var s = p.Solve();
+            Assert.IsTrue(Math.Abs(sum2.Value(s) - (3 + x.Value(s))) < 0.00001f);
+        }
+
+        [TestMethod]
+        public void MonotoneQuotientConstraintTest()
+        {
+            var p = new Problem(nameof(MonotoneQuotientConstraintTest));
+            var dom = new FloatDomain("unit", 1, 2);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var quotient = x / 2;
+            var s = p.Solve();
+            Assert.IsTrue(Math.Abs(quotient.Value(s) - (x.Value(s)/2)) < 0.00001f);
+        }
+
+        [TestMethod]
+        public void MonotoneDifferenceConstraintTest()
+        {
+            var p = new Problem(nameof(MonotoneDifferenceConstraintTest));
+            var dom = new FloatDomain("unit", 2, 5);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var diff = x - 2;
+            var s = p.Solve();
+            Assert.IsTrue(Math.Abs(diff.Value(s) - (x.Value(s) - 2)) < 0.00001f);
+        }
+
+        [TestMethod]
+        public void SignedMonotonePowerConstraintTest()
+        {
+            var p = new Problem(nameof(SignedMonotonePowerConstraintTest));
+            var dom = new FloatDomain("unit", -5, 5);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = x ^ 3;
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Assert.IsTrue(Math.Abs((x.Value(s) * x.Value(s) * x.Value(s)) - y.Value(s)) < .0001f);
+            }
+        }
+
+        [TestMethod]
+        public void MonotonePowerConstraintTest()
+        {
+            var p = new Problem(nameof(MonotonePowerConstraintTest));
+            var dom = new FloatDomain("unit", 0, 5);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = x ^ 3;
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Assert.IsTrue(Math.Abs((x.Value(s) * x.Value(s) * x.Value(s)) - y.Value(s)) < .0001f);
+            }
+        }
+
+        [TestMethod]
+        public void MonotonePowerValueTest()
+        {
+            var p = new Problem(nameof(MonotonePowerValueTest));
+            var dom = new FloatDomain("unit", 5, 5);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = x ^ 3;
+            var s = p.Solve();
+            Assert.AreEqual(y.Value(s), 125);
+        }
+
+        [TestMethod]
+        public void MonotonePowerValueTest3()
+        {
+            var p = new Problem(nameof(MonotonePowerValueTest3));
+            var dom = new FloatDomain("unit", 2, 50);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = x ^ 5;
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                AssertApproximatelyEqual(y.Value(s),(float)Math.Pow(x.Value(s), 5));
+            }
+        }
+
+        [TestMethod]
+        public void EvenPowerConstraintTest()
+        {
+            var p = new Problem(nameof(EvenPowerConstraintTest));
+            var dom = new FloatDomain("unit", -1, 2);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = x ^ 2;
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                AssertApproximatelyEqual(y.Value(s), x.Value(s) * x.Value(s));
+            }
+        }
+
+        [TestMethod]
+        public void EvenPowerConstraintTest2()
+        {
+            var p = new Problem(nameof(EvenPowerConstraintTest2));
+            var dom = new FloatDomain("unit", -50, 100);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = x ^ 4;
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                AssertApproximatelyEqual(y.Value(s), x.Value(s) * x.Value(s) * x.Value(s) * x.Value(s));
+            }
+        }
+
+        [TestMethod]
+        public void EvenPowerConstraintTest3()
+        {
+            var p = new Problem(nameof(EvenPowerConstraintTest3));
+            var dom = new FloatDomain("unit", -50, -1);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = x ^ 4;
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                AssertApproximatelyEqual(y.Value(s), x.Value(s) * x.Value(s) * x.Value(s) * x.Value(s));
+            }
+        }
+
+        [TestMethod]
+        public void EvenPowerConstraintTest4()
+        {
+            var p = new Problem(nameof(EvenPowerConstraintTest4));
+            var dom = new FloatDomain("unit", 0, 5);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = x ^ 4;
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                AssertApproximatelyEqual(y.Value(s), x.Value(s) * x.Value(s) * x.Value(s) * x.Value(s));
+            }
+        }
+
+        [TestMethod]
+        public void EvenPowerConstraintTest5()
+        {
+            var p = new Problem(nameof(EvenPowerConstraintTest5));
+            var dom = new FloatDomain("unit", 1, 50);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = x ^ 20;
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                AssertApproximatelyEqual(y.Value(s), (float)Math.Pow(x.Value(s), 20));
+            }
+        }
+
+        [TestMethod]
+        public void EvenPowerConstraintTest6()
+        {
+            var p = new Problem(nameof(EvenPowerConstraintTest6));
+            var dom = new FloatDomain("unit", 1, 50);
+            var x = (FloatVariable)dom.Instantiate("x");
+            var y = x ^ 0;
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                AssertApproximatelyEqual(y.Value(s), 1);
+            }
+        }
+
+        [TestMethod]
         public void FloatPredeterminationTest()
         {
             var problem = new Problem("test");
@@ -821,6 +1284,12 @@ namespace Tests
                 Assert.IsFalse(problem.IsPredetermined(xGTz));
                 Assert.IsFalse(problem.IsPredetermined(yLTz));
             }
+        }
+        void AssertApproximatelyEqual(float a, float b, float tolerance = 0.0001f)
+        {
+            var difference = Math.Abs(a - b);
+            var magnitude = Math.Max(Math.Abs(a), Math.Abs(b));
+            Assert.IsTrue(difference / magnitude < tolerance);
         }
     }
 }

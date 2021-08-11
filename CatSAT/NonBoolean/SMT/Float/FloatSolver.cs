@@ -27,6 +27,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
+using static System.Collections.StructuralComparisons;
 
 namespace CatSAT.NonBoolean.SMT.Float
 {
@@ -44,8 +45,13 @@ namespace CatSAT.NonBoolean.SMT.Float
         /// </summary>
         private readonly Queue<Tuple<FloatVariable,bool>> propagationQueue = new Queue<Tuple<FloatVariable, bool>>();
 
+        private static FloatVariableArrayComparer IEqualityComparer = new FloatVariableArrayComparer();
+
         public Dictionary<(FloatVariable, FloatVariable), FloatVariable> ProductTable = new Dictionary<(FloatVariable, FloatVariable), FloatVariable>();
         public Dictionary<(FloatVariable, FloatVariable), FloatVariable> SumTable = new Dictionary<(FloatVariable, FloatVariable), FloatVariable>();
+        public Dictionary<FloatVariable, FloatVariable> SquareTable = new Dictionary<FloatVariable, FloatVariable>();
+        public Dictionary<FloatVariable[], FloatVariable> ArraySumTable = new Dictionary<FloatVariable[], FloatVariable>(IEqualityComparer);
+        public Dictionary<FloatVariable[], FloatVariable> AverageTable = new Dictionary<FloatVariable[], FloatVariable>(IEqualityComparer);
 
         /// <summary>
         /// Add clauses that follow from user-defined bounds, e.g. from transitivity.
@@ -283,9 +289,10 @@ namespace CatSAT.NonBoolean.SMT.Float
                 {
                     int possibilities = (int)((v.Bounds.Upper - v.Bounds.Lower) / v.FloatDomain.Quantization);
 
-                    int randStep = CatSAT.Random.InRange(0, possibilities-1);
+                    // ReSharper disable once RedundantNameQualifier
+                    int randStep = CatSAT.Random.InRange(0, possibilities);
 
-                    float rand = (float)(randStep * v.FloatDomain.Quantization) + v.Bounds.Lower;
+                    float rand = randStep * v.FloatDomain.Quantization + v.Bounds.Lower;
 
                     v.PickValue(rand, propagationQueue);
                 }

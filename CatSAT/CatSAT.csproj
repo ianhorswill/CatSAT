@@ -58,6 +58,7 @@
     <Compile Include="NonBoolean\SMT\Float\Interval.cs" />
     <Compile Include="NonBoolean\SMT\Float\ConstantBound.cs" />
     <Compile Include="NonBoolean\SMT\Float\MonotoneFunction.cs" />
+    <Compile Include="NonBoolean\SMT\Float\PowerConstraint.cs" />
     <Compile Include="NonBoolean\SMT\Float\ProductConstraint.cs" />
     <Compile Include="NonBoolean\SMT\Float\BinarySumConstraint.cs" />
     <Compile Include="NonBoolean\SMT\Float\VariableBound.cs" />
