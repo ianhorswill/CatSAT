@@ -151,6 +151,8 @@ namespace CatSAT
         /// </summary>
         internal readonly int Index;
 
+        internal bool DontPick;
+
         private string DebugValueString => Bounds.IsUnique ? Bounds.Lower.ToString(CultureInfo.InvariantCulture) : Bounds.ToString();
 
         internal void PickValue(float r, Queue<Tuple<FloatVariable, bool>> q)
@@ -549,17 +551,14 @@ namespace CatSAT
         /// <summary>
         /// A FloatVariable constrained to be the power of another FloatVariable and a constant
         /// </summary>
-        public static FloatVariable operator ^(FloatVariable v, int c)
+        public static FloatVariable operator ^(FloatVariable v, uint c)
         {
             if (c < 0)
             {
-                throw new InvalidOperationException($"Cannot raise bounds to a negative power");
+                throw new ArgumentException($"Cannot raise bounds to a negative power");
             }
 
-            //else if the exponent is even but the bounds don't match that criteria,
-            //Declare new FloatVariable while performing arithmetic with bounds, as with Craft's CSP.
-            //Assert a power constraint, passing in the new variable as a parameter as well.
-            if ((c % 2 != 0))
+            if ((c % 2 != 0) || (c%2==0 && v.Bounds.Lower >=0))
             {
                 return MonotoneFunctionConstraint.MonotoneFunction($"^{c}", x => (float)Math.Pow(x, c),
                         y => {
@@ -574,11 +573,6 @@ namespace CatSAT
                         }, c > 0, v);
             }
 
-            else if (c % 2 == 0 && v.Bounds.Lower >= 0)
-            {
-                return MonotoneFunctionConstraint.MonotoneFunction($"^{c}", x => (float)Math.Pow(x, c), y => (float)Math.Pow(y, 1.0 / c), c > 0, v);
-            }
-
             else if (c % 2 == 0 && v.Bounds.Upper < 0)
             {
                 return MonotoneFunctionConstraint.MonotoneFunction($"^{c}", x => (float)Math.Pow(x, c), y => (float)-Math.Pow(y, 1.0 / c), false, v);
@@ -586,9 +580,10 @@ namespace CatSAT
 
             else
             {
-                var lower = Math.Min((float)Math.Pow(v.FloatDomain.Bounds.Lower, c), (float)Math.Pow(v.FloatDomain.Bounds.Upper, c));
                 var upper = Math.Max((float)Math.Pow(v.FloatDomain.Bounds.Lower, c), (float)Math.Pow(v.FloatDomain.Bounds.Upper, c));
-                var pow = new FloatVariable($"{v.Name}^{c}", v.FloatDomain.Bounds.Lower, v.FloatDomain.Bounds.Upper, FunctionalConstraint.CombineConditions(v.Condition, v.Condition));
+                var pow = new FloatVariable($"{v.Name}^{c}", 0, v.FloatDomain.Bounds.Upper, FunctionalConstraint.CombineConditions(v.Condition, v.Condition));
+
+                pow.DontPick = true;
 
                 Problem.Current.Assert(Problem.Current.GetSpecialProposition<PowerConstraint>(Call.FromArgs(Problem.Current, "IsPower", pow, v, c)));
                 return pow;
@@ -761,8 +756,7 @@ namespace CatSAT
         public static FloatVariable Variance(params FloatVariable[] vars)
         {
             var mean = FloatVariable.Average(vars);
-
-            return FloatVariable.Average(vars.Select(v => { var minusMean = v - mean; return Square(minusMean); }).ToArray());
+            return FloatVariable.Average(vars.Select(v => (v - mean)^2 ).ToArray());
         }
 
         internal void AddUpperBound(FloatVariable bound)

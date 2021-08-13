@@ -154,6 +154,35 @@ namespace CatSAT
                 Max(a.Lower / b.Lower, a.Upper / b.Upper, a.Lower / b.Upper, a.Upper / b.Lower));
         }
 
+        public static Interval operator ^(Interval a, uint exponent)
+        {
+            switch (exponent)
+            {
+                case 0:
+                    return new Interval(1, 1);
+
+                case 1:
+                    return a;
+
+                default:
+                    if (exponent % 2 == 0)
+                    {
+                        // even exponent
+                        if (a.Lower >= 0)
+                            return new Interval((float)Math.Pow(a.Lower, exponent), (float)Math.Pow(a.Upper, exponent));
+                        if (a.Upper < 0)
+                            return new Interval((float)Math.Pow(a.Upper, exponent), (float)Math.Pow(a.Lower, exponent));
+                        return new Interval(
+                            0,
+                            Math.Max((float)Math.Pow(a.Upper, exponent), (float)Math.Pow(a.Lower, exponent))
+                            );
+                    }
+                    // odd exponent
+                    return new Interval((float)Math.Pow(a.Lower, exponent), (float)Math.Pow(a.Upper, exponent));
+            }
+
+        }
+
         static float ProductMin(Interval a, Interval b)
         {
             return Min(a.Upper * b.Upper, a.Upper * b.Lower, a.Lower * b.Upper, a.Lower * b.Lower);

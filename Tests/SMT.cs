@@ -1024,7 +1024,7 @@ namespace Tests
         public void VarianceTest()
         {
             var p = new Problem(nameof(VarianceTest));
-            var dom = new FloatDomain("unit", -6, 9.7f);
+            var dom = new FloatDomain("unit", -6, 8);
             var vars = new FloatVariable[1];
             for (int i = 0; i < vars.Length; i++)
                 vars[i] = (FloatVariable)dom.Instantiate("x" + i);
@@ -1034,13 +1034,9 @@ namespace Tests
             {
                 var s = p.Solve();
                 var avg = vars.Select(v => v.Value(s)).Average();
-                float squareSum = 0;
-                for (int j = 0; j < vars.Length; j++)
-                {
-                    squareSum += (vars[j].Value(s) - avg) * (vars[j].Value(s) - avg);
-                }
+                var actualvariance = vars.Select(v => Math.Pow(v.Value(s) - avg, 2)).Average();
 
-                Assert.IsTrue(Math.Abs(variance.Value(s) - squareSum/vars.Length)< .00001f);
+                AssertApproximatelyEqual(variance.Value(s), (float)actualvariance);
             }
 
         }
@@ -1177,11 +1173,11 @@ namespace Tests
             var p = new Problem(nameof(EvenPowerConstraintTest2));
             var dom = new FloatDomain("unit", -50, 100);
             var x = (FloatVariable)dom.Instantiate("x");
-            var y = x ^ 4;
+            var y = x ^ 2;
             for (int i = 0; i < 100; i++)
             {
                 var s = p.Solve();
-                AssertApproximatelyEqual(y.Value(s), x.Value(s) * x.Value(s) * x.Value(s) * x.Value(s));
+                AssertApproximatelyEqual(y.Value(s), x.Value(s) * x.Value(s));
             }
         }
 
@@ -1191,11 +1187,11 @@ namespace Tests
             var p = new Problem(nameof(EvenPowerConstraintTest3));
             var dom = new FloatDomain("unit", -50, -1);
             var x = (FloatVariable)dom.Instantiate("x");
-            var y = x ^ 4;
+            var y = x ^ 6;
             for (int i = 0; i < 100; i++)
             {
                 var s = p.Solve();
-                AssertApproximatelyEqual(y.Value(s), x.Value(s) * x.Value(s) * x.Value(s) * x.Value(s));
+                AssertApproximatelyEqual(y.Value(s), (float)Math.Pow(x.Value(s), 6));
             }
         }
 
@@ -1217,7 +1213,7 @@ namespace Tests
         public void EvenPowerConstraintTest5()
         {
             var p = new Problem(nameof(EvenPowerConstraintTest5));
-            var dom = new FloatDomain("unit", 1, 50);
+            var dom = new FloatDomain("unit", -98, 102);
             var x = (FloatVariable)dom.Instantiate("x");
             var y = x ^ 20;
             for (int i = 0; i < 100; i++)
@@ -1238,6 +1234,23 @@ namespace Tests
             {
                 var s = p.Solve();
                 AssertApproximatelyEqual(y.Value(s), 1);
+            }
+        }
+
+        [TestMethod]
+        public void SquareEquivalenceTest()
+        {
+            var p = new Problem(nameof(SquareEquivalenceTest));
+            var dom = new FloatDomain("unit", -10, 50);
+            var y = (FloatVariable)dom.Instantiate("y");
+            var x = (FloatVariable)dom.Instantiate("x");
+            var diff = y - x;
+            var pow = diff ^ 2;
+            var sq = FloatVariable.Square(diff);
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                AssertApproximatelyEqual(pow.Value(s), sq.Value(s));
             }
         }
 
@@ -1289,7 +1302,10 @@ namespace Tests
         {
             var difference = Math.Abs(a - b);
             var magnitude = Math.Max(Math.Abs(a), Math.Abs(b));
-            Assert.IsTrue(difference / magnitude < tolerance);
+            if (magnitude != 0)
+            {
+                Assert.IsTrue(difference / magnitude < tolerance);
+            }
         }
     }
 }

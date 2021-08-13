@@ -279,6 +279,10 @@ namespace CatSAT.NonBoolean.SMT.Float
             Random.Shuffle(representatives);
             foreach (var v in representatives)
             {
+                if (v.DontPick)
+                {
+                    continue;
+                }
                 if (v.FloatDomain.Quantization == 0)
                 {
 

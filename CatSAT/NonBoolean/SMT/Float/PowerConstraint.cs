@@ -8,14 +8,14 @@ namespace CatSAT.NonBoolean.SMT.Float
     {
         private FloatVariable num;
 
-        private float exponent;
+        private uint exponent;
 
         public override void Initialize(Problem p)
         {
             var c = (Call)Name;
             Result = (FloatVariable)c.Args[0];
             num = (FloatVariable)c.Args[1];
-            exponent = (int)c.Args[2];
+            exponent = (uint)c.Args[2];
             num.AddFunctionalConstraint(this);
             base.Initialize(p);
         }
@@ -47,30 +47,7 @@ namespace CatSAT.NonBoolean.SMT.Float
                 return num.NarrowTo(invBounds, q);
             }
 
-            if (num.Bounds.Upper <= 0)
-            {
-                var lower = (float)-Math.Pow(Math.Max(0, -num.Bounds.Lower), 1 / exponent);
-                var upper = (float)-Math.Pow(Math.Max(0, -num.Bounds.Upper), 1 / exponent);
-                var invInterval = new Interval(-lower, -upper);
-
-                return num.NarrowTo(invInterval, q);
-            }
-            else
-            {
-                var bound = (float)Math.Pow(num.Bounds.Upper, 1 / exponent);
-                var invInterval = new Interval(-bound, bound);
-                return num.NarrowTo(invInterval, q);
-            }
-            //check if ReferenceEquals(changed, Result) is true;
-            //return the result of num.NarrowTo using inverse function as a parameter
-
-            //Narrow Result's bounds to bounds raised to the exponent.
-
-            // To do this, since it's an even exponent:
-            // If num is non-positive, narrow to the negative interval returned by the inverse function.
-
-            // Else, perform the inverse function and retrieve the Upper value.
-            // Narrow to a new interval between the negative and positive of that value.
+            return Result.NarrowTo(num.Bounds^exponent, q);
         }
 
         public override bool IsDefinedIn(Solution s)
