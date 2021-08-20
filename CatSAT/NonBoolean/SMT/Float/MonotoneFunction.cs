@@ -35,6 +35,7 @@ namespace CatSAT.NonBoolean.SMT.Float
             var lower = function(input.Bounds.Lower);
             var upper = function(input.Bounds.Upper);
             var output = new FloatVariable($"{name}({input.Name})", increasing ? lower : upper, increasing ? upper : lower, input.Condition);
+            output.PickLast = true;
             AddConstraint(name, function, inverseFunction, increasing, input, output);
             return output;
         }
@@ -63,6 +64,7 @@ namespace CatSAT.NonBoolean.SMT.Float
             Result = (FloatVariable)c.Args[1];
             input = (FloatVariable)c.Args[0];
             input.AddFunctionalConstraint(this);
+            Result.PickLast = true;
             base.Initialize(p);
         }
 

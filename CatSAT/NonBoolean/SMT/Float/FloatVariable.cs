@@ -151,7 +151,10 @@ namespace CatSAT
         /// </summary>
         internal readonly int Index;
 
-        internal bool DontPick;
+        /// <summary>
+        /// If true, result of an operation to be propogated last by solver.
+        /// </summary>
+        internal bool PickLast;
 
         private string DebugValueString => Bounds.IsUnique ? Bounds.Lower.ToString(CultureInfo.InvariantCulture) : Bounds.ToString();
 
@@ -464,6 +467,7 @@ namespace CatSAT
                 v1.FloatDomain.Bounds.Lower + v2.FloatDomain.Bounds.Lower,
                 v1.FloatDomain.Bounds.Upper + v2.FloatDomain.Bounds.Upper,
                 FunctionalConstraint.CombineConditions(v1.Condition, v2.Condition));
+            sum.PickLast = true;
             sumTable[(v1, v2)] = sum;
             Problem.Current.Assert(Problem.Current.GetSpecialProposition<BinarySumConstraint>(Call.FromArgs(Problem.Current, "IsSum", sum, v1, v2)));
             return sum;
@@ -493,6 +497,7 @@ namespace CatSAT
         {
             var range = v1.FloatDomain - v2.FloatDomain;
             var difference = new FloatVariable($"{v1.Name}-{v2.Name}", range.Bounds.Lower, range.Bounds.Upper, FunctionalConstraint.CombineConditions(v1.Condition, v2.Condition));
+            difference.PickLast = true;
             Problem.Current.Assert(Problem.Current.GetSpecialProposition<BinarySumConstraint>(Call.FromArgs(Problem.Current, "IsSum", v1, v2, difference)));
             return difference;
         }
@@ -577,13 +582,13 @@ namespace CatSAT
             {
                 return MonotoneFunctionConstraint.MonotoneFunction($"^{c}", x => (float)Math.Pow(x, c), y => (float)-Math.Pow(y, 1.0 / c), false, v);
             }
-
+            
             else
             {
                 var upper = Math.Max((float)Math.Pow(v.FloatDomain.Bounds.Lower, c), (float)Math.Pow(v.FloatDomain.Bounds.Upper, c));
                 var pow = new FloatVariable($"{v.Name}^{c}", 0, v.FloatDomain.Bounds.Upper, FunctionalConstraint.CombineConditions(v.Condition, v.Condition));
-
-                pow.DontPick = true;
+                
+                pow.PickLast = true;
 
                 Problem.Current.Assert(Problem.Current.GetSpecialProposition<PowerConstraint>(Call.FromArgs(Problem.Current, "IsPower", pow, v, c)));
                 return pow;
@@ -737,14 +742,98 @@ namespace CatSAT
 
             var av = new FloatVariable("average", newDomain.Bounds.Lower * 1f / vars.Length,
                 newDomain.Bounds.Upper * 1f / vars.Length, null);
-            av.FloatDomain.Quantization = (vars[0].Quantization * 1f / vars.Length);
+            if (vars[0].Quantization != 0)
+            {
+                av.FloatDomain.Quantization = (vars[0].Quantization * 1f / vars.Length);
+            }
 
             averageTable[vars] = av;
 
             Problem.Current.Assert(
                 Problem.Current.GetSpecialProposition<GeneralSumConstraint>(Call.FromArgs(Problem.Current,
-                    "IsAverage", av, 1f / vars.Length, vars)));
+                        "IsAverage", av, 1.0f / vars.Length, vars)));
+            
             return av;
+        }
+
+        /// <summary>
+        /// Computes the average value of the specified FloatVariables
+        /// </summary>
+        /// <param name="constraint">Interval for average must be constrained between</param>
+        /// <param name="vars">Variables to average</param>
+        /// <returns>A new FloatVariable constrained to be the average of vars, within the bounds of constraint</returns>
+        /// <exception cref="ArgumentException">When one of the vars has a condition on it (i.e. isn't defined in all models)</exception>
+        public static FloatVariable Average(Interval constraint, params FloatVariable[] vars)
+        {
+            var newInter = Interval.Zero;
+            var arraySumTable = Problem.Current.GetSolver<FloatSolver>().ArraySumTable;
+
+            if (arraySumTable.TryGetValue(vars, out FloatVariable s))
+            {
+                newInter = s.FloatDomain.Bounds;
+            }
+
+            else
+            {
+                foreach (var a in vars)
+                {
+                    newInter += a.FloatDomain.Bounds.Quantize(vars[0].Quantization);
+                }
+            }
+
+            foreach (var a in vars)
+                if (!ReferenceEquals(a.Condition, null))
+                    throw new ArgumentException("Average does not support conditioned variables", a.Name.ToString());
+
+            var newDomain = new FloatDomain("sum", newInter.Lower, newInter.Upper);
+
+            var av = new FloatVariable("average", newDomain.Bounds.Lower * 1f / vars.Length,
+                newDomain.Bounds.Upper * 1f / vars.Length, null);
+
+            if (vars[0].Quantization != 0)
+            {
+                av.FloatDomain.Quantization = (vars[0].Quantization * 1f / vars.Length);
+            }
+
+            if (av.FloatDomain.Bounds.Upper > constraint.Upper || av.FloatDomain.Bounds.Lower < constraint.Lower)
+            {
+                var constrainedInterval = new Interval(av.Bounds.Lower, av.Bounds.Upper);
+
+                if (av.FloatDomain.Bounds.Upper > constraint.Upper)
+                {
+                    constrainedInterval.Upper = constraint.Upper;
+                }
+
+                if (av.FloatDomain.Bounds.Lower < constraint.Lower)
+                {
+                    constrainedInterval.Lower = constraint.Lower;
+                }
+
+                var constrainedDomain = new FloatDomain("constrained average", constrainedInterval.Lower, constrainedInterval.Upper);
+
+
+                var constrainedAvg = new FloatVariable("average", constrainedDomain.Bounds.Lower, constrainedDomain.Bounds.Upper, null);
+
+                if (vars[0].Quantization != 0)
+                {
+                    constrainedAvg.FloatDomain.Quantization = (vars[0].Quantization * 1f / vars.Length);
+                }
+
+                Problem.Current.Assert(
+    Problem.Current.GetSpecialProposition<GeneralSumConstraint>(Call.FromArgs(Problem.Current,
+            "IsAverage", constrainedAvg, 1.0f / vars.Length, vars)));
+
+                return constrainedAvg;
+            }
+
+            else
+            {
+                Problem.Current.Assert(
+                    Problem.Current.GetSpecialProposition<GeneralSumConstraint>(Call.FromArgs(Problem.Current,
+                            "IsAverage", av, 1.0f / vars.Length, vars)));
+
+                return av;
+            }
         }
 
         /// <summary>
@@ -755,8 +844,21 @@ namespace CatSAT
         /// <exception cref="ArgumentException">When one of the vars has a condition on it (i.e. isn't defined in all models)</exception>
         public static FloatVariable Variance(params FloatVariable[] vars)
         {
-            var mean = FloatVariable.Average(vars);
+            var mean = Average(vars);
             return FloatVariable.Average(vars.Select(v => (v - mean)^2 ).ToArray());
+        }
+
+        /// <summary>
+        /// Computes the variance of the specified FloatVariables
+        /// </summary>
+        /// <param name="constraint">Interval for variance to be constrained between</param>
+        /// <param name="vars">Variables to find variance of</param>
+        /// <returns>A new FloatVariable constrained to be the variance of vars, within the bounds of constraint</returns>
+        /// <exception cref="ArgumentException">When one of the vars has a condition on it (i.e. isn't defined in all models)</exception>
+        public static FloatVariable Variance(Interval constraint, params FloatVariable[] vars)
+        {
+            var mean = Average(vars);
+            return FloatVariable.Average(constraint, vars.Select(v => (v - mean) ^ 2).ToArray());
         }
 
         internal void AddUpperBound(FloatVariable bound)

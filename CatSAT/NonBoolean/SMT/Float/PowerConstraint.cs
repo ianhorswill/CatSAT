@@ -4,10 +4,19 @@ using System.Diagnostics;
 
 namespace CatSAT.NonBoolean.SMT.Float
 {
+    /// <summary>
+    /// Represents the constraint that Result = num ^ exponent
+    /// </summary>
     class PowerConstraint : FunctionalConstraint
     {
+        /// <summary>
+        /// The number to be raised to a power.
+        /// </summary>
         private FloatVariable num;
 
+        /// <summary>
+        /// The exponent a number is raised to.
+        /// </summary>
         private uint exponent;
 
         public override void Initialize(Problem p)
@@ -17,6 +26,7 @@ namespace CatSAT.NonBoolean.SMT.Float
             num = (FloatVariable)c.Args[1];
             exponent = (uint)c.Args[2];
             num.AddFunctionalConstraint(this);
+            Result.PickLast = true;
             base.Initialize(p);
         }
 
@@ -24,27 +34,12 @@ namespace CatSAT.NonBoolean.SMT.Float
         {
             if (ReferenceEquals(changed, Result))
             {
-                float lower, upper;
-                if (Result.Bounds.Upper < 0)
-                {
-                    upper = (float)-Math.Pow(-Result.Bounds.Upper, 1 / exponent);
-                }
-
-                else
-                {
-                    upper = (float)Math.Pow(Result.Bounds.Upper, 1 / exponent);
-                }
-
-                if (Result.Bounds.Lower < 0)
-                {
-                    lower = (float)-Math.Pow(-Result.Bounds.Lower, 1 / exponent);
-                }
-                else
-                {
-                    lower = (float)Math.Pow(Result.Bounds.Lower, 1 / exponent);
-                }
-                var invBounds = new Interval(lower, upper);
-                return num.NarrowTo(invBounds, q);
+                //Result has been altered
+                //Result = num ^ exponent, and because PowerConstraint only handles bounds that cross zero even-numbered exponents,
+                //the negative and positive values of the largest possible Result's inverse function are the bounds of num. 
+                var bound = (float)Math.Pow(Result.Bounds.Upper, 1 / exponent);
+                
+                return num.NarrowTo(new Interval(-bound, bound), q);
             }
 
             return Result.NarrowTo(num.Bounds^exponent, q);

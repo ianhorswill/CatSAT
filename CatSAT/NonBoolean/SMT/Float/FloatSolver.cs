@@ -83,10 +83,10 @@ namespace CatSAT.NonBoolean.SMT.Float
                 // way it's possible for them to be unsatisfied with non-zero probability is through
                 // floating-point quantization.  That suggests that someone trying to make a proposition
                 // dependent on a != b+C is probably making a mistake.
-                if (v.AllFunctionalConstraints != null)
-                    foreach (var f in v.AllFunctionalConstraints)
-                        if (f.IsDependency)
-                            throw new InvalidOperationException($"{f.Name}: Inferences dependent on the truth of functional constraint are not supported.");
+                //if (v.AllFunctionalConstraints != null)
+                //    foreach (var f in v.AllFunctionalConstraints)
+                //        if (f.IsDependency)
+                //            throw new InvalidOperationException($"{f.Name}: Inferences dependent on the truth of functional constraint are not supported.");
             }
 
             return null;
@@ -277,12 +277,19 @@ namespace CatSAT.NonBoolean.SMT.Float
         private bool TrySample()
         {
             Random.Shuffle(representatives);
+            var end = representatives.Count - 1;
+            for (var i = 0; i < end; i++)
+            {
+                if (representatives[i].PickLast)
+                {
+                    var temp = representatives[end];
+                    representatives[end] = representatives[i];
+                    representatives[i] = temp;
+                }
+            }
+
             foreach (var v in representatives)
             {
-                if (v.DontPick)
-                {
-                    continue;
-                }
                 if (v.FloatDomain.Quantization == 0)
                 {
 

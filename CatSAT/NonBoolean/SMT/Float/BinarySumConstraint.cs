@@ -50,6 +50,7 @@ namespace CatSAT.NonBoolean.SMT.Float
             rhs = (FloatVariable)c.Args[2];
             lhs.AddFunctionalConstraint(this);
             rhs.AddFunctionalConstraint(this);
+            Result.PickLast = true;
             base.Initialize(p);
         }
 

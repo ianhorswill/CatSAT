@@ -224,7 +224,7 @@ namespace Tests
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
                 var realSum = vars.Select(v => v.Value(s)).Sum();
-                Assert.IsTrue(Math.Abs(sum.Value(s) - realSum) < 0.00001f);
+                AssertApproximatelyEqual(sum.Value(s), realSum);
             }
         }
 
@@ -243,7 +243,7 @@ namespace Tests
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
                 var avg = vars.Select(v => v.Value(s)).Average();
-                Assert.IsTrue(Math.Abs(average.Value(s) - avg) < 0.00001f);
+                AssertApproximatelyEqual(average.Value(s), avg);
             }
         }
 
@@ -261,7 +261,7 @@ namespace Tests
             {
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
-                Assert.IsTrue(Math.Abs(sum.Value(s) - (x.Value(s)+y.Value(s))) < 0.00001f);
+                AssertApproximatelyEqual(sum.Value(s), x.Value(s) + y.Value(s));
             }
         }
 
@@ -300,7 +300,7 @@ namespace Tests
             {
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
-                Assert.IsTrue(Math.Abs(product.Value(s) - x.Value(s)*y.Value(s)) < 0.00001f);
+                AssertApproximatelyEqual(product.Value(s), x.Value(s) * y.Value(s));
             }
         }
 
@@ -318,7 +318,7 @@ namespace Tests
             {
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
-                Assert.IsTrue(Math.Abs(product.Value(s) - x.Value(s)*y.Value(s)) < 0.00001f);
+                AssertApproximatelyEqual(product.Value(s), x.Value(s) * y.Value(s));
             }
         }
 
@@ -337,7 +337,7 @@ namespace Tests
             {
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
-                Assert.IsTrue(Math.Abs(quotient.Value(s) - (x.Value(s) / y.Value(s))) < 0.00001f);
+                AssertApproximatelyEqual(quotient.Value(s), x.Value(s) / y.Value(s));
             }
         }
 
@@ -354,7 +354,7 @@ namespace Tests
             {
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
-                Assert.IsTrue(Math.Abs(diff.Value(s) - (x.Value(s) - y.Value(s))) < 0.00001f);
+                AssertApproximatelyEqual(diff.Value(s), (x.Value(s) - y.Value(s)));
             }
         }
 
@@ -373,7 +373,7 @@ namespace Tests
             {
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
-                Assert.IsTrue(Math.Abs(diff.Value(s) - (x.Value(s) / y.Value(s))) < 0.00001f);
+                AssertApproximatelyEqual(diff.Value(s), (x.Value(s) / y.Value(s)));
             }
         }
 
@@ -390,7 +390,7 @@ namespace Tests
             {
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
-                Assert.IsTrue(Math.Abs(square.Value(s) - x.Value(s)*x.Value(s)) < 0.00001f);
+                AssertApproximatelyEqual(square.Value(s), x.Value(s) * x.Value(s));
             }
         }
 
@@ -512,7 +512,7 @@ namespace Tests
                 Console.WriteLine(s.Model);
                 Assert.AreEqual(sum.IsDefinedInInternal(s), x.IsDefinedInInternal(s) & y.IsDefinedInInternal(s));
                 if (sum.IsDefinedInInternal(s))
-                    Assert.IsTrue(Math.Abs(sum.Value(s) - (x.Value(s) + y.Value(s))) < 0.00001f);
+                    AssertApproximatelyEqual(sum.Value(s), x.Value(s) + y.Value(s));
             }
         }
 
@@ -587,7 +587,7 @@ namespace Tests
             for (int i = 0; i < 100; i++)
             {
                 var s = problem.Solve();
-                Assert.IsTrue(Math.Abs(square.Value(s) - (x.Value(s) * x.Value(s))) < 0.00001f);
+                AssertApproximatelyEqual(square.Value(s), x.Value(s) * x.Value(s));
             }
         }
 
@@ -684,7 +684,7 @@ namespace Tests
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
                 CheckVariables(s,x,y,sum);
-                Assert.IsTrue(Math.Abs(sum.Value(s) - (x.Value(s) + y.Value(s))) < 0.00001f);
+                AssertApproximatelyEqual(sum.Value(s), (x.Value(s) + y.Value(s)));
             }
         }
 
@@ -754,7 +754,7 @@ namespace Tests
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
                 CheckVariables(s, sum, x, y);
-                Assert.IsTrue(Math.Abs(sum.Value(s) - (x.Value(s) + y.Value(s))) < 0.00001f);
+                AssertApproximatelyEqual(sum.Value(s), (x.Value(s) + y.Value(s)));
             }
         }
 
@@ -773,7 +773,7 @@ namespace Tests
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
                 CheckVariables(s, prod, x, y);
-                Assert.IsTrue(Math.Abs(prod.Value(s) - (x.Value(s) * y.Value(s))) < 0.00001f);
+                AssertApproximatelyEqual(prod.Value(s), (x.Value(s) * y.Value(s)));
             }
         }
 
@@ -791,7 +791,7 @@ namespace Tests
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
                 CheckVariables(s, div, x);
-                Assert.IsTrue(Math.Abs(div.Value(s) - (x.Value(s) / x.Value(s))) < 0.00001f);
+                AssertApproximatelyEqual(div.Value(s), (x.Value(s) / x.Value(s)));
             }
         }
 
@@ -808,7 +808,7 @@ namespace Tests
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
                 CheckVariables(s, diff, x);
-                Assert.IsTrue(Math.Abs(diff.Value(s) - (x.Value(s) - x.Value(s))) < 0.00001f);
+                AssertApproximatelyEqual(diff.Value(s), (x.Value(s) - x.Value(s)));
             }
         }
 
@@ -826,7 +826,7 @@ namespace Tests
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
                 CheckVariables(s, square, x);
-                Assert.IsTrue(Math.Abs(square.Value(s) - x.Value(s) * x.Value(s)) < 0.00001f);
+                AssertApproximatelyEqual(square.Value(s), x.Value(s) * x.Value(s));
             }
         }
 
@@ -845,7 +845,7 @@ namespace Tests
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
                 var realSum = vars.Select(v => v.Value(s)).Sum();
-                Assert.IsTrue(Math.Abs(sum.Value(s) - realSum) < 0.00001f);
+                AssertApproximatelyEqual(sum.Value(s), realSum);
             }
         }
 
@@ -864,7 +864,7 @@ namespace Tests
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
                 var realSum = vars.Select(v => v.Value(s)).Sum();
-                Assert.IsTrue(Math.Abs(sum.Value(s) - realSum) < 0.00001f);
+                AssertApproximatelyEqual(sum.Value(s), realSum);
             }
         }
 
@@ -883,7 +883,7 @@ namespace Tests
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
                 var realSum = vars.Select(v => v.Value(s)).Sum();
-                Assert.IsTrue(Math.Abs(sum.Value(s) - realSum) < 0.00001f);
+                AssertApproximatelyEqual(sum.Value(s), realSum);
             }
         }
 
@@ -902,7 +902,7 @@ namespace Tests
                 var s = p.Solve();
                 Console.WriteLine(s.Model);
                 var avg = vars.Select(v => v.Value(s)).Average();
-                Assert.IsTrue(Math.Abs(average.Value(s) - avg) < 0.00001f);
+                AssertApproximatelyEqual(average.Value(s), avg);
             }
         }
         
@@ -980,7 +980,7 @@ namespace Tests
                 var s = p.Solve();
                 var avg = vars.Select(v => v.Value(s)).Average();
 
-                Assert.IsTrue(Math.Abs(average.Value(s) - avg) < .00001f);
+                AssertApproximatelyEqual(average.Value(s), avg);
             }
 
         }
@@ -1042,6 +1042,70 @@ namespace Tests
         }
 
         [TestMethod]
+        public void VarianceTest2()
+        {
+            var p = new Problem(nameof(VarianceTest2));
+            var dom = new FloatDomain("unit", -6, 8);
+            var vars = new FloatVariable[5];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var variance = FloatVariable.Variance(vars);
+
+            for (int i = 0; i < 1; i++)
+            {
+                var s = p.Solve();
+                var avg = vars.Select(v => v.Value(s)).Average();
+                var actualvariance = vars.Select(v => Math.Pow(v.Value(s) - avg, 2)).Average();
+
+                AssertApproximatelyEqual(variance.Value(s), (float)actualvariance);
+            }
+
+        }
+
+        [TestMethod]
+        public void BoundedAverageConstraintTest()
+        {
+            var p = new Problem(nameof(BoundedAverageConstraintTest));
+            var dom = new FloatDomain("unit", -1, 1);
+            var vars = new FloatVariable[10];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var constraint = new Interval(0.5f, 0.75f);
+            var average = FloatVariable.Average(constraint, vars);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                Console.WriteLine(s.Model);
+                var avg = vars.Select(v => v.Value(s)).Average();
+                AssertApproximatelyEqual(average.Value(s), avg);
+                Assert.IsTrue(average.Value(s) >= 0.5 && average.Value(s) <= 0.75);
+            }
+        }
+
+        [TestMethod]
+        public void BoundedVarianceTest()
+        {
+            var p = new Problem(nameof(BoundedVarianceTest));
+            var dom = new FloatDomain("unit", -6, 8);
+            var vars = new FloatVariable[5];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var constraint = new Interval(-5f, 1f);
+            var variance = FloatVariable.Variance(constraint, vars);
+
+            for (int i = 0; i < 5; i++)
+            {
+                var s = p.Solve();
+                var avg = vars.Select(v => v.Value(s)).Average();
+                var actualvariance = vars.Select(v => Math.Pow(v.Value(s) - avg, 2)).Average();
+
+                Assert.IsTrue(variance.Value(s) >= -5f && variance.Value(s) <= 1f);
+
+            }
+        }
+
+        [TestMethod]
         public void SquareTest()
         {
             var problem = new Problem("SquareTest");
@@ -1052,7 +1116,7 @@ namespace Tests
             for (int i = 0; i < 100; i++)
             {
                 var s = problem.Solve();
-                Assert.IsTrue(Math.Abs(square.Value(s) - (x.Value(s) * x.Value(s))) < 0.00001f);
+                AssertApproximatelyEqual(square.Value(s), x.Value(s) * x.Value(s));
             }
         }
 
@@ -1064,7 +1128,7 @@ namespace Tests
             var x = (FloatVariable)dom.Instantiate("x");
             var sum = x + 3;
             var s = p.Solve();
-            Assert.IsTrue(Math.Abs(sum.Value(s) - (x.Value(s) + 3)) < 0.00001f);
+            AssertApproximatelyEqual(sum.Value(s), (x.Value(s) + 3));
         }
 
         [TestMethod]
@@ -1075,7 +1139,7 @@ namespace Tests
             var x = (FloatVariable)dom.Instantiate("x");
             var sum2 = 3 + x;
             var s = p.Solve();
-            Assert.IsTrue(Math.Abs(sum2.Value(s) - (3 + x.Value(s))) < 0.00001f);
+            AssertApproximatelyEqual(sum2.Value(s), 3 + x.Value(s));
         }
 
         [TestMethod]
@@ -1086,7 +1150,7 @@ namespace Tests
             var x = (FloatVariable)dom.Instantiate("x");
             var quotient = x / 2;
             var s = p.Solve();
-            Assert.IsTrue(Math.Abs(quotient.Value(s) - (x.Value(s)/2)) < 0.00001f);
+            AssertApproximatelyEqual(quotient.Value(s), (x.Value(s) / 2));
         }
 
         [TestMethod]
@@ -1097,7 +1161,7 @@ namespace Tests
             var x = (FloatVariable)dom.Instantiate("x");
             var diff = x - 2;
             var s = p.Solve();
-            Assert.IsTrue(Math.Abs(diff.Value(s) - (x.Value(s) - 2)) < 0.00001f);
+            AssertApproximatelyEqual(diff.Value(s), (x.Value(s) - 2));
         }
 
         [TestMethod]
@@ -1110,7 +1174,7 @@ namespace Tests
             for (int i = 0; i < 100; i++)
             {
                 var s = p.Solve();
-                Assert.IsTrue(Math.Abs((x.Value(s) * x.Value(s) * x.Value(s)) - y.Value(s)) < .0001f);
+                AssertApproximatelyEqual(x.Value(s) * x.Value(s) * x.Value(s), y.Value(s));
             }
         }
 
@@ -1124,7 +1188,7 @@ namespace Tests
             for (int i = 0; i < 100; i++)
             {
                 var s = p.Solve();
-                Assert.IsTrue(Math.Abs((x.Value(s) * x.Value(s) * x.Value(s)) - y.Value(s)) < .0001f);
+                AssertApproximatelyEqual(x.Value(s) * x.Value(s) * x.Value(s), y.Value(s));
             }
         }
 
@@ -1157,7 +1221,7 @@ namespace Tests
         public void EvenPowerConstraintTest()
         {
             var p = new Problem(nameof(EvenPowerConstraintTest));
-            var dom = new FloatDomain("unit", -1, 2);
+            var dom = new FloatDomain("unit", -1, 1);
             var x = (FloatVariable)dom.Instantiate("x");
             var y = x ^ 2;
             for (int i = 0; i < 100; i++)
@@ -1298,7 +1362,7 @@ namespace Tests
                 Assert.IsFalse(problem.IsPredetermined(yLTz));
             }
         }
-        void AssertApproximatelyEqual(float a, float b, float tolerance = 0.0001f)
+        void AssertApproximatelyEqual(float a, float b, float tolerance = 0.001f)
         {
             var difference = Math.Abs(a - b);
             var magnitude = Math.Max(Math.Abs(a), Math.Abs(b));
