@@ -98,16 +98,6 @@ namespace CatSAT
             return Lower <= value && value <= Upper;
         }
 
-        public static bool operator ==(Interval a, Interval b)
-        {
-            return (a.Lower - b.Lower < .00001f && a.Upper - b.Upper < .00001f);
-        }
-
-        public static bool operator !=(Interval a, Interval b)
-        {
-            return (!(a == b));
-        }
-
         /// <summary>
         /// The interval sum of two intervals.
         /// This is the interval bounding all possible sums of values taken from the original intervals.
@@ -154,6 +144,10 @@ namespace CatSAT
                 Max(a.Lower / b.Lower, a.Upper / b.Upper, a.Lower / b.Upper, a.Upper / b.Lower));
         }
 
+        /// <summary>
+        /// The result of the interval being raised to a power.
+        /// </summary>
+        /// <returns></returns>
         public static Interval operator ^(Interval a, uint exponent)
         {
             switch (exponent)
@@ -234,20 +228,23 @@ namespace CatSAT
         /// <summary>
         /// Narrow the interval to the nearest quantized values
         /// </summary>
-        public Interval Quantize(float Quantization)
+        public Interval Quantize(float quantization)
         {
-            if (Quantization == 0)
+            if (quantization == 0)
             {
                 return this;
             }
-            float lowerBound = RoundUp(Lower, Quantization);
-            float upperBound = RoundDown(Upper, Quantization);
+            float lowerBound = RoundUp(Lower, quantization);
+            float upperBound = RoundDown(Upper, quantization);
             Interval newBounds = new Interval(lowerBound, upperBound);
 
             return newBounds;
         }
 
-        public static Interval Quantize(Interval i, float Quantization) => i.Quantize(Quantization);
+        /// <summary>
+        /// Adjust the interval as needed according to quantization
+        /// </summary>
+        public static Interval Quantize(Interval i, float quantization) => i.Quantize(quantization);
 
         /// <inheritdoc />
         public override string ToString()

@@ -45,13 +45,14 @@ namespace CatSAT.NonBoolean.SMT.Float
         /// </summary>
         private readonly Queue<Tuple<FloatVariable,bool>> propagationQueue = new Queue<Tuple<FloatVariable, bool>>();
 
-        private static FloatVariableArrayComparer IEqualityComparer = new FloatVariableArrayComparer();
-
         public Dictionary<(FloatVariable, FloatVariable), FloatVariable> ProductTable = new Dictionary<(FloatVariable, FloatVariable), FloatVariable>();
         public Dictionary<(FloatVariable, FloatVariable), FloatVariable> SumTable = new Dictionary<(FloatVariable, FloatVariable), FloatVariable>();
         public Dictionary<FloatVariable, FloatVariable> SquareTable = new Dictionary<FloatVariable, FloatVariable>();
-        public Dictionary<FloatVariable[], FloatVariable> ArraySumTable = new Dictionary<FloatVariable[], FloatVariable>(IEqualityComparer);
-        public Dictionary<FloatVariable[], FloatVariable> AverageTable = new Dictionary<FloatVariable[], FloatVariable>(IEqualityComparer);
+        public Dictionary<FloatVariable[], FloatVariable> ArraySumTable = new Dictionary<FloatVariable[], FloatVariable>(FloatVariableArrayComparer.EqualityComparer);
+        public Dictionary<FloatVariable[], FloatVariable> AverageTable = new Dictionary<FloatVariable[], FloatVariable>(FloatVariableArrayComparer.EqualityComparer);
+        public Dictionary<(Interval, FloatVariable[]), FloatVariable> ConstrainedAverageTable = new Dictionary<(Interval, FloatVariable[]), FloatVariable>();
+        public Dictionary<FloatVariable[], FloatVariable> VarianceTable = new Dictionary<FloatVariable[], FloatVariable>(FloatVariableArrayComparer.EqualityComparer);
+        public Dictionary<(Interval, FloatVariable[]), FloatVariable> ConstrainedVarianceTable = new Dictionary<(Interval, FloatVariable[]), FloatVariable>();
 
         /// <summary>
         /// Add clauses that follow from user-defined bounds, e.g. from transitivity.
@@ -163,6 +164,7 @@ namespace CatSAT.NonBoolean.SMT.Float
             // We can now focus on just the representatives of each equivalence class of variables
             // and ignore the rest.
             representatives.Clear();
+            // ReSharper disable once RedundantCast
             representatives.AddRange(Variables.Where(v => v.IsDefinedInInternal(s) && (object) v == (object) v.Representative));
         }
         

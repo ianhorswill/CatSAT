@@ -22,12 +22,13 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
-using CatSAT.NonBoolean.SMT.Float;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using CatSAT.NonBoolean.SMT.Float;
 
 namespace CatSAT
 {
@@ -89,16 +90,11 @@ namespace CatSAT
         internal Interval SolutionBounds;
 
         // ReSharper disable once InconsistentNaming
-        private Interval _bounds;
 
         /// <summary>
         /// Current bounds to which the variable has been narrowed
         /// </summary>
-        internal Interval Bounds
-        {
-            get => _bounds;
-            set => _bounds = value;
-        }
+        internal Interval Bounds { get; set; }
 
         /// <summary>
         /// The predetermined value for the variable, if any.
@@ -152,7 +148,7 @@ namespace CatSAT
         internal readonly int Index;
 
         /// <summary>
-        /// If true, result of an operation to be propogated last by solver.
+        /// If true, result of an operation to be propagated last by solver.
         /// </summary>
         internal bool PickLast;
 
@@ -463,11 +459,11 @@ namespace CatSAT
             {
                 return val;
             }
+
             var sum = new FloatVariable($"{v1.Name}+{v2.Name}",
                 v1.FloatDomain.Bounds.Lower + v2.FloatDomain.Bounds.Lower,
                 v1.FloatDomain.Bounds.Upper + v2.FloatDomain.Bounds.Upper,
-                FunctionalConstraint.CombineConditions(v1.Condition, v2.Condition));
-            sum.PickLast = true;
+                FunctionalConstraint.CombineConditions(v1.Condition, v2.Condition)) {PickLast = true};
             sumTable[(v1, v2)] = sum;
             Problem.Current.Assert(Problem.Current.GetSpecialProposition<BinarySumConstraint>(Call.FromArgs(Problem.Current, "IsSum", sum, v1, v2)));
             return sum;
@@ -496,8 +492,8 @@ namespace CatSAT
         public static FloatVariable operator -(FloatVariable v1, FloatVariable v2)
         {
             var range = v1.FloatDomain - v2.FloatDomain;
-            var difference = new FloatVariable($"{v1.Name}-{v2.Name}", range.Bounds.Lower, range.Bounds.Upper, FunctionalConstraint.CombineConditions(v1.Condition, v2.Condition));
-            difference.PickLast = true;
+            var difference = new FloatVariable($"{v1.Name}-{v2.Name}", range.Bounds.Lower, range.Bounds.Upper,
+                FunctionalConstraint.CombineConditions(v1.Condition, v2.Condition)) {PickLast = true};
             Problem.Current.Assert(Problem.Current.GetSpecialProposition<BinarySumConstraint>(Call.FromArgs(Problem.Current, "IsSum", v1, v2, difference)));
             return difference;
         }
@@ -530,7 +526,7 @@ namespace CatSAT
         {
             if (c==0)
             {
-                throw new InvalidOperationException($"Cannot divide by 0");
+                throw new InvalidOperationException("Cannot divide by 0");
             }
 
             return MonotoneFunctionConstraint.MonotoneFunction($"/{c}", x => x * (1 / c), y => y / (1 / c), c>0, v);
@@ -558,41 +554,31 @@ namespace CatSAT
         /// </summary>
         public static FloatVariable operator ^(FloatVariable v, uint c)
         {
-            if (c < 0)
-            {
-                throw new ArgumentException($"Cannot raise bounds to a negative power");
-            }
-
             if ((c % 2 != 0) || (c%2==0 && v.Bounds.Lower >=0))
             {
                 return MonotoneFunctionConstraint.MonotoneFunction($"^{c}", x => (float)Math.Pow(x, c),
-                        y => {
+                        y =>
+                        {
                             if (y < 0)
                             {
                                 return (float)-Math.Pow(-y, 1.0 / c);
                             }
-                            else
-                            {
-                                return (float)Math.Pow(y, 1.0 / c);
-                            }
+
+                            return (float)Math.Pow(y, 1.0 / c);
                         }, c > 0, v);
             }
 
-            else if (c % 2 == 0 && v.Bounds.Upper < 0)
+            if (c % 2 == 0 && v.Bounds.Upper < 0)
             {
                 return MonotoneFunctionConstraint.MonotoneFunction($"^{c}", x => (float)Math.Pow(x, c), y => (float)-Math.Pow(y, 1.0 / c), false, v);
             }
-            
-            else
-            {
-                var upper = Math.Max((float)Math.Pow(v.FloatDomain.Bounds.Lower, c), (float)Math.Pow(v.FloatDomain.Bounds.Upper, c));
-                var pow = new FloatVariable($"{v.Name}^{c}", 0, v.FloatDomain.Bounds.Upper, FunctionalConstraint.CombineConditions(v.Condition, v.Condition));
-                
-                pow.PickLast = true;
 
-                Problem.Current.Assert(Problem.Current.GetSpecialProposition<PowerConstraint>(Call.FromArgs(Problem.Current, "IsPower", pow, v, c)));
-                return pow;
-            }
+            var pow = new FloatVariable($"{v.Name}^{c}", 0, v.FloatDomain.Bounds.Upper,
+                FunctionalConstraint.CombineConditions(v.Condition, v.Condition)) {PickLast = true};
+
+
+            Problem.Current.Assert(Problem.Current.GetSpecialProposition<PowerConstraint>(Call.FromArgs(Problem.Current, "IsPower", pow, v, c)));
+            return pow;
         }
 
         /// <summary>
@@ -649,7 +635,7 @@ namespace CatSAT
                 return square;
             }
 
-            else if (v1.FloatDomain.Bounds.Upper <= 0)
+            if (v1.FloatDomain.Bounds.Upper <= 0)
             {
                 var square = new FloatVariable($"{v1.Name}^2", upperSq, lowerSq, FunctionalConstraint.CombineConditions(v1.Condition, v1.Condition));
                 squareTable[v1] = square;
@@ -682,25 +668,22 @@ namespace CatSAT
                 return s;
             }
 
-            else
+            foreach (var a in vars)
             {
-                foreach (var a in vars)
-                {
-                    newDomain += a.FloatDomain.Bounds.Quantize(vars[0].Quantization);
-                }
-
-                foreach (var a in vars)
-                    if (!ReferenceEquals(a.Condition, null))
-                        throw new ArgumentException("Sum does not support conditioned variables", a.Name.ToString());
-
-                var sum = new FloatVariable("sum", newDomain.Lower, newDomain.Upper, null);
-                sum.FloatDomain.Quantization = vars[0].Quantization;
-                arraySumTable[vars] = sum;
-                Problem.Current.Assert(
-                    Problem.Current.GetSpecialProposition<GeneralSumConstraint>(Call.FromArgs(Problem.Current, "IsSum",
-                        sum, 1.0f, vars)));
-                return sum;
+                newDomain += a.FloatDomain.Bounds.Quantize(vars[0].Quantization);
             }
+
+            foreach (var a in vars)
+                if (!ReferenceEquals(a.Condition, null))
+                    throw new ArgumentException("Sum does not support conditioned variables", a.Name.ToString());
+
+            var sum = new FloatVariable("sum", newDomain.Lower, newDomain.Upper, null);
+            sum.FloatDomain.Quantization = vars[0].Quantization;
+            arraySumTable[vars] = sum;
+            Problem.Current.Assert(
+                Problem.Current.GetSpecialProposition<GeneralSumConstraint>(Call.FromArgs(Problem.Current, "IsSum",
+                    sum, 1.0f, vars)));
+            return sum;
         }
 
         /// <summary>
@@ -767,6 +750,12 @@ namespace CatSAT
         {
             var newInter = Interval.Zero;
             var arraySumTable = Problem.Current.GetSolver<FloatSolver>().ArraySumTable;
+            var constrainedAverageTable = Problem.Current.GetSolver<FloatSolver>().ConstrainedAverageTable;
+
+            if (constrainedAverageTable.TryGetValue((constraint, vars), out FloatVariable avg))
+            {
+                return avg;
+            }
 
             if (arraySumTable.TryGetValue(vars, out FloatVariable s))
             {
@@ -811,7 +800,6 @@ namespace CatSAT
 
                 var constrainedDomain = new FloatDomain("constrained average", constrainedInterval.Lower, constrainedInterval.Upper);
 
-
                 var constrainedAvg = new FloatVariable("average", constrainedDomain.Bounds.Lower, constrainedDomain.Bounds.Upper, null);
 
                 if (vars[0].Quantization != 0)
@@ -819,21 +807,26 @@ namespace CatSAT
                     constrainedAvg.FloatDomain.Quantization = (vars[0].Quantization * 1f / vars.Length);
                 }
 
+                constrainedAvg.PickLast = true;
+
                 Problem.Current.Assert(
     Problem.Current.GetSpecialProposition<GeneralSumConstraint>(Call.FromArgs(Problem.Current,
             "IsAverage", constrainedAvg, 1.0f / vars.Length, vars)));
 
+                constrainedAverageTable[(constraint, vars)] = constrainedAvg;
+
                 return constrainedAvg;
             }
 
-            else
-            {
-                Problem.Current.Assert(
-                    Problem.Current.GetSpecialProposition<GeneralSumConstraint>(Call.FromArgs(Problem.Current,
-                            "IsAverage", av, 1.0f / vars.Length, vars)));
+            Problem.Current.Assert(
+                Problem.Current.GetSpecialProposition<GeneralSumConstraint>(Call.FromArgs(Problem.Current,
+                    "IsAverage", av, 1.0f / vars.Length, vars)));
 
-                return av;
-            }
+            av.PickLast = true;
+
+            constrainedAverageTable[(constraint, vars)] = av;
+                
+            return av;
         }
 
         /// <summary>
@@ -844,21 +837,41 @@ namespace CatSAT
         /// <exception cref="ArgumentException">When one of the vars has a condition on it (i.e. isn't defined in all models)</exception>
         public static FloatVariable Variance(params FloatVariable[] vars)
         {
+            var varianceTable = Problem.Current.GetSolver<FloatSolver>().VarianceTable;
+
+            if (varianceTable.TryGetValue(vars, out FloatVariable vari))
+            {
+                return vari;
+            }
+           
             var mean = Average(vars);
-            return FloatVariable.Average(vars.Select(v => (v - mean)^2 ).ToArray());
+            var variance = Average(vars.Select(v => (v - mean)^2 ).ToArray());
+            varianceTable[vars] = variance;
+            variance.PickLast = true;
+            return variance;
         }
 
         /// <summary>
         /// Computes the variance of the specified FloatVariables
         /// </summary>
-        /// <param name="constraint">Interval for variance to be constrained between</param>
-        /// <param name="vars">Variables to find variance of</param>
+        /// <param name="meanRange">Interval for average to be constrained between</param>
+        /// <param name="varianceRange">Interval for variance to be constrained between</param>
+        /// <param name="vars">Variables to find average and variance of</param>
         /// <returns>A new FloatVariable constrained to be the variance of vars, within the bounds of constraint</returns>
         /// <exception cref="ArgumentException">When one of the vars has a condition on it (i.e. isn't defined in all models)</exception>
-        public static FloatVariable Variance(Interval constraint, params FloatVariable[] vars)
+        public static FloatVariable Variance(Interval meanRange, Interval varianceRange, params FloatVariable[] vars)
         {
-            var mean = Average(vars);
-            return FloatVariable.Average(constraint, vars.Select(v => (v - mean) ^ 2).ToArray());
+            var constrainedVarianceTable = Problem.Current.GetSolver<FloatSolver>().ConstrainedVarianceTable;
+
+            if (constrainedVarianceTable.TryGetValue((varianceRange, vars), out FloatVariable vari))
+            {
+                return vari;
+            }
+
+            var mean = Average(meanRange, vars);
+            var variance = Average(varianceRange, vars.Select(v => (v - mean) ^ 2).ToArray());
+            constrainedVarianceTable[(varianceRange, vars)] = variance;
+            return variance;
         }
 
         internal void AddUpperBound(FloatVariable bound)
@@ -902,21 +915,23 @@ namespace CatSAT
         /// <summary>
         /// Singleton instance of the comparer 
         /// </summary>
-        ///
-        private static readonly IEqualityComparer<FloatVariable[]> equalityComparer;
+        public static readonly IEqualityComparer<FloatVariable[]> EqualityComparer = new FloatVariableArrayComparer();
 
         bool IEqualityComparer<FloatVariable[]>.Equals(FloatVariable[] a, FloatVariable[] b)
         {
-            if (a.Length != b.Length)
+            if (a != null && b != null)
             {
-                return false;
-            }
-
-            for (int i = 0; i < a.Length; i++)
-            {
-                if (!ReferenceEquals(a[i], b[i]))
+                if (a.Length != b.Length)
                 {
                     return false;
+                }
+
+                for (int i = 0; i < a.Length; i++)
+                {
+                    if (!ReferenceEquals(a[i], b[i]))
+                    {
+                        return false;
+                    }
                 }
             }
 
@@ -926,6 +941,7 @@ namespace CatSAT
         int IEqualityComparer<FloatVariable[]>.GetHashCode(FloatVariable[] array)
         {
             int aggregate = 0;
+            // ReSharper disable once ForCanBeConvertedToForeach
             for (int i = 0; i < array.Length; i++)
             {
                 int currentHashCode = array[i].GetHashCode();

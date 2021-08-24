@@ -696,9 +696,6 @@ namespace Tests
 
             var x = (FloatVariable)dom.Instantiate("x");
 
-            //Assert.AreEqual(x.Bounds.Upper, 70);
-            //Assert.AreEqual(x.Bounds.Lower, 0);
-
             for (int i = 0; i < 100; i++)
             {
                 var s = p.Solve();
@@ -979,10 +976,15 @@ namespace Tests
             {
                 var s = p.Solve();
                 var avg = vars.Select(v => v.Value(s)).Average();
-
                 AssertApproximatelyEqual(average.Value(s), avg);
             }
 
+        }
+
+        public float getVariance(Solution s, params FloatVariable[] vars)
+        {
+            var avg = vars.Select(v => v.Value(s)).Average();
+            return (float)vars.Select(v => Math.Pow(v.Value(s) - avg, 2)).Average();
         }
 
         [TestMethod]
@@ -1025,7 +1027,7 @@ namespace Tests
         {
             var p = new Problem(nameof(VarianceTest));
             var dom = new FloatDomain("unit", -6, 8);
-            var vars = new FloatVariable[1];
+            var vars = new FloatVariable[3];
             for (int i = 0; i < vars.Length; i++)
                 vars[i] = (FloatVariable)dom.Instantiate("x" + i);
             var variance = FloatVariable.Variance(vars);
@@ -1033,10 +1035,7 @@ namespace Tests
             for (int i = 0; i < 5; i++)
             {
                 var s = p.Solve();
-                var avg = vars.Select(v => v.Value(s)).Average();
-                var actualvariance = vars.Select(v => Math.Pow(v.Value(s) - avg, 2)).Average();
-
-                AssertApproximatelyEqual(variance.Value(s), (float)actualvariance);
+                AssertApproximatelyEqual(variance.Value(s), getVariance(s, vars));
             }
 
         }
@@ -1054,54 +1053,135 @@ namespace Tests
             for (int i = 0; i < 1; i++)
             {
                 var s = p.Solve();
-                var avg = vars.Select(v => v.Value(s)).Average();
-                var actualvariance = vars.Select(v => Math.Pow(v.Value(s) - avg, 2)).Average();
-
-                AssertApproximatelyEqual(variance.Value(s), (float)actualvariance);
+                AssertApproximatelyEqual(variance.Value(s), getVariance(s, vars));
             }
 
         }
 
-        [TestMethod]
-        public void BoundedAverageConstraintTest()
+        public void checkAverage(Solution s, FloatVariable computedAvg, params FloatVariable[] vars)
         {
-            var p = new Problem(nameof(BoundedAverageConstraintTest));
+            var actualAvg = vars.Select(v => v.Value(s)).Average();
+            AssertApproximatelyEqual(computedAvg.Value(s), actualAvg);
+            Assert.IsTrue(computedAvg.FloatDomain.Contains(actualAvg));
+        }
+
+        [TestMethod]
+        public void ConstrainedAverageTest()
+        {
+            var p = new Problem(nameof(ConstrainedAverageTest));
             var dom = new FloatDomain("unit", -1, 1);
             var vars = new FloatVariable[10];
             for (int i = 0; i < vars.Length; i++)
                 vars[i] = (FloatVariable)dom.Instantiate("x" + i);
-            var constraint = new Interval(0.5f, 0.75f);
-            var average = FloatVariable.Average(constraint, vars);
+            var meanRange = new Interval(0.4f, 0.75f);
+            var avg = FloatVariable.Average(meanRange, vars);
 
             for (int i = 0; i < 100; i++)
             {
                 var s = p.Solve();
-                Console.WriteLine(s.Model);
-                var avg = vars.Select(v => v.Value(s)).Average();
-                AssertApproximatelyEqual(average.Value(s), avg);
-                Assert.IsTrue(average.Value(s) >= 0.5 && average.Value(s) <= 0.75);
+                checkAverage(s, avg, vars);
             }
         }
 
         [TestMethod]
-        public void BoundedVarianceTest()
+        public void ConstrainedAverageTest2()
         {
-            var p = new Problem(nameof(BoundedVarianceTest));
-            var dom = new FloatDomain("unit", -6, 8);
-            var vars = new FloatVariable[5];
+            var p = new Problem(nameof(ConstrainedAverageTest2));
+            var dom = new FloatDomain("unit", -30, 20);
+            var vars = new FloatVariable[10];
             for (int i = 0; i < vars.Length; i++)
                 vars[i] = (FloatVariable)dom.Instantiate("x" + i);
-            var constraint = new Interval(-5f, 1f);
-            var variance = FloatVariable.Variance(constraint, vars);
+            var meanRange = new Interval(-7.5f, 17.7f);
+            var avg = FloatVariable.Average(meanRange, vars);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var s = p.Solve();
+                checkAverage(s, avg, vars);
+            }
+        }
+
+        [TestMethod]
+        public void ConstrainedVarianceTest()
+        {
+            var p = new Problem(nameof(ConstrainedVarianceTest));
+            var dom = new FloatDomain("unit", -6, 8);
+            var vars = new FloatVariable[4];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var varianceRange = new Interval(0.2f, 0.3f);
+            var meanRange = new Interval(0, 1);
+            var variance = FloatVariable.Variance(meanRange, varianceRange, vars);
+            var avg = FloatVariable.Average(meanRange, vars);
 
             for (int i = 0; i < 5; i++)
             {
                 var s = p.Solve();
-                var avg = vars.Select(v => v.Value(s)).Average();
-                var actualvariance = vars.Select(v => Math.Pow(v.Value(s) - avg, 2)).Average();
+                checkAverage(s, avg, vars);
+                Assert.IsTrue(varianceRange.Contains(getVariance(s, vars)));
+            }
+        }
 
-                Assert.IsTrue(variance.Value(s) >= -5f && variance.Value(s) <= 1f);
+        [TestMethod]
+        public void ConstrainedVarianceTest2()
+        {
+            var p = new Problem(nameof(ConstrainedVarianceTest2));
+            var dom = new FloatDomain("unit", -10, 10);
+            var vars = new FloatVariable[4];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var meanRange = new Interval(-5, 5);
+            var varianceRange = new Interval(0, 5);
+            var variance = FloatVariable.Variance(meanRange, varianceRange, vars);
+            var avg = FloatVariable.Average(meanRange, vars);
 
+            for (int i = 0; i < 5; i++)
+            {
+                var s = p.Solve();
+                checkAverage(s, avg, vars);
+                Assert.IsTrue(varianceRange.Contains(getVariance(s, vars)));
+            }
+        }
+
+        [TestMethod]
+        public void ConstrainedVarianceAndMeanTest()
+        {
+            var p = new Problem(nameof(ConstrainedVarianceAndMeanTest));
+            var dom = new FloatDomain("unit", -10, 10);
+            var vars = new FloatVariable[4];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var meanRange = new Interval(-1, 1);
+            var varianceRange = new Interval(0, 9);
+            var variance = FloatVariable.Variance(meanRange, varianceRange, vars);
+            var avg = FloatVariable.Average(meanRange, vars);
+
+            for (int i = 0; i < 5; i++)
+            {
+                var s = p.Solve();
+                checkAverage(s, avg, vars);
+                Assert.IsTrue(varianceRange.Contains(getVariance(s, vars)));
+            }
+        }
+
+        [TestMethod]
+        public void ConstrainedVarianceAndMeanTest2()
+        {
+            var p = new Problem(nameof(ConstrainedVarianceAndMeanTest2));
+            var dom = new FloatDomain("unit", -100, 100);
+            var vars = new FloatVariable[4];
+            for (int i = 0; i < vars.Length; i++)
+                vars[i] = (FloatVariable)dom.Instantiate("x" + i);
+            var meanRange = new Interval(-48.3f, 53);
+            var varianceRange = new Interval(0, 4);
+            var variance = FloatVariable.Variance(meanRange, varianceRange, vars);
+            var avg = FloatVariable.Average(meanRange, vars);
+
+            for (int i = 0; i < 5; i++)
+            {
+                var s = p.Solve();
+                checkAverage(s, avg, vars);
+                Assert.IsTrue(varianceRange.Contains(getVariance(s, vars)));
             }
         }
 
