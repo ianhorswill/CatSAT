@@ -1476,6 +1476,21 @@ namespace CatSAT
         {
             return SATVariables[p.Index].IsPredetermined;
         }
+
+        public bool IsPredetermined(Literal l)
+        {
+            switch (l)
+            {
+                case Proposition p:
+                    return IsPredetermined(p);
+
+                case Negation n:
+                    return IsPredetermined(n.Proposition);
+
+                default:
+                    throw new ArgumentException("Literal that is somehow neither a proposition or negation");
+            }
+        }
 #endregion
 
         #region Optimization (unit resolution)

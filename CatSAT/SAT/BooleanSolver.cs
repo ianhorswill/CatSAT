@@ -107,7 +107,7 @@ namespace CatSAT
         /// <summary>
         /// Arrays to hold state information; indexed by proposition number.
         /// </summary>
-        private readonly bool[] varInitialized;
+        private bool[] varInitialized;
         #endregion
 
         internal BooleanSolver(Problem problem)
@@ -117,10 +117,8 @@ namespace CatSAT
             TrueDisjunctCount = new ushort[clausesCount];
             LastFlip = new ushort[clausesCount];
             UnsatisfiedClauses = new DynamicUShortSet(clausesCount);
-            improvablePropositions = new DynamicUShortSet(problem.SATVariables.Count);
             falseLiterals = new ushort[Problem.Constraints.Count];
             trueLiterals = new ushort[Problem.Constraints.Count];
-            varInitialized = new bool[Problem.SATVariables.Count];
         }
         /// <summary>
         /// A string listing the performance statistics of the solver run that generated this solution.
@@ -182,6 +180,12 @@ namespace CatSAT
                 var targetClauseIndex = UnsatisfiedClauses.RandomElement;
                 var targetClause = Problem.Constraints[targetClauseIndex];
                 ushort flipChoice;
+
+                if (targetClause.UnPredeterminedDisjuncts.Count == 0)
+                {
+                    unusedFlips = 0;
+                    return false;
+                }
 
                 if (Random.InRange(100) < 100 * wp)
                     // Flip a completely random variable
@@ -514,6 +518,11 @@ namespace CatSAT
         /// </summary>
         private void MakeRandomAssignment()
         {
+            if (varInitialized == null || varInitialized.Length != Problem.SATVariables.Count)
+            {
+                varInitialized = new bool[Problem.SATVariables.Count];
+                improvablePropositions = new DynamicUShortSet(Problem.SATVariables.Count);
+            }
             Array.Clear(falseLiterals, 0, falseLiterals.Length);
             Array.Clear(trueLiterals, 0, trueLiterals.Length);
             Array.Clear(varInitialized, 0, varInitialized.Length);

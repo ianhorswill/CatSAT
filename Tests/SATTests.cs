@@ -272,6 +272,25 @@ namespace Tests
                 }
             }
         }
+
+        [TestMethod]
+        public void AddNewPropositionsTest()
+        {
+            var p = new Problem();
+            p.Solve();
+            p["a"] = true;
+            p.Solve();
+        }
+
+        [TestMethod]
+        public void DivideByZeroTest()
+        {
+            var p = new Problem();
+            p.Assert((Proposition)"a" > "b");
+            p["a"] = true;
+            p["b"] = false;
+            p.Solve(false);
+        }
     }
 }
 
