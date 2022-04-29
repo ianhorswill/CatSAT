@@ -585,8 +585,13 @@ namespace CatSAT
                 var c = Problem.Constraints[i];
                 var satisfiedDisjuncts = c.CountDisjuncts(Solution);
                 TrueDisjunctCount[i] = satisfiedDisjuncts;
-                if (!c.IsSatisfied(satisfiedDisjuncts) && c.IsEnabled(Solution)) 
+                if (!c.IsSatisfied(satisfiedDisjuncts) && c.IsEnabled(Solution))
+                {
+                    if (c.UnPredeterminedDisjuncts.Count == 0)
+                        // It's false, but all the disjuncts are predetermined
+                        throw new ContradictionException(Problem, c);
                     UnsatisfiedClauses.Add(i);
+                }
             }
 
             //CheckUtility();

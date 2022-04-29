@@ -282,8 +282,8 @@ namespace Tests
             p.Solve();
         }
 
-        [TestMethod]
-        public void DivideByZeroTest()
+        [TestMethod, ExpectedException(typeof(ContradictionException))]
+        public void PredeterminedContradictionTest()
         {
             var p = new Problem();
             p.Assert((Proposition)"a" > "b");
