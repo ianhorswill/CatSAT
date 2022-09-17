@@ -63,7 +63,7 @@ namespace CatSAT
 
         /// <summary>
         /// States of the different propositions of the Program, indexed by proposition number.
-        /// IMPORTANT: this is a cache of solution.Propositions.
+        /// IMPORTANT: this is an alias of solution.Propositions.
         /// </summary>
         public bool[] Propositions;
 
@@ -391,6 +391,9 @@ namespace CatSAT
                         clause.UpdateTruePositiveAndFalseNegative(this);
                     }
                 }
+                if (prop.SpecialConstraints != null)
+                    foreach (var c in prop.SpecialConstraints)
+                        Problem.Constraints[c].SpecialVariableFlipped(this, pIndex, !currentlyTrue);
             }
             //CheckUtility();
         }
@@ -572,8 +575,8 @@ namespace CatSAT
             {
                 // Make sure we don't change the predetermined propositions
                 targetClause.UnPredeterminedDisjuncts.Clear();
-                foreach (short lit in targetClause.Disjuncts)
-                    if (!Problem.SATVariables[(ushort) Math.Abs(lit)].IsPredetermined)
+                foreach (short lit in targetClause.Literals)
+                    if (!Problem.SATVariables[(ushort) Math.Abs(lit)].IsStronglyPredetermined)
                         targetClause.UnPredeterminedDisjuncts.Add(lit);
             }
 

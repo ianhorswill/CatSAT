@@ -46,6 +46,7 @@ namespace CatSAT
             NegativeClauses = new List<ushort>();
             PredeterminedValue = false;
             DeterminationStatus = DeterminationState.Floating;
+            SpecialConstraints = null;
         }
 
         /// <summary>
@@ -63,11 +64,24 @@ namespace CatSAT
         /// Used to know what clauses to check if we flip this variable
         /// </summary>
         public readonly List<ushort> PositiveClauses;
+        
         /// <summary>
         /// Constraint in which this variable appears negated.
         /// Used to know what clauses to check if we flip this variable
         /// </summary>
         public readonly List<ushort> NegativeClauses;
+
+        /// <summary>
+        /// Constraints that need special handling during a flip of this proposition
+        /// </summary>
+        public List<ushort> SpecialConstraints;
+
+        internal void AddSpecialHandlingConstraint(Constraint c)
+        {
+            if (SpecialConstraints == null)
+                SpecialConstraints = new List<ushort>();
+            SpecialConstraints.Add(c.Index);
+        }
 
         /// <summary>
         /// Tracks whether the variable's value is pre-determined, and why
@@ -104,10 +118,15 @@ namespace CatSAT
         public DeterminationState DeterminationStatus;
 
         /// <summary>
-        /// Whether the value of the variable is fixed.
+        /// Whether the value of the variable is forced by the current set and preinitialized values
         /// </summary>
         public bool IsPredetermined => DeterminationStatus != DeterminationState.Floating;
-        
+
+        /// <summary>
+        /// Whether the value of the value is forced by the current set values.
+        /// </summary>
+        public bool IsStronglyPredetermined => DeterminationStatus != DeterminationState.Floating && DeterminationStatus != DeterminationState.Preinitialized;
+
         /// <summary>
         /// Value of variable if it is predetermined
         /// </summary>

@@ -34,6 +34,16 @@ namespace CatSAT
         /// </summary>
         internal readonly short[] Disjuncts;
 
+        internal virtual IEnumerable<short> Literals => Disjuncts;
+
+        /// <summary>
+        /// Any variables that require special handling when flipped
+        /// </summary>
+        internal virtual IEnumerable<ushort> SpecialHandlingVariables()
+        {
+            yield break;
+        }
+
         /// <summary>
         /// The not predeteremined disjuncts of the constraint
         /// </summary>
@@ -178,6 +188,10 @@ namespace CatSAT
             return (ushort)best;
         }
 
+        public virtual void SpecialVariableFlipped(BooleanSolver b, ushort var, bool newValue)
+        {
+            throw new NotImplementedException();
+        }
 
         internal abstract void Decompile(Problem p, StringBuilder b);
 

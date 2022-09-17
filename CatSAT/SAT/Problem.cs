@@ -259,6 +259,10 @@ namespace CatSAT
                                 b.AppendLine(" // set");
                                 break;
 
+                            case SATVariable.DeterminationState.Preinitialized:
+                                b.AppendLine(" // preinitialized");
+                                break;
+                            
                             default:
                                 b.AppendLine(" // unknown DeterminationState !");
                                 break;
@@ -521,8 +525,15 @@ namespace CatSAT
                 else
                     SATVariables[-lit].NegativeClauses.Add(clauseIndex);
             }
-        }
 
+            foreach (var v in constraint.SpecialHandlingVariables())
+            {
+                var sv = SATVariables[v];
+                sv.AddSpecialHandlingConstraint(constraint);
+                SATVariables[v] = sv;
+            }
+        }
+        
         /// <summary>
         /// Map an array of Literals to an array of their signed indices.
         /// </summary>

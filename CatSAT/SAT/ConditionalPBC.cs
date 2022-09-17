@@ -23,7 +23,10 @@
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 
 namespace CatSAT
 {
@@ -43,6 +46,17 @@ namespace CatSAT
         /// </summary>
         public readonly short Condition;
 
+        // Include condition
+        internal override IEnumerable<short> Literals
+        {
+            get
+            {
+                yield return Condition;
+                foreach (var l in Disjuncts)
+                    yield return l;
+            }
+        }
+
         /// <summary>
         /// Make a new clause (but doesn't add it to a Program)
         /// </summary>
@@ -61,6 +75,26 @@ namespace CatSAT
         /// </summary>
         public override bool IsEnabled(Solution s) => s.IsTrue(Condition);
 
+        internal override IEnumerable<ushort> SpecialHandlingVariables()
+        {
+            yield return (ushort)Math.Abs(Condition);
+        }
+
+        public override void SpecialVariableFlipped(BooleanSolver b, ushort var, bool newValue)
+        {
+            // We've flipped our enabled state
+            if (IsEnabled(b.Solution) && !IsSatisfied(b.TrueDisjunctCount[Index])
+                // We need to check it isn't already there because if the condition is also in disjuncts,
+                // then the normal flip handling may have already added it
+                && !b.UnsatisfiedClauses.Contains(Index))
+                // It's safe to add it
+                b.UnsatisfiedClauses.Add(Index);
+            // We were just disabled
+            // Need to check if it's already been removed by normal flip handling, which can handle if the
+            // condition is also one of the disjuncts.
+            else if (b.UnsatisfiedClauses.Contains(Index))
+                b.UnsatisfiedClauses.Remove(Index);
+        }
 
         ///<summary>
         /// transit prop appears as a negative literal in clause from false -> true,
@@ -101,6 +135,13 @@ namespace CatSAT
             else if (!IsSatisfied(dCount) && isEnabled)
                 // It just transitioned from satisfied to unsatisfied, or condition just enabled
                 b.UnsatisfiedClauses.Add(Index);
+        }
+
+        internal override void Decompile(Problem p, StringBuilder b)
+        {
+            b.Append(p.SATVariables[Math.Abs(Condition)].Proposition);
+            b.Append(" => ");
+            base.Decompile(p, b);
         }
     }
 }

@@ -55,53 +55,54 @@ namespace Tests
             }
         }
 
-        [TestMethod]
-        public void ForcePreSettingVariablesTest()
-        {
-            var p = new Problem("Force Extension hook test");
-            var preset = true;
+        // This test is no longer valid because preinitialization no longer wires the values of variables.
+        //[TestMethod]
+        //public void ForcePreSettingVariablesTest()
+        //{
+        //    var p = new Problem("Force Extension hook test");
+        //    var preset = true;
 
-            void MaybeSetVarX(Problem _)
-            {
-                // ReSharper disable once AccessToModifiedClosure
-                if (preset)
-                    p.SetPredeterminedValue("x", true, SATVariable.DeterminationState.Preinitialized);
-            }
+        //    void MaybeSetVarX(Problem _)
+        //    {
+        //        // ReSharper disable once AccessToModifiedClosure
+        //        if (preset)
+        //            p.SetPredeterminedValue("x", true, SATVariable.DeterminationState.Preinitialized);
+        //    }
 
-            p.AddClause("x", "y");
-            p.AddClause("x", "z");
-            p.AddClause(Not("x"), "z");
-            p.AddClause(Not("x"), "y");
-            p.InitializeTruthAssignment += MaybeSetVarX;
+        //    p.AddClause("x", "y");
+        //    p.AddClause("x", "z");
+        //    p.AddClause(Not("x"), "z");
+        //    p.AddClause(Not("x"), "y");
+        //    p.InitializeTruthAssignment += MaybeSetVarX;
 
-            int numTrue = 0;
-            int numTests = 1000; 
-            for (int i = 0; i < numTests; i++)
-            {
-                var m = p.Solve();
-                if (m.IsTrue("x"))
-                {
-                    numTrue++;
-                }
-            }
-            Console.WriteLine(numTrue);
-            Assert.IsTrue(numTrue == numTests);
+        //    int numTrue = 0;
+        //    int numTests = 1000; 
+        //    for (int i = 0; i < numTests; i++)
+        //    {
+        //        var m = p.Solve();
+        //        if (m.IsTrue("x"))
+        //        {
+        //            numTrue++;
+        //        }
+        //    }
+        //    Console.WriteLine(numTrue);
+        //    Assert.IsTrue(numTrue == numTests);
 
-            preset = false;
+        //    preset = false;
 
-            numTrue = 0;
-            numTests = 1000;
-            for (int i = 0; i < numTests; i++)
-            {
-                var m = p.Solve();
-                if (m.IsTrue("x"))
-                {
-                    numTrue++;
-                }
-            }
-            Console.WriteLine(numTrue);
-            Assert.IsTrue(numTrue != numTests);
-        }
+        //    numTrue = 0;
+        //    numTests = 1000;
+        //    for (int i = 0; i < numTests; i++)
+        //    {
+        //        var m = p.Solve();
+        //        if (m.IsTrue("x"))
+        //        {
+        //            numTrue++;
+        //        }
+        //    }
+        //    Console.WriteLine(numTrue);
+        //    Assert.IsTrue(numTrue != numTests);
+        //}
     }
 }
 
