@@ -26,6 +26,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
+using static System.Collections.StructuralComparisons;
 
 namespace CatSAT.NonBoolean.SMT.Float
 {
@@ -38,7 +40,19 @@ namespace CatSAT.NonBoolean.SMT.Float
         // Representatives of the equivalence classes of FloatVariables
         private readonly List<FloatVariable> representatives = new List<FloatVariable>();
 
+        /// <summary>
+        /// (v, true) in this queue means v's upper bound has recently been tightened; (v, false) means v's lower bound has recently been tightened.
+        /// </summary>
         private readonly Queue<Tuple<FloatVariable,bool>> propagationQueue = new Queue<Tuple<FloatVariable, bool>>();
+
+        public Dictionary<(FloatVariable, FloatVariable), FloatVariable> ProductTable = new Dictionary<(FloatVariable, FloatVariable), FloatVariable>();
+        public Dictionary<(FloatVariable, FloatVariable), FloatVariable> SumTable = new Dictionary<(FloatVariable, FloatVariable), FloatVariable>();
+        public Dictionary<FloatVariable, FloatVariable> SquareTable = new Dictionary<FloatVariable, FloatVariable>();
+        public Dictionary<FloatVariable[], FloatVariable> ArraySumTable = new Dictionary<FloatVariable[], FloatVariable>(FloatVariableArrayComparer.EqualityComparer);
+        public Dictionary<FloatVariable[], FloatVariable> AverageTable = new Dictionary<FloatVariable[], FloatVariable>(FloatVariableArrayComparer.EqualityComparer);
+        public Dictionary<(Interval, FloatVariable[]), FloatVariable> ConstrainedAverageTable = new Dictionary<(Interval, FloatVariable[]), FloatVariable>();
+        public Dictionary<FloatVariable[], FloatVariable> VarianceTable = new Dictionary<FloatVariable[], FloatVariable>(FloatVariableArrayComparer.EqualityComparer);
+        public Dictionary<(Interval, FloatVariable[]), FloatVariable> ConstrainedVarianceTable = new Dictionary<(Interval, FloatVariable[]), FloatVariable>();
 
         /// <summary>
         /// Add clauses that follow from user-defined bounds, e.g. from transitivity.
@@ -50,7 +64,7 @@ namespace CatSAT.NonBoolean.SMT.Float
             {
                 foreach (var p in Propositions)
                     p.Validate();
-                constraints.Sort((a, b) => sign*Comparer.Default.Compare(a.Bound, b.Bound));
+                constraints.Sort((a, b) => sign * Comparer.Default.Compare(a.Bound, b.Bound));
 
                 // Add forward inferences: if v < bounds[i], then v < bounds[i+1]
                 for (int i = 0; i < constraints.Count - 1; i++)
@@ -70,10 +84,10 @@ namespace CatSAT.NonBoolean.SMT.Float
                 // way it's possible for them to be unsatisfied with non-zero probability is through
                 // floating-point quantization.  That suggests that someone trying to make a proposition
                 // dependent on a != b+C is probably making a mistake.
-                if (v.AllFunctionalConstraints != null)
-                    foreach (var f in v.AllFunctionalConstraints)
-                        if (f.IsDependency)
-                            throw new InvalidOperationException($"{f.Name}: Inferences dependent on the truth of functional constraint are not supported.");
+                //if (v.AllFunctionalConstraints != null)
+                //    foreach (var f in v.AllFunctionalConstraints)
+                //        if (f.IsDependency)
+                //            throw new InvalidOperationException($"{f.Name}: Inferences dependent on the truth of functional constraint are not supported.");
             }
 
             return null;
@@ -114,7 +128,7 @@ namespace CatSAT.NonBoolean.SMT.Float
             FindEquivalenceClasses(s);
             FindActiveFunctionalConstraints(s);
 
-            if (!FindSolutionBounds(s)) 
+            if (!FindSolutionBounds(s))
                 // Constraint are contradictory
                 return false;
 
@@ -150,6 +164,7 @@ namespace CatSAT.NonBoolean.SMT.Float
             // We can now focus on just the representatives of each equivalence class of variables
             // and ignore the rest.
             representatives.Clear();
+            // ReSharper disable once RedundantCast
             representatives.AddRange(Variables.Where(v => v.IsDefinedInInternal(s) && (object) v == (object) v.Representative));
         }
         
@@ -246,7 +261,9 @@ namespace CatSAT.NonBoolean.SMT.Float
 
             // Save bounds
             foreach (var v in representatives)
+            {
                 v.SolutionBounds = v.Bounds;
+            }
 
             return true;
         }
@@ -262,11 +279,39 @@ namespace CatSAT.NonBoolean.SMT.Float
         private bool TrySample()
         {
             Random.Shuffle(representatives);
+            var end = representatives.Count - 1;
+            for (var i = 0; i < end; i++)
+            {
+                if (representatives[i].PickLast)
+                {
+                    var temp = representatives[end];
+                    representatives[end] = representatives[i];
+                    representatives[i] = temp;
+                }
+            }
+
             foreach (var v in representatives)
             {
-                v.PickRandom(propagationQueue);
+                if (v.FloatDomain.Quantization == 0)
+                {
+
+                    v.PickValue(Random.Float(v.Bounds.Lower, v.Bounds.Upper), propagationQueue);
+                }
+
+                else
+                {
+                    int possibilities = (int)((v.Bounds.Upper - v.Bounds.Lower) / v.FloatDomain.Quantization);
+
+                    // ReSharper disable once RedundantNameQualifier
+                    int randStep = CatSAT.Random.InRange(0, possibilities);
+
+                    float rand = randStep * v.FloatDomain.Quantization + v.Bounds.Lower;
+
+                    v.PickValue(rand, propagationQueue);
+                }
+
                 if (!PropagateUpdates()) 
-                    return false;
+                        return false;
             }
 
             return true;

@@ -43,6 +43,9 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Fluents\Actions.cs" />
@@ -55,6 +58,7 @@
     <Compile Include="NonBoolean\SMT\Float\Interval.cs" />
     <Compile Include="NonBoolean\SMT\Float\ConstantBound.cs" />
     <Compile Include="NonBoolean\SMT\Float\MonotoneFunction.cs" />
+    <Compile Include="NonBoolean\SMT\Float\PowerConstraint.cs" />
     <Compile Include="NonBoolean\SMT\Float\ProductConstraint.cs" />
     <Compile Include="NonBoolean\SMT\Float\BinarySumConstraint.cs" />
     <Compile Include="NonBoolean\SMT\Float\VariableBound.cs" />
@@ -114,6 +118,7 @@
     <Compile Include="NonBoolean\VariableType.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

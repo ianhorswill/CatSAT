@@ -144,6 +144,39 @@ namespace CatSAT
                 Max(a.Lower / b.Lower, a.Upper / b.Upper, a.Lower / b.Upper, a.Upper / b.Lower));
         }
 
+        /// <summary>
+        /// The result of the interval being raised to a power.
+        /// </summary>
+        /// <returns></returns>
+        public static Interval operator ^(Interval a, uint exponent)
+        {
+            switch (exponent)
+            {
+                case 0:
+                    return new Interval(1, 1);
+
+                case 1:
+                    return a;
+
+                default:
+                    if (exponent % 2 == 0)
+                    {
+                        // even exponent
+                        if (a.Lower >= 0)
+                            return new Interval((float)Math.Pow(a.Lower, exponent), (float)Math.Pow(a.Upper, exponent));
+                        if (a.Upper < 0)
+                            return new Interval((float)Math.Pow(a.Upper, exponent), (float)Math.Pow(a.Lower, exponent));
+                        return new Interval(
+                            0,
+                            Math.Max((float)Math.Pow(a.Upper, exponent), (float)Math.Pow(a.Lower, exponent))
+                            );
+                    }
+                    // odd exponent
+                    return new Interval((float)Math.Pow(a.Lower, exponent), (float)Math.Pow(a.Upper, exponent));
+            }
+
+        }
+
         static float ProductMin(Interval a, Interval b)
         {
             return Min(a.Upper * b.Upper, a.Upper * b.Lower, a.Lower * b.Upper, a.Lower * b.Lower);
@@ -164,6 +197,55 @@ namespace CatSAT
             return Math.Max(Math.Max(a, b), Math.Max(c, d));
         }
 
+        /// <summary>
+        /// Round num up to the nearest multiple of quantization
+        /// </summary>
+        public static float RoundUp(float num, float quantization)
+        {
+            var multiple = num / quantization;
+            var error = multiple - Math.Round(multiple);
+            if (error < .00001f && error >= 0)
+            {
+                return num;
+            }
+            return ((float)Math.Ceiling(num / quantization)) * quantization;
+        }
+
+        /// <summary>
+        /// Round num down to the nearest multiple of quantization
+        /// </summary>
+        public static float RoundDown(float num, float quantization)
+        {
+            var multiple = num / quantization;
+            var error = Math.Round(multiple) - multiple;
+            if (error < .00001f && error >= 0)
+            {
+                return num;
+            }
+            return ((float)Math.Floor(num / quantization)) * quantization;
+        }
+
+        /// <summary>
+        /// Narrow the interval to the nearest quantized values
+        /// </summary>
+        public Interval Quantize(float quantization)
+        {
+            if (quantization == 0)
+            {
+                return this;
+            }
+            float lowerBound = RoundUp(Lower, quantization);
+            float upperBound = RoundDown(Upper, quantization);
+            Interval newBounds = new Interval(lowerBound, upperBound);
+
+            return newBounds;
+        }
+
+        /// <summary>
+        /// Adjust the interval as needed according to quantization
+        /// </summary>
+        public static Interval Quantize(Interval i, float quantization) => i.Quantize(quantization);
+
         /// <inheritdoc />
         public override string ToString()
         {
@@ -171,5 +253,6 @@ namespace CatSAT
         }
 
         private string DebuggerDisplay => ToString();
+
     }
 }

@@ -43,12 +43,13 @@ namespace CatSAT.NonBoolean.SMT.Float
         public override void Initialize(Problem p)
         {
             var c = (Call)Name;
-            Result = (FloatVariable)c.Args[0];
-            scaleFactor = (float) c.Args[1];
-            addends = (FloatVariable[]) c.Args[2];
-            foreach (var a in addends)
-                a.AddFunctionalConstraint(this);
-            base.Initialize(p);
+                Result = (FloatVariable)c.Args[0];
+                scaleFactor = (float)c.Args[1];
+                addends = (FloatVariable[])c.Args[2];
+                foreach (var a in addends)
+                    a.AddFunctionalConstraint(this);
+            Result.PickLast = true;
+                base.Initialize(p);
         }
 
         public override bool Propagate(FloatVariable changed, bool isUpper, Queue<Tuple<FloatVariable, bool>> q)

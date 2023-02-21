@@ -84,6 +84,20 @@ namespace CatSAT
         /// <param name="name">Name of the predicate being called</param>
         /// <param name="arg1">Argument of the predicate</param>
         /// <param name="arg2">Argument of the predicate</param>
+        public static Call FromArgs(Problem p, string name, object arg1, int arg2)
+        {
+            ArgBuffer2[0] = arg1;
+            ArgBuffer2[1] = arg2;
+            return FromArgArray(p, name, ArgBuffer2);
+        }
+
+        /// <summary>
+        /// Find the (unique) Call object with the specified name and args in the specified problem.
+        /// </summary>
+        /// <param name="p">Problem to get the call for</param>
+        /// <param name="name">Name of the predicate being called</param>
+        /// <param name="arg1">Argument of the predicate</param>
+        /// <param name="arg2">Argument of the predicate</param>
         /// <param name="arg3">Argument of the predicate</param>
         public static Call FromArgs(Problem p, string name, object arg1, object arg2, object arg3)
         {

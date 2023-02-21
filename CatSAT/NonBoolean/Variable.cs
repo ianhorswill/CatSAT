@@ -42,6 +42,7 @@ namespace CatSAT
         /// Problem to which this variable is attached
         /// </summary>
         public readonly Problem Problem;
+
         /// <summary>
         /// Condition under which this variable is defined.
         /// If true or if Condition is null, the variable must have a value.
