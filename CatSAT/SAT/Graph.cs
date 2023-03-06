@@ -6,6 +6,7 @@ namespace CatSAT
     /// <summary>
     /// The representation of a graph.
     /// </summary>
+    /// <typeparam name="T">The type of the vertices. Most likely will be int.</typeparam>
     public class Graph<T>
     {
         /// <summary>
@@ -46,7 +47,65 @@ namespace CatSAT
         /// Returns the vertex at the given index.
         /// </summary>
         /// <param name="index">The specified index.</param>
-        /// <returns></returns>
+        /// <returns>The vertex at the specified index.</returns>
         public T IndexToVertex(int index) => Vertices[index];
+    }
+    
+    // todo: expand to type UnionFind<T>
+    /// <summary>
+    /// The Union-Find data structure. Currently only works for integer-valued vertices.
+    /// </summary>
+    public class UnionFind
+    {
+        /// <summary>
+        /// The graph corresponding to this union-find data structure.
+        /// </summary>
+        public Graph<int> Graph;
+        
+        /// <summary>
+        /// The list of representatives, indexed by the vertex.
+        /// </summary>
+        private int[] representatives;
+        
+        // todo: change <int> to <T>
+        /// <summary>
+        /// The union-find constructor.
+        /// </summary>
+        /// <param name="graph">The graph corresponding to this union-find data structure.</param>
+        public UnionFind(Graph<int> graph)
+        {
+            Graph = graph;
+            representatives = new int[graph.Vertices.Length];
+            graph.Vertices.CopyTo(representatives, 0);
+        }
+        
+        /// <summary>
+        /// Merges two vertices to have the same representative. Vertex n merges into vertex m.
+        /// </summary>
+        /// <param name="n">The vertex to be merged with m.</param>
+        /// <param name="m">The vertex with the representative that will become the representative for n.</param>
+        public void Union(int n, int m)
+        {
+            representatives[n] = m;
+        }
+        
+        /// <summary>
+        /// Recursively finds the representative of the specified vertex.
+        /// </summary>
+        /// <param name="n">The vertex for which we return the representative.</param>
+        /// <returns></returns>
+        public int Find(int n)
+        {
+            if (representatives[n] == n) return n;
+            return Find(representatives[n]);
+        }
+        
+        /// <summary>
+        /// Returns whether two vertices are in the same equivalence class.
+        /// </summary>
+        /// <param name="n">The first vertex.</param>
+        /// <param name="m">The second vertex.</param>
+        /// <returns>True if the vertices are in the same equivalence class, false otherwise.</returns>
+        public bool SameClass(int n, int m) => Find(n) == Find(m);
     }
 }
