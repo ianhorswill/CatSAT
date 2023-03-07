@@ -4,6 +4,64 @@ using static CatSAT.Language;
 namespace CatSAT
 {
     /// <summary>
+    /// The representation of a vertex in a graph.
+    /// </summary>
+    /// <typeparam name="T">The type of the vertex. Most likely will be int.</typeparam>
+    public class Vertex<T>
+    {
+        /// <summary>
+        /// The value stored in this vertex. Most likely will be int.
+        /// </summary>
+        public T Value;
+        
+        /// <summary>
+        /// The representative of this vertex. This is used for the union-find algorithm.
+        /// </summary>
+        public Vertex<T> Representative;
+
+        /// <summary>
+        /// The rank of this vertex. This is used for the union-find algorithm.
+        /// </summary>
+        public int Rank;
+        
+        /// <summary>
+        /// The vertex constructor without a specified representative.
+        /// </summary>
+        /// <param name="value">The value of the vertex.</param>
+        public Vertex(T value)
+        {
+            Value = value;
+            Representative = this;
+            Rank = 0;
+        }
+
+        /// <summary>
+        /// The vertex constructor with a specified representative.
+        /// </summary>
+        /// <param name="value">The value of the vertex.</param>
+        /// <param name="representative">The vertex's representative.</param>
+        public Vertex(T value, Vertex<T> representative)
+        {
+            Value = value;
+            Representative = representative;
+            Rank = 0;
+        }
+        
+        /// <summary>
+        /// The vertex constructor with a specified representative and rank.
+        /// </summary>
+        /// <param name="value">The value of the vertex.</param>
+        /// <param name="representative">The vertex's representative.</param>
+        /// <param name="rank">The rank (height) of the vertex in the tree.</param>
+        public Vertex(T value, Vertex<T> representative, int rank)
+        {
+            Value = value;
+            Representative = representative;
+            Rank = rank;
+        }
+    }
+    
+    /// <summary>
     /// The representation of a graph.
     /// </summary>
     /// <typeparam name="T">The type of the vertices. Most likely will be int.</typeparam>
@@ -12,7 +70,7 @@ namespace CatSAT
         /// <summary>
         /// The list of vertices in this graph.
         /// </summary>
-        public T[] Vertices;
+        public Vertex<T>[] Vertices;
 
         /// <summary>
         /// The function that returns the proposition that the edge between two vertices exists. The integers are
@@ -24,7 +82,7 @@ namespace CatSAT
         /// The graph constructor.
         /// </summary>
         /// <param name="vertices">The list of vertices for this graph.</param>
-        public Graph(T[] vertices)
+        public Graph(Vertex<T>[] vertices)
         {
             Vertices = vertices;
         }
@@ -35,7 +93,7 @@ namespace CatSAT
         /// <param name="vertex">The vertex.</param>
         /// <returns>The index of the vertex.</returns>
         /// <exception cref="ArgumentException">Throws an exception if the vertex is not found in the graph.</exception>
-        public int VertexToIndex(T vertex)
+        public int VertexToIndex(Vertex<T> vertex)
         {
             int index = Array.IndexOf(Vertices, vertex);
             if (index == -1)
@@ -48,7 +106,7 @@ namespace CatSAT
         /// </summary>
         /// <param name="index">The specified index.</param>
         /// <returns>The vertex at the specified index.</returns>
-        public T IndexToVertex(int index) => Vertices[index];
+        public Vertex<T> IndexToVertex(int index) => Vertices[index];
     }
     
     // todo: expand to type UnionFind<T>
@@ -61,12 +119,7 @@ namespace CatSAT
         /// The graph corresponding to this union-find data structure.
         /// </summary>
         public Graph<int> Graph;
-        
-        /// <summary>
-        /// The list of representatives, indexed by the vertex.
-        /// </summary>
-        private int[] representatives;
-        
+
         // todo: change <int> to <T>
         /// <summary>
         /// The union-find constructor.
@@ -75,29 +128,44 @@ namespace CatSAT
         public UnionFind(Graph<int> graph)
         {
             Graph = graph;
-            representatives = new int[graph.Vertices.Length];
-            graph.Vertices.CopyTo(representatives, 0);
         }
         
         /// <summary>
-        /// Merges two vertices to have the same representative. Vertex n merges into vertex m.
+        /// Merges two vertices to have the same representative. Vertex n merges into vertex m. Uses union by rank.
         /// </summary>
         /// <param name="n">The vertex to be merged with m.</param>
         /// <param name="m">The vertex with the representative that will become the representative for n.</param>
-        public void Union(int n, int m)
+        public void Union(Vertex<int> n, Vertex<int> m)
         {
-            representatives[n] = m;
+            Vertex<int> nRepresentative = Find(n);
+            Vertex<int> mRepresentative = Find(m);
+            
+            if (nRepresentative == mRepresentative) return;
+
+            if (nRepresentative.Rank < mRepresentative.Rank)
+            {
+                nRepresentative.Representative = mRepresentative;
+            }
+            else if (nRepresentative.Rank > mRepresentative.Rank)
+            {
+                mRepresentative.Representative = nRepresentative;
+            }
+            else
+            {
+                mRepresentative.Representative = nRepresentative;
+                nRepresentative.Rank++;
+            }
         }
         
         /// <summary>
-        /// Recursively finds the representative of the specified vertex.
+        /// Finds the representative of the specified vertex. Uses path compression.
         /// </summary>
         /// <param name="n">The vertex for which we return the representative.</param>
-        /// <returns></returns>
-        public int Find(int n)
+        /// <returns>The vertex's representative.</returns>
+        public Vertex<int> Find(Vertex<int> n)
         {
-            if (representatives[n] == n) return n;
-            return Find(representatives[n]);
+            if (n.Representative == n) return n;
+            return Find(n.Representative);
         }
         
         /// <summary>
@@ -106,6 +174,6 @@ namespace CatSAT
         /// <param name="n">The first vertex.</param>
         /// <param name="m">The second vertex.</param>
         /// <returns>True if the vertices are in the same equivalence class, false otherwise.</returns>
-        public bool SameClass(int n, int m) => Find(n) == Find(m);
+        public bool SameClass(Vertex<int> n, Vertex<int> m) => Find(n) == Find(m);
     }
 }
