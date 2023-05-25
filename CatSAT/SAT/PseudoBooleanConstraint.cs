@@ -184,6 +184,16 @@ namespace CatSAT
             return trueLiterals == MaxDisjunctsPlusOne - 1;
         }
 
+        public override void UpdateCustomConstraint(BooleanSolver b, ushort pIndex, bool newValue)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int CustomFlipRisk(ushort index, bool newValue)
+        {
+            throw new NotImplementedException();
+        }
+
         internal override void Decompile(Problem p, StringBuilder b)
         {
             if (MinDisjunctsMinusOne != 0 || MaxDisjunctsPlusOne < Disjuncts.Length + 1)

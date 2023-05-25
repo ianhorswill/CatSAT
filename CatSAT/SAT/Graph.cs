@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using static CatSAT.Language;
 
-namespace CatSAT
+namespace CatSAT.SAT
 {
     /// <summary>
     /// The representation of a graph.
@@ -19,7 +20,7 @@ namespace CatSAT
         /// The function that returns the proposition that the edge between two vertices exists. The integers are
         /// the indices of the vertices in the Vertices array.
         /// </summary>
-        public Func<int, int, Proposition> Edges;
+        public Func<int, int, EdgeProposition> Edges;
         
         // edge -> sat variable -> proposition -> truth assignment -> true if (a, b) edge is in graph, false otherwise
         // need to be able to answer "is it safe to flip sat variable x? need something to map sat variable to whether
@@ -28,9 +29,9 @@ namespace CatSAT
         // need to use special proposition, where you add node numbers of the edge, maybe..? maybe not
 
         /// <summary>
-        /// The table that maps a SAT variable index (ushort) to the edge of the form (n, m).
+        /// The table that maps a SAT variable index (ushort) to the edge proposition.
         /// </summary>
-        public Hashtable SATVariableToEdge = new Hashtable();
+        public Dictionary<ushort, EdgeProposition> SATVariableToEdge = new Dictionary<ushort, EdgeProposition>();
 
         /// <summary>
         /// The current union-find partition of the graph.
@@ -48,23 +49,38 @@ namespace CatSAT
         public HashSet<ushort> SpanningTree = new HashSet<ushort>();
 
         /// <summary>
+        /// The BooleanSolver for the problem corresponding to this graph.
+        /// </summary>
+        private BooleanSolver solver;
+
+        /// <summary>
         /// The graph constructor.
         /// </summary>
         /// <param name="problem">The problem corresponding to the graph.</param>
         /// <param name="numVertices">The number of vertices in the graph.</param>
         public Graph(Problem problem, int numVertices)
         {
+            solver = problem.BooleanSolver;
             Vertices = new int[numVertices];
             for (int i = 0; i < numVertices; i++)
                 Vertices[i] = i;
             Partition = new UnionFind(numVertices);
-            Edges = SymmetricPredicate<int>("Edges");
-            foreach (SATVariable satVariable in problem.SATVariables)
+            Edges = SymmetricPredicateOfType<int, EdgeProposition>("Edges");
+            for (var i = 0; i < numVertices; i++)
             {
-                // todo: change the value to the (n, m) edge instead of just the proposition
-                SATVariableToEdge.Add(satVariable.Proposition.Index, satVariable.Proposition);
+                for (var j = 0; j < i; j++)
+                {
+                    var edgeProposition = Edges(i, j);
+                    SATVariableToEdge.Add(edgeProposition.Index, edgeProposition);
+                }
             }
+            
         }
+        
+        /// <summary>
+        /// The list of the shorts corresponding to the SAT variables of the edges in the graph.
+        /// </summary>
+        public short[] EdgeVariables => SATVariableToEdge.Select(pair => (short)pair.Key).ToArray();
 
         /// <summary>
         /// Returns the index of the given vertex. Returns -1 if the vertex is not in the graph.
@@ -109,15 +125,7 @@ namespace CatSAT
             Partition.Union(nRepresentative, mRepresentative);
             SpanningTree.Add(Edges(n, m).Index);
         }
-        
-        // void Disconnect(T a, T b) {
-        // check if (a, b) is in the spanning tree, if not, return
-        // else rebuild the spanning tree without (a, b)
-        // clear spanning tree
-        // reinitialize partition
-        // go through all edges that are true, call connect on them
-        // }
-        
+
         /// <summary>
         /// Removes the edge (n, m) from the spanning tree, if it is present there.
         /// </summary>
@@ -126,13 +134,23 @@ namespace CatSAT
         public void Disconnect(int n, int m)
         {
             if (!SpanningTree.Contains(Edges(n, m).Index)) return;
-            
-            foreach (ushort satVariable in SpanningTree)
-            {
-                // todo: what
-            }
             SpanningTree.Clear();
-            Partition = new UnionFind(Vertices.Length);
+            Partition.Clear();
+            RebuildSpanningTree();
+        }
+
+        // todo: make this public?
+        /// <summary>
+        /// Rebuilds the spanning tree with the current edge propositions which are true. Called after removing an edge.
+        /// </summary>
+        private void RebuildSpanningTree()
+        {
+            // todo: down the road, keep a list/hashset of all the edges that are true, and only iterate over those
+            foreach (var edgeProposition in SATVariableToEdge.Values.Where(edgeProposition =>
+                         solver.Propositions[edgeProposition.Index]))
+            {
+                Connect(edgeProposition.SourceVertex, edgeProposition.DestinationVertex);
+            }
         }
     }
     
@@ -142,23 +160,29 @@ namespace CatSAT
     public class UnionFind
     {
         /// <summary>
+        /// 
+        /// </summary>
+        public int ConnectedComponentCount;
+        
+        /// <summary>
         /// The number of vertices in this union-find data structure.
         /// </summary>
-        public int VerticesCount;
-        
+        private int VerticesCount;
+
         /// <summary>
         /// The list of representatives and ranks for this union-find data structure, indexed by vertex number.
         /// </summary>
-        public (int, int)[] RepresentativesAndRanks;
+        private (int representative, int rank)[] RepresentativesAndRanks;
 
         /// <summary>
         /// The union-find constructor.
         /// </summary>
-        /// <param name="num">The number of vertices.</param>
-        public UnionFind(int num)
+        /// <param name="count">The number of vertices.</param>
+        public UnionFind(int count)
         {
-            VerticesCount = num;
-            RepresentativesAndRanks = new (int, int)[num];
+            ConnectedComponentCount = count;
+            VerticesCount = count;
+            RepresentativesAndRanks = new (int representative, int rank)[VerticesCount];
         }
 
         /// <summary>
@@ -166,8 +190,9 @@ namespace CatSAT
         /// </summary>
         /// <param name="num">The number of vertices.</param>
         /// <param name="tuples">The list of representatives and ranks for the specified vertices.</param>
-        public UnionFind(int num, (int, int)[] tuples)
+        public UnionFind(int num, (int representative, int rank)[] tuples)
         {
+            ConnectedComponentCount = num;
             VerticesCount = num;
             RepresentativesAndRanks = tuples;
         }
@@ -184,19 +209,21 @@ namespace CatSAT
             
             if (nRepresentative == mRepresentative) return;
 
-            if (RepresentativesAndRanks[nRepresentative].Item2 < RepresentativesAndRanks[mRepresentative].Item2)
+            if (RepresentativesAndRanks[nRepresentative].rank < RepresentativesAndRanks[mRepresentative].rank)
             {
-                RepresentativesAndRanks[nRepresentative].Item1 = mRepresentative;
+                RepresentativesAndRanks[nRepresentative].representative = mRepresentative;
             }
-            else if (RepresentativesAndRanks[nRepresentative].Item2 > RepresentativesAndRanks[mRepresentative].Item2)
+            else if (RepresentativesAndRanks[nRepresentative].rank > RepresentativesAndRanks[mRepresentative].rank)
             {
-                RepresentativesAndRanks[mRepresentative].Item1 = nRepresentative;
+                RepresentativesAndRanks[mRepresentative].representative = nRepresentative;
             }
             else
             {
-                RepresentativesAndRanks[mRepresentative].Item1 = nRepresentative;
-                RepresentativesAndRanks[nRepresentative].Item2++;
+                RepresentativesAndRanks[mRepresentative].representative = nRepresentative;
+                RepresentativesAndRanks[nRepresentative].rank++;
             }
+            
+            ConnectedComponentCount--;
         }
         
         /// <summary>
@@ -206,7 +233,7 @@ namespace CatSAT
         /// <returns>The vertex's representative.</returns>
         public int Find(int n)
         {
-            return RepresentativesAndRanks[n].Item1 == n ? n : Find(RepresentativesAndRanks[n].Item1);
+            return RepresentativesAndRanks[n].representative == n ? n : Find(RepresentativesAndRanks[n].representative);
         }
         
         /// <summary>
@@ -216,6 +243,19 @@ namespace CatSAT
         /// <param name="m">The second vertex.</param>
         /// <returns>True if the vertices are in the same equivalence class, false otherwise.</returns>
         public bool SameClass(int n, int m) => Find(n) == Find(m);
+
+        /// <summary>
+        /// Resets the union-find data structure. All nodes become their own representatives and all ranks become 0.
+        /// </summary>
+        public void Clear()
+        {
+            for (int i = 0; i < RepresentativesAndRanks.Length; i++)
+            {
+                RepresentativesAndRanks[i] = (i, 0);
+            }
+
+            ConnectedComponentCount = VerticesCount;
+        }
         
         // todo: for directed graphs, keep track of in and out degrees of vertices
         // this is used to ensure a path between two nodes in the graph

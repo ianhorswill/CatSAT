@@ -39,8 +39,6 @@ namespace CatSAT
     internal class Clause : Constraint
 #pragma warning restore 660,661
     {
-
-
         /// <summary>
         /// Make a new normal clause (but doesn't add it to a Program)
         /// </summary>
@@ -128,6 +126,16 @@ namespace CatSAT
         public override bool MaxTrueLiterals(int trueLiterals)
         {
             return trueLiterals == Disjuncts.Length;
+        }
+
+        public override void UpdateCustomConstraint(BooleanSolver booleanSolver, ushort pIndex, bool newValue)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int CustomFlipRisk(ushort index, bool newValue)
+        {
+            throw new NotImplementedException();
         }
 
         internal override void Decompile(Problem p, StringBuilder b)

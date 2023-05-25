@@ -110,8 +110,6 @@ namespace CatSAT
         /// <returns>Whether the constraint is satisfied.</returns>
         public abstract bool IsSatisfied(ushort satisfiedDisjuncts);
 
-        
-
         /// <summary>
         /// ThreatCountDelta when current clause is getting one more true disjunct.
         /// </summary>
@@ -226,5 +224,22 @@ namespace CatSAT
         /// Return the max number of true literals in a constraint.
         /// </summary>
         public abstract bool MaxTrueLiterals(int trueLiterals);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="b"></param>
+        /// <param name="pIndex"></param>
+        /// <param name="newValue"></param>
+        public abstract void UpdateCustomConstraint(BooleanSolver b, ushort pIndex, bool newValue);
+        
+        /// <summary>
+        /// Returns the risk/cost associated with flipping the specified SAT variable index to the new specified value.
+        /// </summary>
+        /// <param name="index">The index corresponding to the SAT variable.</param>
+        /// <param name="newValue">The new value of the proposition being flipped.</param>
+        /// <returns>An integer, either negative, positive, or zero. Zero corresponds to no risk nor reward. Negative
+        /// corresponds to favorable, and positive corresponds to unfavorable.</returns>
+        public abstract int CustomFlipRisk(ushort index, bool newValue);
     }
 }

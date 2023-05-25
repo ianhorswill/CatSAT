@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using CatSAT.SAT;
 
 namespace CatSAT
 {
@@ -274,7 +275,11 @@ namespace CatSAT
                 threatCount += clause.ThreatCountDeltaDecreasing(count);
             }
 
-
+            foreach (var cIndex in prop.CustomConstraints)
+            {
+                var constraint = Problem.Constraints[cIndex];
+                threatCount += constraint.CustomFlipRisk(pIndex, Propositions[pIndex]);
+            }
 
             //if (propositions[pIndex])
             //{
@@ -366,6 +371,12 @@ namespace CatSAT
                         var clause = Problem.Constraints[cIndex];
                         clause.UpdateTrueNegativeAndFalsePositive(this);
                     }
+
+                    foreach (ushort cIndex in prop.CustomConstraints)
+                    {
+                        var constraint = Problem.Constraints[cIndex];
+                        constraint.UpdateCustomConstraint(this, pIndex, false);
+                    }
                 }
                 else
                 {
@@ -389,6 +400,12 @@ namespace CatSAT
                         // We just made it true, so clause now has fewer satisfied disjuncts.
                         var clause = Problem.Constraints[cIndex];
                         clause.UpdateTruePositiveAndFalseNegative(this);
+                    }
+                    
+                    foreach (ushort cIndex in prop.CustomConstraints)
+                    {
+                        var constraint = Problem.Constraints[cIndex];
+                        constraint.UpdateCustomConstraint(this, pIndex, true);
                     }
                 }
                 if (prop.SpecialConstraints != null)

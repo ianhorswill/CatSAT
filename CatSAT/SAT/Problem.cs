@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using CatSAT.SAT;
 using static CatSAT.Language;
 
 namespace CatSAT
@@ -520,7 +521,9 @@ namespace CatSAT
             var clauseIndex = (ushort) (Constraints.Count - 1);
             foreach (var lit in constraint.Disjuncts)
             {
-                if (lit > 0)
+                if (Constraints[Math.Abs(lit)] is CustomConstraint) 
+                    SATVariables[Math.Abs(lit)].CustomConstraints.Add(clauseIndex);
+                else if (lit > 0)
                     SATVariables[lit].PositiveClauses.Add(clauseIndex);
                 else
                     SATVariables[-lit].NegativeClauses.Add(clauseIndex);
