@@ -42,9 +42,9 @@ namespace Tests
         public void GraphConnectedTest()
         {
             var p = new Problem();
-            var graph = new Graph(p, 1);
+            var graph = new Graph(p, 20);
             p.Constraints.Add(new GraphConstraint(graph));
-            p.Solve();
+            graph.WriteDot(p.Solve(), "test.dot");
         }
     }
 }

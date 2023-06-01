@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using static CatSAT.Language;
 
@@ -71,6 +71,7 @@ namespace CatSAT.SAT
                 for (var j = 0; j < i; j++)
                 {
                     var edgeProposition = Edges(i, j);
+                    edgeProposition.InitialProbability = 0;
                     SATVariableToEdge.Add(edgeProposition.Index, edgeProposition);
                 }
             }
@@ -150,6 +151,25 @@ namespace CatSAT.SAT
                          solver.Propositions[edgeProposition.Index]))
             {
                 Connect(edgeProposition.SourceVertex, edgeProposition.DestinationVertex);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="solution"></param>
+        /// <param name="path"></param>
+        public void WriteDot(Solution solution, string path)
+        {
+            using var file = File.CreateText(path);
+            {
+                file.WriteLine("graph G {");
+                file.WriteLine("   layout = fdp;");
+                foreach (var vertex in Vertices)
+                    file.WriteLine($"   {vertex};");
+                foreach (var edge in SATVariableToEdge.Select(pair => pair.Value).Where(edge => solution[edge]))
+                    file.WriteLine($"   {edge.SourceVertex} -- {edge.DestinationVertex};");
+                file.WriteLine("}");
             }
         }
     }
@@ -256,7 +276,7 @@ namespace CatSAT.SAT
 
             ConnectedComponentCount = VerticesCount;
         }
-        
+
         // todo: for directed graphs, keep track of in and out degrees of vertices
         // this is used to ensure a path between two nodes in the graph
         // source has out degree 1, in degree 0; destination has in degree 1, out degree 0
