@@ -521,9 +521,7 @@ namespace CatSAT
             var clauseIndex = (ushort) (Constraints.Count - 1);
             foreach (var lit in constraint.Disjuncts)
             {
-                if (Constraints[Math.Abs(lit)] is CustomConstraint) 
-                    SATVariables[Math.Abs(lit)].CustomConstraints.Add(clauseIndex);
-                else if (lit > 0)
+                if (lit > 0)
                     SATVariables[lit].PositiveClauses.Add(clauseIndex);
                 else
                     SATVariables[-lit].NegativeClauses.Add(clauseIndex);
@@ -535,6 +533,16 @@ namespace CatSAT
                 sv.AddSpecialHandlingConstraint(constraint);
                 SATVariables[v] = sv;
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="constraint"></param>
+        public void AddCustomConstraint(CustomConstraint constraint)
+        {
+            constraint.Index = (ushort)Constraints.Count;
+            Constraints.Add(constraint);
         }
         
         /// <summary>

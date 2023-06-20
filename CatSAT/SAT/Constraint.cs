@@ -7,7 +7,7 @@ using System.Text;
 namespace CatSAT
 {
     [DebuggerDisplay("{" + nameof(DebugName) + "}")]
-    internal abstract class Constraint
+    public abstract class Constraint
     {
         internal virtual string DebugName
         {

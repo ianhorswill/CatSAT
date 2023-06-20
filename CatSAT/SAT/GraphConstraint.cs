@@ -4,7 +4,7 @@ using System.Text;
 namespace CatSAT.SAT
 {
     /// <summary>
-    /// A class that assesses the risk associated with adding/removing edges
+    /// A class that represents a constraint on the graph. For now, the constraint is that the graph must be connected.
     /// </summary>
     internal class GraphConstraint : CustomConstraint
     {
@@ -35,6 +35,10 @@ namespace CatSAT.SAT
         public GraphConstraint(Graph graph) : base(false, 0, graph.EdgeVariables, 1) // todo: figure this out later
         {
             Graph = graph;
+            foreach (var edge in graph.SATVariableToEdge.Values)
+            {
+                graph.Problem.SATVariables[edge.Index].CustomConstraints.Add(this);
+            }
         }
 
         /// <inheritdoc />
@@ -93,7 +97,10 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         public override bool IsSatisfied(ushort satisfiedDisjuncts)
         {
-            throw new System.NotImplementedException();
+            // if (Graph.Partition.ConnectedComponentCount == 1) return true; // todo: is this right?
+            Graph.RebuildSpanningTree();
+            return Graph.Partition.ConnectedComponentCount == 1;
+            // todo: check that this is returning true
         }
 
         /// <inheritdoc />

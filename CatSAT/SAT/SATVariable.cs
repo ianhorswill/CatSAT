@@ -24,6 +24,7 @@
 #endregion
 using System.Collections.Generic;
 using System.Diagnostics;
+using CatSAT.SAT;
 
 namespace CatSAT
 {
@@ -44,7 +45,7 @@ namespace CatSAT
             Proposition = proposition;
             PositiveClauses = new List<ushort>();
             NegativeClauses = new List<ushort>();
-            CustomConstraints = new List<ushort>();
+            CustomConstraints = new List<CustomConstraint>();
             PredeterminedValue = false;
             DeterminationStatus = DeterminationState.Floating;
             SpecialConstraints = null;
@@ -75,7 +76,7 @@ namespace CatSAT
         /// <summary>
         /// Constraints that need special handling to determine the cost of flipping them.
         /// </summary>
-        public readonly List<ushort> CustomConstraints;
+        public readonly List<CustomConstraint> CustomConstraints;
 
         /// <summary>
         /// Constraints that need special handling during a flip of this proposition

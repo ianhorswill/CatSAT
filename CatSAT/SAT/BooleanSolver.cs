@@ -275,9 +275,8 @@ namespace CatSAT
                 threatCount += clause.ThreatCountDeltaDecreasing(count);
             }
 
-            foreach (var cIndex in prop.CustomConstraints)
+            foreach (var constraint in prop.CustomConstraints)
             {
-                var constraint = Problem.Constraints[cIndex];
                 threatCount += constraint.CustomFlipRisk(pIndex, Propositions[pIndex]);
             }
 
@@ -372,9 +371,8 @@ namespace CatSAT
                         clause.UpdateTrueNegativeAndFalsePositive(this);
                     }
 
-                    foreach (ushort cIndex in prop.CustomConstraints)
+                    foreach (var constraint in prop.CustomConstraints)
                     {
-                        var constraint = Problem.Constraints[cIndex];
                         constraint.UpdateCustomConstraint(this, pIndex, false);
                     }
                 }
@@ -402,9 +400,8 @@ namespace CatSAT
                         clause.UpdateTruePositiveAndFalseNegative(this);
                     }
                     
-                    foreach (ushort cIndex in prop.CustomConstraints)
+                    foreach (var constraint in prop.CustomConstraints)
                     {
-                        var constraint = Problem.Constraints[cIndex];
                         constraint.UpdateCustomConstraint(this, pIndex, true);
                     }
                 }

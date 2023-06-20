@@ -21,12 +21,6 @@ namespace CatSAT.SAT
         /// the indices of the vertices in the Vertices array.
         /// </summary>
         public Func<int, int, EdgeProposition> Edges;
-        
-        // edge -> sat variable -> proposition -> truth assignment -> true if (a, b) edge is in graph, false otherwise
-        // need to be able to answer "is it safe to flip sat variable x? need something to map sat variable to whether
-        // the edges exist, and if so what they connect
-        // need a table of what all the edges are, and the sat variables for them
-        // need to use special proposition, where you add node numbers of the edge, maybe..? maybe not
 
         /// <summary>
         /// The table that maps a SAT variable index (ushort) to the edge proposition.
@@ -38,44 +32,44 @@ namespace CatSAT.SAT
         /// </summary>
         public UnionFind Partition;
         
-        // make a spanning tree to keep track of what is connected and what isn't
-        // spanning tree is a hash set of sat variable numbers (ushorts)
-        // every time two things are union'ed which weren't connected, that edge is added to the spanning tree
-        // keep track of whether an edge is part of the spanning tree
-        // always safe to add an edge, always safe to remove an edge if it isn't in the spanning tree
         /// <summary>
         /// The current spanning tree in the graph. Consists of the SAT variable numbers.
         /// </summary>
         public HashSet<ushort> SpanningTree = new HashSet<ushort>();
 
         /// <summary>
+        /// The problem corresponding to this graph.
+        /// </summary>
+        public readonly Problem Problem;
+        
+        /// <summary>
         /// The BooleanSolver for the problem corresponding to this graph.
         /// </summary>
-        private BooleanSolver solver;
+        private BooleanSolver Solver => Problem.BooleanSolver;
 
         /// <summary>
         /// The graph constructor.
         /// </summary>
-        /// <param name="problem">The problem corresponding to the graph.</param>
+        /// <param name="p">The problem corresponding to the graph.</param>
         /// <param name="numVertices">The number of vertices in the graph.</param>
-        public Graph(Problem problem, int numVertices)
+        public Graph(Problem p, int numVertices)
         {
-            solver = problem.BooleanSolver;
+            Problem = p;
             Vertices = new int[numVertices];
             for (int i = 0; i < numVertices; i++)
                 Vertices[i] = i;
             Partition = new UnionFind(numVertices);
             Edges = SymmetricPredicateOfType<int, EdgeProposition>("Edges");
-            for (var i = 0; i < numVertices; i++)
+            for (int i = 0; i < numVertices; i++)
             {
-                for (var j = 0; j < i; j++)
+                for (int j = 0; j < i; j++)
                 {
-                    var edgeProposition = Edges(i, j);
-                    edgeProposition.InitialProbability = 0;
+                    EdgeProposition edgeProposition = Edges(i, j);
+                    edgeProposition.InitialProbability = 0; // todo: remove this later
                     SATVariableToEdge.Add(edgeProposition.Index, edgeProposition);
+                    
                 }
             }
-            
         }
         
         /// <summary>
@@ -136,29 +130,28 @@ namespace CatSAT.SAT
         {
             if (!SpanningTree.Contains(Edges(n, m).Index)) return;
             SpanningTree.Clear();
-            Partition.Clear();
             RebuildSpanningTree();
         }
-
-        // todo: make this public?
+        
         /// <summary>
         /// Rebuilds the spanning tree with the current edge propositions which are true. Called after removing an edge.
         /// </summary>
-        private void RebuildSpanningTree()
+        public void RebuildSpanningTree()
         {
+            Partition.Clear();
             // todo: down the road, keep a list/hashset of all the edges that are true, and only iterate over those
-            foreach (var edgeProposition in SATVariableToEdge.Values.Where(edgeProposition =>
-                         solver.Propositions[edgeProposition.Index]))
+            foreach (EdgeProposition edgeProposition in SATVariableToEdge.Values.Where(edgeProposition =>
+                         Solver.Propositions[edgeProposition.Index]))
             {
                 Connect(edgeProposition.SourceVertex, edgeProposition.DestinationVertex);
             }
         }
 
         /// <summary>
-        /// 
+        /// Writes the Dot file to visualize the graph.
         /// </summary>
-        /// <param name="solution"></param>
-        /// <param name="path"></param>
+        /// <param name="solution">The graph's solution.</param>
+        /// <param name="path">The file path for the outputted Dot file.</param>
         public void WriteDot(Solution solution, string path)
         {
             using var file = File.CreateText(path);
@@ -168,10 +161,18 @@ namespace CatSAT.SAT
                 foreach (var vertex in Vertices)
                     file.WriteLine($"   {vertex};");
                 foreach (var edge in SATVariableToEdge.Select(pair => pair.Value).Where(edge => solution[edge]))
-                    file.WriteLine($"   {edge.SourceVertex} -- {edge.DestinationVertex};");
+                    file.WriteLine(
+                        $"   {edge.SourceVertex} -- {edge.DestinationVertex} [color={EdgeColor(edge.Index)}];");
                 file.WriteLine("}");
             }
         }
+
+        /// <summary>
+        /// Sets the color of the edge ot be red if it is in the spanning tree, blue otherwise.
+        /// </summary>
+        /// <param name="index">The index corresponding to the edge.</param>
+        /// <returns>The color of the edge as a string.</returns>
+        private string EdgeColor(ushort index) => SpanningTree.Contains(index) ? "red" : "blue";
     }
     
     /// <summary>
@@ -180,19 +181,19 @@ namespace CatSAT.SAT
     public class UnionFind
     {
         /// <summary>
-        /// 
+        /// The number of connected components in this partition.
         /// </summary>
         public int ConnectedComponentCount;
         
         /// <summary>
         /// The number of vertices in this union-find data structure.
         /// </summary>
-        private int VerticesCount;
+        private readonly int verticesCount;
 
         /// <summary>
         /// The list of representatives and ranks for this union-find data structure, indexed by vertex number.
         /// </summary>
-        private (int representative, int rank)[] RepresentativesAndRanks;
+        private readonly (int representative, int rank)[] representativesAndRanks;
 
         /// <summary>
         /// The union-find constructor.
@@ -201,22 +202,15 @@ namespace CatSAT.SAT
         public UnionFind(int count)
         {
             ConnectedComponentCount = count;
-            VerticesCount = count;
-            RepresentativesAndRanks = new (int representative, int rank)[VerticesCount];
+            verticesCount = count;
+            representativesAndRanks = new (int representative, int rank)[verticesCount];
+            for (int i = 0; i < verticesCount; i++)
+            {
+                representativesAndRanks[i].representative = i;
+                representativesAndRanks[i].rank = 0;
+            }
         }
 
-        /// <summary>
-        /// The union-find constructor with preset representatives and ranks.
-        /// </summary>
-        /// <param name="num">The number of vertices.</param>
-        /// <param name="tuples">The list of representatives and ranks for the specified vertices.</param>
-        public UnionFind(int num, (int representative, int rank)[] tuples)
-        {
-            ConnectedComponentCount = num;
-            VerticesCount = num;
-            RepresentativesAndRanks = tuples;
-        }
-        
         /// <summary>
         /// Merges two vertices to have the same representative. Vertex n merges into vertex m. Uses union by rank.
         /// </summary>
@@ -229,18 +223,18 @@ namespace CatSAT.SAT
             
             if (nRepresentative == mRepresentative) return;
 
-            if (RepresentativesAndRanks[nRepresentative].rank < RepresentativesAndRanks[mRepresentative].rank)
+            if (representativesAndRanks[nRepresentative].rank < representativesAndRanks[mRepresentative].rank)
             {
-                RepresentativesAndRanks[nRepresentative].representative = mRepresentative;
+                representativesAndRanks[nRepresentative].representative = mRepresentative;
             }
-            else if (RepresentativesAndRanks[nRepresentative].rank > RepresentativesAndRanks[mRepresentative].rank)
+            else if (representativesAndRanks[nRepresentative].rank > representativesAndRanks[mRepresentative].rank)
             {
-                RepresentativesAndRanks[mRepresentative].representative = nRepresentative;
+                representativesAndRanks[mRepresentative].representative = nRepresentative;
             }
             else
             {
-                RepresentativesAndRanks[mRepresentative].representative = nRepresentative;
-                RepresentativesAndRanks[nRepresentative].rank++;
+                representativesAndRanks[mRepresentative].representative = nRepresentative;
+                representativesAndRanks[nRepresentative].rank++;
             }
             
             ConnectedComponentCount--;
@@ -253,7 +247,7 @@ namespace CatSAT.SAT
         /// <returns>The vertex's representative.</returns>
         public int Find(int n)
         {
-            return RepresentativesAndRanks[n].representative == n ? n : Find(RepresentativesAndRanks[n].representative);
+            return representativesAndRanks[n].representative == n ? n : Find(representativesAndRanks[n].representative);
         }
         
         /// <summary>
@@ -269,12 +263,11 @@ namespace CatSAT.SAT
         /// </summary>
         public void Clear()
         {
-            for (int i = 0; i < RepresentativesAndRanks.Length; i++)
+            for (int i = 0; i < representativesAndRanks.Length; i++)
             {
-                RepresentativesAndRanks[i] = (i, 0);
+                representativesAndRanks[i] = (i, 0);
             }
-
-            ConnectedComponentCount = VerticesCount;
+            ConnectedComponentCount = verticesCount;
         }
 
         // todo: for directed graphs, keep track of in and out degrees of vertices

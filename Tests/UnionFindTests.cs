@@ -23,22 +23,43 @@
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 
-using CatSAT;
 using CatSAT.SAT;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Tests
 {
     [TestClass]
-    public class GraphTests
+    public class UnionFindTests
     {
         [TestMethod]
-        public void GraphConnectedTest()
+        public void OneNodeTest()
         {
-            var p = new Problem();
-            var graph = new Graph(p, 4);
-            p.AddCustomConstraint(new GraphConstraint(graph));
-            graph.WriteDot(p.Solve(), "test.dot");
+            var partition = new UnionFind(1);
+            Assert.IsTrue(partition.ConnectedComponentCount == 1);
+        }
+
+        [TestMethod]
+        public void TwoNodesTest()
+        {
+            var partition = new UnionFind(2);
+            partition.Union(0, 1);
+            Assert.IsTrue(partition.ConnectedComponentCount == 1);
+        }
+
+        [TestMethod]
+        public void TenNodesTest()
+        {
+            var partition = new UnionFind(10);
+            partition.Union(0, 1);
+            partition.Union(0, 2);
+            partition.Union(0, 3);
+            partition.Union(0, 4);
+            partition.Union(0, 5);
+            partition.Union(0, 6);
+            partition.Union(0, 7);
+            partition.Union(0, 8);
+            partition.Union(0, 9);
+            Assert.IsTrue(partition.ConnectedComponentCount == 1);
         }
     }
 }
