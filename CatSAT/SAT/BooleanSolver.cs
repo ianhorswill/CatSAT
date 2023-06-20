@@ -197,6 +197,7 @@ namespace CatSAT
                     flipChoice = targetClause.GreedyFlip(this);
                 LastFlip[targetClauseIndex] = flipChoice;
                 var oldSatisfactionCount = UnsatisfiedClauses.Size;
+                Console.WriteLine($"Flipping {flipChoice}"); // todo: remove
                 Flip(flipChoice);
                 //do NOT update noise level if it's a Pseudo Boolean Constraint (i.e. not normal)
                 if (targetClause.IsNormalDisjunction)
@@ -277,7 +278,7 @@ namespace CatSAT
 
             foreach (var constraint in prop.CustomConstraints)
             {
-                threatCount += constraint.CustomFlipRisk(pIndex, Propositions[pIndex]);
+                threatCount += constraint.CustomFlipRisk(pIndex, !Propositions[pIndex]);
             }
 
             //if (propositions[pIndex])

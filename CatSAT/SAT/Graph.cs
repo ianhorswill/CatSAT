@@ -118,7 +118,9 @@ namespace CatSAT.SAT
 
             if (nRepresentative == mRepresentative) return;
             Partition.Union(nRepresentative, mRepresentative);
+            // Partition.Union(n, m); // todo: is this correct instead of above statement?
             SpanningTree.Add(Edges(n, m).Index);
+            Console.WriteLine($"Connected {n} and {m}");
         }
 
         /// <summary>
@@ -130,6 +132,7 @@ namespace CatSAT.SAT
         {
             if (!SpanningTree.Contains(Edges(n, m).Index)) return;
             SpanningTree.Clear();
+            Console.WriteLine($"Disconnected {n} and {m}");
             RebuildSpanningTree();
         }
         
