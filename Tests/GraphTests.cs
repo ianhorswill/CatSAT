@@ -36,9 +36,14 @@ namespace Tests
         public void GraphConnectedTest()
         {
             var p = new Problem();
-            var graph = new Graph(p, 4);
-            p.AddCustomConstraint(new GraphConstraint(graph));
+            var graph = new Graph(p, 10);
+            // todo: write check that spanning tree is actually a spanning tree
+            p.AddCustomConstraint(new GraphConnectedConstraint(graph));
             graph.WriteDot(p.Solve(), "test.dot");
         }
+        
+        // todo: make an imaginarium-like test
+        
+        // eventually: generate connected graph that has x number of edges
     }
 }

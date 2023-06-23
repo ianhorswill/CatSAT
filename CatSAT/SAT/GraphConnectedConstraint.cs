@@ -3,10 +3,11 @@ using System.Text;
 
 namespace CatSAT.SAT
 {
+    // todo: look into making it so that edges not in spanning tree (blue ones) wouldn't get considered by greedy flip
     /// <summary>
     /// A class that represents a constraint on the graph. For now, the constraint is that the graph must be connected.
     /// </summary>
-    internal class GraphConstraint : CustomConstraint
+    internal class GraphConnectedConstraint : CustomConstraint
     {
         /// <summary>
         /// The graph corresponding to this constraint.
@@ -29,10 +30,10 @@ namespace CatSAT.SAT
         private const int EdgeAdditionRisk = -1;
 
         /// <summary>
-        /// The GraphConstraint constructor.
+        /// The GraphConnectedConstraint constructor.
         /// </summary>
         /// <param name="graph">The graph corresponding to this constraint.</param>
-        public GraphConstraint(Graph graph) : base(false, 0, graph.EdgeVariables, 1) // todo: figure this out later
+        public GraphConnectedConstraint(Graph graph) : base(false, (ushort)short.MaxValue, graph.EdgeVariables, 1) // todo: figure this out later
         {
             Graph = graph;
             foreach (var edge in graph.SATVariableToEdge.Values)
@@ -90,7 +91,7 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         internal override void Decompile(Problem p, StringBuilder b)
         {
-            b.Append("GraphConstraint");
+            b.Append("GraphConnectedConstraint");
         }
         
         #region Counting methods
