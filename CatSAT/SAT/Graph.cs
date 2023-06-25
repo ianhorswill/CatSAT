@@ -171,11 +171,27 @@ namespace CatSAT.SAT
         }
 
         /// <summary>
-        /// Sets the color of the edge ot be red if it is in the spanning tree, blue otherwise.
+        /// Sets the color of the edge ot be green if it is in the spanning tree, red otherwise.
         /// </summary>
         /// <param name="index">The index corresponding to the edge.</param>
         /// <returns>The color of the edge as a string.</returns>
-        private string EdgeColor(ushort index) => SpanningTree.Contains(index) ? "red" : "blue";
+        private string EdgeColor(ushort index) => SpanningTree.Contains(index) ? "green" : "red";
+
+        /// <summary>
+        /// Determines whether the spanning tree has been correctly constructed.
+        /// </summary>
+        /// <returns>True if the spanning tree contains all the vertices in the graph, false otherwise.</returns>
+        public bool IsSpanningTree()
+        {
+            HashSet<int> visited = new HashSet<int>();
+            foreach (ushort index in SpanningTree)
+            {
+                visited.Add(SATVariableToEdge[index].SourceVertex);
+                visited.Add(SATVariableToEdge[index].DestinationVertex);
+            }
+            Console.WriteLine(string.Join(", ", visited));
+            return visited.Count == Vertices.Length;
+        }
     }
     
     /// <summary>

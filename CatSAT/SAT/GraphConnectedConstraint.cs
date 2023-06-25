@@ -3,7 +3,7 @@ using System.Text;
 
 namespace CatSAT.SAT
 {
-    // todo: look into making it so that edges not in spanning tree (blue ones) wouldn't get considered by greedy flip
+    // todo: look into making it so that edges not in spanning tree (red ones) wouldn't get considered by greedy flip
     /// <summary>
     /// A class that represents a constraint on the graph. For now, the constraint is that the graph must be connected.
     /// </summary>
