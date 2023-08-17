@@ -38,12 +38,6 @@ namespace CatSAT.SAT
         public HashSet<ushort> SpanningTree = new HashSet<ushort>();
 
         /// <summary>
-        /// The current spanning forest in the graph. Consists of the list of spanning trees, which consist of the SAT
-        /// variable numbers.
-        /// </summary>
-        public List<HashSet<ushort>> SpanningForest = new List<HashSet<ushort>>();
-
-        /// <summary>
         /// The problem corresponding to this graph.
         /// </summary>
         public readonly Problem Problem;
@@ -54,11 +48,16 @@ namespace CatSAT.SAT
         private BooleanSolver Solver => Problem.BooleanSolver;
 
         /// <summary>
+        /// True if the spanning tree has been built, false otherwise.
+        /// </summary>
+        private bool _spanningTreeBuilt = false;
+
+        /// <summary>
         /// The graph constructor.
         /// </summary>
         /// <param name="p">The problem corresponding to the graph.</param>
         /// <param name="numVertices">The number of vertices in the graph.</param>
-        public Graph(Problem p, int numVertices)
+        public Graph(Problem p, int numVertices, float initialDensity = 0.5f)
         {
             Problem = p;
             Vertices = new int[numVertices];
@@ -71,7 +70,7 @@ namespace CatSAT.SAT
                 for (int j = 0; j < i; j++)
                 {
                     EdgeProposition edgeProposition = Edges(i, j);
-                    // edgeProposition.InitialProbability = 0; // todo: remove this later
+                    edgeProposition.InitialProbability = initialDensity;
                     SATVariableToEdge.Add(edgeProposition.Index, edgeProposition);
                 }
             }
@@ -125,6 +124,18 @@ namespace CatSAT.SAT
         }
 
         /// <summary>
+        /// Asserts that the graph has density (percentage of edges present in the graph) between min and max.
+        /// </summary>
+        /// <param name="min">The minimum bound on the graph's density.</param>
+        /// <param name="max">The maximum bound on the graph's density.</param>
+        public void Density(float min, float max)
+        {
+            var edgeCount = SATVariableToEdge.Count;
+            Problem.Quantify((int)Math.Round(min * edgeCount), (int)Math.Round(max * edgeCount),
+                SATVariableToEdge.Values);
+        }
+
+        /// <summary>
         /// Returns whether the two specified vertices are connected in the current partition.
         /// </summary>
         /// <param name="n">The first vertex.</param>
@@ -158,6 +169,7 @@ namespace CatSAT.SAT
         {
             if (!SpanningTree.Contains(Edges(n, m).Index)) return;
             SpanningTree.Clear();
+            _spanningTreeBuilt = false; // todo: remove this later for cleanup
             Console.WriteLine($"Disconnected {n} and {m}");
             RebuildSpanningTree();
         }
@@ -165,7 +177,7 @@ namespace CatSAT.SAT
         /// <summary>
         /// Rebuilds the spanning tree with the current edge propositions which are true. Called after removing an edge.
         /// </summary>
-        public void RebuildSpanningTree()
+        private void RebuildSpanningTree()
         {
             Partition.Clear();
             // todo: down the road, keep a list/hashset of all the edges that are true, and only iterate over those
@@ -174,6 +186,7 @@ namespace CatSAT.SAT
             {
                 Connect(edgeProposition.SourceVertex, edgeProposition.DestinationVertex);
             }
+            _spanningTreeBuilt = true;
         }
 
         /// <summary>
@@ -217,6 +230,15 @@ namespace CatSAT.SAT
             }
             Console.WriteLine(string.Join(", ", visited));
             return visited.Count == Vertices.Length;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void EnsureSpanningTreeBuilt()
+        {
+            if (_spanningTreeBuilt) return;
+            RebuildSpanningTree();
         }
     }
     
@@ -302,6 +324,22 @@ namespace CatSAT.SAT
         /// <param name="m">The second vertex.</param>
         /// <returns>True if the vertices are in the same equivalence class, false otherwise.</returns>
         public bool SameClass(int n, int m) => Find(n) == Find(m);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="n"></param>
+        /// <param name="m"></param>
+        /// <param name="edge"></param>
+        /// <returns></returns>
+        public bool WouldConnect(int n, int m, EdgeProposition edge)
+        {
+            var nRep = Find(n);
+            var mRep = Find(m);
+            var sourceRep = Find(edge.SourceVertex);
+            var destRep = Find(edge.DestinationVertex);
+            return (nRep == sourceRep && mRep == destRep) || (nRep == destRep && mRep == sourceRep);
+        }
 
         /// <summary>
         /// Resets the union-find data structure. All nodes become their own representatives and all ranks become 0.

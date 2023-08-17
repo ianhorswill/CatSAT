@@ -73,6 +73,25 @@ namespace Tests
             }
             graph.WriteDot(p.Solve(), "test_one_cycle.dot");
         }
+
+        [TestMethod]
+        public void NodesConnectedTest()
+        {
+            var p = new Problem();
+            var graph = new Graph(p, 40, 0);
+            p.AddCustomConstraint(new NodesConnectedConstraint(graph, 0, 1));
+            graph.WriteDot(p.Solve(), "test_nodes_connected.dot");
+        }
+
+        [TestMethod]
+        public void NodesConnectedWithDensityTest()
+        {
+            var p = new Problem();
+            var graph = new Graph(p, 20);
+            p.AddCustomConstraint(new NodesConnectedConstraint(graph, 0, 1));
+            graph.Density(0.05f, 0.2f);
+            graph.WriteDot(p.Solve(), "test.dot");
+        }
         
         // todo: make an imaginarium-like test
         [TestMethod]

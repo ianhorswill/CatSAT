@@ -44,16 +44,16 @@ namespace CatSAT.SAT
         }
 
         /// <inheritdoc />
-        public override int CustomFlipRisk(ushort index, bool newValue)
+        public override int CustomFlipRisk(ushort index, bool adding)
         {
             var componentCount = Graph.Partition.ConnectedComponentCount;
-            if (componentCount == 1 && newValue) return 0;
+            if (componentCount == 1 && adding) return 0;
             var edge = Graph.SATVariableToEdge[index];
-            return newValue ? AddingRisk(edge) : RemovingRisk(edge);
+            return adding ? AddingRisk(edge) : RemovingRisk(edge);
         }
 
         /// <summary>
-        /// Returns the associated cost with adding this edge to the spanning tree of the graph.
+        /// Returns the associated cost with adding this edge to the graph.
         /// </summary>
         /// <param name="edge">The edge proposition to be flipped to true.</param>
         /// <returns>The cost of adding this edge. Positive cost is unfavorable, negative cost is favorable.</returns>
@@ -61,14 +61,12 @@ namespace CatSAT.SAT
             Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex) ? 0 : EdgeAdditionRisk;
 
         /// <summary>
-        /// Returns the associated cost with removing this edge from the spanning tree of the graph.
+        /// Returns the associated cost with removing this edge from the graph.
         /// </summary>
         /// <param name="edge">The edge proposition to be flipped to false.</param>
         /// <returns>The cost of removing this edge. Positive cost is unfavorable, negative cost is favorable.</returns>
-        private int RemovingRisk(EdgeProposition edge) => !SpanningTree.Contains(edge.Index) ? 0 : EdgeRemovalRisk;
-
-        // todo: find best edge to flip while asking other constraints how they feel about flipping the particular edge
-        // want to minimize return of UnsatisfiedClauseDelta (take the first thing that gives us a non-positive value)
+        private int RemovingRisk(EdgeProposition edge) => SpanningTree.Contains(edge.Index) ? EdgeRemovalRisk : 0;
+        
         /// <summary>
         /// Find the edge (proposition) to flip that will lead to the lowest cost.
         /// </summary>
@@ -78,8 +76,9 @@ namespace CatSAT.SAT
         {
             List<short> disjuncts = UnPredeterminedDisjuncts;
             ushort lastFlipOfThisClause = b.LastFlip[Index];
-            
+
             var best = 0;
+            var bestDelta = int.MaxValue;
 
             var dCount = (uint)disjuncts.Count;
             var index = Random.InRange(dCount);
@@ -93,8 +92,16 @@ namespace CatSAT.SAT
                 if (selectedVar == lastFlipOfThisClause) continue;
                 EdgeProposition edge = Graph.SATVariableToEdge[selectedVar];
                 if (Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex)) continue;
+                var delta = b.UnsatisfiedClauseDelta(selectedVar);
+                if (delta <= 0)
+                {
+                    best = selectedVar;
+                    break;
+                }
+
+                if (delta >= bestDelta) continue;
                 best = selectedVar;
-                break;
+                bestDelta = delta;
             }
 
             if (best == 0) return (ushort)Math.Abs(disjuncts.RandomElement());
@@ -102,10 +109,10 @@ namespace CatSAT.SAT
         }
         
         /// <inheritdoc />
-        public override void UpdateCustomConstraint(BooleanSolver b, ushort pIndex, bool newValue)
+        public override void UpdateCustomConstraint(BooleanSolver b, ushort pIndex, bool adding)
         {
             var edgeProp = Graph.SATVariableToEdge[pIndex];
-            if (newValue)
+            if (adding)
             {
                 Graph.Connect(edgeProp.SourceVertex, edgeProp.DestinationVertex);
                 if (Graph.Partition.ConnectedComponentCount == 1 && b.UnsatisfiedClauses.Contains(Index))
@@ -133,10 +140,8 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         public override bool IsSatisfied(ushort satisfiedDisjuncts)
         {
-            // if (Graph.Partition.ConnectedComponentCount == 1) return true; // todo: is this right?
-            Graph.RebuildSpanningTree();
+            Graph.EnsureSpanningTreeBuilt();
             return Graph.Partition.ConnectedComponentCount == 1;
-            // todo: check that this is returning true
         }
 
         /// <inheritdoc />

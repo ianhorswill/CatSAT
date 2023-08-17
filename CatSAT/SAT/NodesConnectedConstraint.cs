@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace CatSAT.SAT
@@ -26,17 +27,15 @@ namespace CatSAT.SAT
         /// <summary>
         /// The spanning forest of the graph.
         /// </summary>
-        private List<HashSet<ushort>> SpanningForest => Graph.SpanningForest;
-
-        // todo: fix this description
+        private UnionFind SpanningForest => Graph.Partition;
+        
         /// <summary>
-        /// The risk associated with removing an edge.
+        /// The default risk associated with removing an edge.
         /// </summary>
         private const int EdgeRemovalRisk = 1;
         
-        // todo: fix this description
         /// <summary>
-        /// The risk associated with adding an edge.
+        /// The default risk associated with adding an edge.
         /// </summary>
         private const int EdgeAdditionRisk = -1;
 
@@ -58,40 +57,83 @@ namespace CatSAT.SAT
         }
         
         /// <inheritdoc />
-        public override int CustomFlipRisk(ushort index, bool newValue)
+        public override int CustomFlipRisk(ushort index, bool adding)
         {
             var edge = Graph.SATVariableToEdge[index];
             bool previouslyConnected = Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex);
-            if (previouslyConnected && newValue) return 0;
-            return newValue ? AddingRisk(edge) : RemovingRisk(edge);
+            if (previouslyConnected && adding) return 0;
+            return adding ? AddingRisk(edge) : RemovingRisk(edge);
+        }
+        
+        /// <summary>
+        /// Returns the associated cost with adding this edge to the graph.
+        /// </summary>
+        /// <param name="edge">The edge proposition to be flipped to true.</param>
+        /// <returns>The cost of adding this edge. Positive cost is unfavorable, negative cost is favorable.</returns>
+        private int AddingRisk(EdgeProposition edge)
+        {
+            if (SpanningForest.WouldConnect(SourceNode, DestinationNode, edge)) return EdgeAdditionRisk * 2;
+            return Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex) ? 0 : EdgeAdditionRisk;
+        }
+        
+        // todo: this is version 0. make it better later
+        /// <summary>
+        /// Returns the associated cost with removing this edge from the graph.
+        /// </summary>
+        /// <param name="edge">The edge proposition to be flipped to false.</param>
+        /// <returns>The cost of removing this edge. Positive cost is unfavorable, negative cost is favorable.</returns>
+        private int RemovingRisk(EdgeProposition edge) => Graph.SpanningTree.Contains(edge.Index) ? EdgeRemovalRisk : 0;
+        
+        /// <summary>
+        /// Find the edge (proposition) to flip that will lead to the lowest cost.
+        /// </summary>
+        /// <param name="b">The current BooleanSolver.</param>
+        /// <returns>The index of the edge (proposition) to flip.</returns>
+        public override ushort GreedyFlip(BooleanSolver b)
+        {
+            List<short> disjuncts = UnPredeterminedDisjuncts;
+            ushort lastFlipOfThisClause = b.LastFlip[Index];
+
+            var best = 0;
+            var bestDelta = int.MaxValue;
+
+            var dCount = (uint)disjuncts.Count;
+            var index = Random.InRange(dCount);
+            uint prime;
+            do prime = Random.Prime(); while (prime <= dCount);
+            for (var i = 0; i < dCount; i++)
+            {
+                var literal = disjuncts[(int)index];
+                index = (index + prime) % dCount;
+                var selectedVar = (ushort)Math.Abs(literal);
+                if (selectedVar == lastFlipOfThisClause) continue;
+                EdgeProposition edge = Graph.SATVariableToEdge[selectedVar];
+                if (Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex)) continue;
+                var delta = b.UnsatisfiedClauseDelta(selectedVar);
+                if (delta <= 0)
+                {
+                    best = selectedVar;
+                    break;
+                }
+
+                if (delta >= bestDelta) continue;
+                best = selectedVar;
+                bestDelta = delta;
+            }
+
+            if (best == 0) return (ushort)Math.Abs(disjuncts.RandomElement());
+            return (ushort)best;
         }
 
-        // todo: fix
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="edge"></param>
-        /// <returns></returns>
-        private int AddingRisk(EdgeProposition edge) => EdgeAdditionRisk;
-        
-        // todo: fix
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="edge"></param>
-        /// <returns></returns>
-        private int RemovingRisk(EdgeProposition edge) => EdgeRemovalRisk;
-        
         /// <inheritdoc />
-        public override void UpdateCustomConstraint(BooleanSolver b, ushort pIndex, bool newValue)
+        public override void UpdateCustomConstraint(BooleanSolver b, ushort pIndex, bool adding)
         {
             var edgeProp = Graph.SATVariableToEdge[pIndex];
-            bool previouslyConnected = Graph.AreConnected(edgeProp.SourceVertex, edgeProp.DestinationVertex);
-            if (newValue)
+            bool previouslyConnected = Graph.AreConnected(SourceNode, DestinationNode);
+            if (adding)
             {
-                // todo: need to change Connect to work with spanning forest?
                 Graph.Connect(edgeProp.SourceVertex, edgeProp.DestinationVertex);
-                if (!previouslyConnected && Graph.AreConnected(edgeProp.SourceVertex, edgeProp.DestinationVertex) &&
+                if (!previouslyConnected && Graph.AreConnected(SourceNode, DestinationNode) &&
                     b.UnsatisfiedClauses.Contains(Index))
                 {
                     b.UnsatisfiedClauses.Remove(Index);
@@ -99,9 +141,8 @@ namespace CatSAT.SAT
             }
             else
             {
-                // todo: need to change Disconnect to work with spanning forest?
                 Graph.Disconnect(edgeProp.SourceVertex, edgeProp.DestinationVertex);
-                if (previouslyConnected && !Graph.AreConnected(edgeProp.SourceVertex, edgeProp.DestinationVertex))
+                if (previouslyConnected && !Graph.AreConnected(SourceNode, DestinationNode))
                 {
                     b.UnsatisfiedClauses.Add(Index);
                 }
@@ -121,7 +162,8 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         public override bool IsSatisfied(ushort satisfiedDisjuncts)
         {
-            throw new System.NotImplementedException();
+            Graph.EnsureSpanningTreeBuilt();
+            return Graph.AreConnected(SourceNode, DestinationNode);
         }
 
         /// <inheritdoc />
