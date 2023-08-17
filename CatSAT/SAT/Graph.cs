@@ -38,6 +38,12 @@ namespace CatSAT.SAT
         public HashSet<ushort> SpanningTree = new HashSet<ushort>();
 
         /// <summary>
+        /// The current spanning forest in the graph. Consists of the list of spanning trees, which consist of the SAT
+        /// variable numbers.
+        /// </summary>
+        public List<HashSet<ushort>> SpanningForest = new List<HashSet<ushort>>();
+
+        /// <summary>
         /// The problem corresponding to this graph.
         /// </summary>
         public readonly Problem Problem;
