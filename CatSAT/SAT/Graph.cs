@@ -65,9 +65,8 @@ namespace CatSAT.SAT
                 for (int j = 0; j < i; j++)
                 {
                     EdgeProposition edgeProposition = Edges(i, j);
-                    edgeProposition.InitialProbability = 0; // todo: remove this later
+                    // edgeProposition.InitialProbability = 0; // todo: remove this later
                     SATVariableToEdge.Add(edgeProposition.Index, edgeProposition);
-                    
                 }
             }
         }
@@ -97,6 +96,27 @@ namespace CatSAT.SAT
         /// <param name="index">The specified index.</param>
         /// <returns>The vertex at the specified index.</returns>
         public int IndexToVertex(int index) => Vertices[index];
+
+        /// <summary>
+        /// Returns all of the edges connected to the specified vertex.
+        /// </summary>
+        /// <param name="vertex">The vertex of interest.</param>
+        /// <returns>The EdgePropositions including that vertex.</returns>
+        private IEnumerable<EdgeProposition> EdgesIncidentTo(int vertex)
+        {
+            return from v in Vertices where v != vertex select Edges(v, vertex);
+        }
+
+        /// <summary>
+        /// Asserts that the specified vertex has degree between min and max.
+        /// </summary>
+        /// <param name="vertex">The vertex of interest.</param>
+        /// <param name="min">The minimum bound on the degree.</param>
+        /// <param name="max">The maximum bound on the degree.</param>
+        public void VertexDegree(int vertex, int min, int max)
+        {
+            Problem.Quantify(min, max, EdgesIncidentTo(vertex));
+        }
 
         /// <summary>
         /// Returns whether the two specified vertices are connected in the current partition.

@@ -536,9 +536,9 @@ namespace CatSAT
         }
 
         /// <summary>
-        /// 
+        /// Adds a custom constraint to the list of constraints in the problem.
         /// </summary>
-        /// <param name="constraint"></param>
+        /// <param name="constraint">The custom constraint.</param>
         public void AddCustomConstraint(CustomConstraint constraint)
         {
             constraint.Index = (ushort)Constraints.Count;

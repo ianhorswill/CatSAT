@@ -137,7 +137,7 @@ namespace CatSAT
         /// </summary>
         /// <param name="b">Current BooleanSolver</param>
         /// <returns>Index of the prop to flip</returns>
-        public ushort GreedyFlip(BooleanSolver b)
+        public virtual ushort GreedyFlip(BooleanSolver b)
         {
             // If true, the clause has too few disjuncts true
             bool increaseTrueDisjuncts = IsNormalDisjunction ? b.TrueDisjunctCount[Index] <= 0 : b.TrueDisjunctCount[Index] <= MinDisjunctsMinusOne;

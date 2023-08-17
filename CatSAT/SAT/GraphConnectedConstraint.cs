@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace CatSAT.SAT
@@ -66,6 +67,40 @@ namespace CatSAT.SAT
         /// <returns>The cost of removing this edge. Positive cost is unfavorable, negative cost is favorable.</returns>
         private int RemovingRisk(EdgeProposition edge) => !SpanningTree.Contains(edge.Index) ? 0 : EdgeRemovalRisk;
 
+        // todo: find best edge to flip while asking other constraints how they feel about flipping the particular edge
+        // want to minimize return of UnsatisfiedClauseDelta (take the first thing that gives us a non-positive value)
+        /// <summary>
+        /// Find the edge (proposition) to flip that will lead to the lowest cost.
+        /// </summary>
+        /// <param name="b">The current BooleanSolver.</param>
+        /// <returns>The index of the edge (proposition) to flip.</returns>
+        public override ushort GreedyFlip(BooleanSolver b)
+        {
+            List<short> disjuncts = UnPredeterminedDisjuncts;
+            ushort lastFlipOfThisClause = b.LastFlip[Index];
+            
+            var best = 0;
+
+            var dCount = (uint)disjuncts.Count;
+            var index = Random.InRange(dCount);
+            uint prime;
+            do prime = Random.Prime(); while (prime <= dCount);
+            for (var i = 0; i < dCount; i++)
+            {
+                var literal = disjuncts[(int)index];
+                index = (index + prime) % dCount;
+                var selectedVar = (ushort)Math.Abs(literal);
+                if (selectedVar == lastFlipOfThisClause) continue;
+                EdgeProposition edge = Graph.SATVariableToEdge[selectedVar];
+                if (Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex)) continue;
+                best = selectedVar;
+                break;
+            }
+
+            if (best == 0) return (ushort)Math.Abs(disjuncts.RandomElement());
+            return (ushort)best;
+        }
+        
         /// <inheritdoc />
         public override void UpdateCustomConstraint(BooleanSolver b, ushort pIndex, bool newValue)
         {
@@ -73,7 +108,7 @@ namespace CatSAT.SAT
             if (newValue)
             {
                 Graph.Connect(edgeProp.SourceVertex, edgeProp.DestinationVertex);
-                if (Graph.Partition.ConnectedComponentCount == 1)
+                if (Graph.Partition.ConnectedComponentCount == 1 && b.UnsatisfiedClauses.Contains(Index))
                     b.UnsatisfiedClauses.Remove(Index);
             }
             else

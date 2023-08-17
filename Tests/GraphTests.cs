@@ -51,13 +51,34 @@ namespace Tests
             Assert.IsTrue(graph.IsSpanningTree());
         }
         
+        [TestMethod]
+        public void GraphConnectedWithNumEdgesTest()
+        {
+            var p = new Problem();
+            var graph = new Graph(p, 20);
+            p.AddCustomConstraint(new GraphConnectedConstraint(graph));
+            p.Quantify(23, 23, graph.SATVariableToEdge.Values);
+            graph.WriteDot(p.Solve(), "test.dot");
+        }
+        
+        [TestMethod]
+        public void GraphHasOneConnectedCycleTest()
+        {
+            var p = new Problem();
+            var graph = new Graph(p, 20);
+            p.AddCustomConstraint(new GraphConnectedConstraint(graph));
+            foreach (var vertex in graph.Vertices)
+            {
+                graph.VertexDegree(vertex, 2, 2);
+            }
+            graph.WriteDot(p.Solve(), "test_one_cycle.dot");
+        }
+        
         // todo: make an imaginarium-like test
         [TestMethod]
         public void ImaginariumTest()
         {
             
         }
-        
-        // todo eventually: generate connected graph that has x number of edges
     }
 }

@@ -191,7 +191,7 @@ namespace CatSAT
                 if (Random.InRange(100) < 100 * wp)
                     // Flip a completely random variable
                     // This is to pull us out of local minima
-                    flipChoice = (ushort) Math.Abs(targetClause.UnPredeterminedDisjuncts.RandomElement());
+                    flipChoice = (ushort)Math.Abs(targetClause.UnPredeterminedDisjuncts.RandomElement());
                 else
                     // Hill climb: pick an unsatisfied clause at random and flip one of its variables;
                     flipChoice = targetClause.GreedyFlip(this);
