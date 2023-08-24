@@ -135,7 +135,13 @@ namespace CatSAT.SAT
         {
             b.Append("GraphConnectedConstraint");
         }
-        
+
+        /// <inheritdoc />
+        public override void Reset()
+        {
+            Graph.Reset();
+        }
+
         #region Counting methods
         /// <inheritdoc />
         public override bool IsSatisfied(ushort satisfiedDisjuncts)

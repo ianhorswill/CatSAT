@@ -40,6 +40,16 @@ namespace CatSAT.SAT
         private const int EdgeAdditionRisk = -1;
 
         /// <summary>
+        /// True if the source node and destination node are connected, false otherwise.
+        /// </summary>
+        private bool _connected = false;
+        
+        // todo: binary heap implemented using an array for dijkstra's priority queue
+        // complete binary tree has nice property
+        // put bfs order of nodes in an array
+        // parent of node i is i / 2, children are at 2i and 2i + 1
+
+        /// <summary>
         /// The NodesConnectedConstraint constructor.
         /// </summary>
         /// <param name="graph">The graph corresponding to this constraint.</param>
@@ -156,6 +166,13 @@ namespace CatSAT.SAT
         internal override void Decompile(Problem p, StringBuilder b)
         {
             b.Append("NodesConnectedConstraint");
+        }
+        
+        /// <inheritdoc />
+        public override void Reset()
+        {
+            _connected = false;
+            Graph.Reset();
         }
 
         #region Counting methods

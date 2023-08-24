@@ -240,6 +240,11 @@ namespace CatSAT.SAT
             if (_spanningTreeBuilt) return;
             RebuildSpanningTree();
         }
+
+        public void Reset()
+        {
+            _spanningTreeBuilt = false;
+        }
     }
     
     /// <summary>

@@ -170,7 +170,10 @@ namespace CatSAT
             if (continuePreviousSearch)
                 continuePreviousSearch = false;
             else
+            {
+                foreach (var c in Problem.Constraints) c.Reset();
                 MakeRandomAssignment();
+            }
 
             var flipsSinceImprovement = 0;
             var wp = 0f;

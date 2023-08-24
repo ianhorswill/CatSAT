@@ -241,5 +241,12 @@ namespace CatSAT
         /// <returns>An integer, either negative, positive, or zero. Zero corresponds to no risk nor reward. Negative
         /// corresponds to favorable, and positive corresponds to unfavorable.</returns>
         public abstract int CustomFlipRisk(ushort index, bool newValue);
+
+        /// <summary>
+        /// Called at the beginning of solving.
+        /// </summary>
+        public virtual void Reset()
+        {
+        }
     }
 }
