@@ -23,11 +23,26 @@ namespace CatSAT.SAT
         /// The second node to be connected.
         /// </summary>
         public int DestinationNode;
+        
+        /// <summary>
+        /// The queue used for BFS.
+        /// </summary>
+        private Queue<int> Queue;
 
         /// <summary>
         /// The spanning forest of the graph.
         /// </summary>
         private UnionFind SpanningForest => Graph.Partition;
+
+        /// <summary>
+        /// The number of vertices in the graph.
+        /// </summary>
+        private int NumVertices => Graph.NumVertices;
+
+        /// <summary>
+        /// The edges in the path between the source node and the destination node.
+        /// </summary>
+        private HashSet<ushort> EdgesInPath;
         
         /// <summary>
         /// The default risk associated with removing an edge.
@@ -43,11 +58,11 @@ namespace CatSAT.SAT
         /// True if the source node and destination node are connected, false otherwise.
         /// </summary>
         private bool _connected = false;
-        
-        // todo: binary heap implemented using an array for dijkstra's priority queue
-        // complete binary tree has nice property
-        // put bfs order of nodes in an array
-        // parent of node i is i / 2, children are at 2i and 2i + 1
+
+        /// <summary>
+        /// The list of predecessors in the path from source node to vertex node, indexed by vertex number.
+        /// </summary>
+        private int[] Predecessors;
 
         /// <summary>
         /// The NodesConnectedConstraint constructor.
@@ -60,9 +75,51 @@ namespace CatSAT.SAT
             Graph = graph;
             SourceNode = sourceNode;
             DestinationNode = destinationNode;
+            Queue = new Queue<int>(NumVertices);
+            Predecessors = new int[NumVertices];
+            EdgesInPath = new HashSet<ushort>(NumVertices - 1);
             foreach (var edge in graph.SATVariableToEdge.Values)
             {
                 graph.Problem.SATVariables[edge.Index].CustomConstraints.Add(this);
+            }
+        }
+        
+        /// <summary>
+        /// Does a breadth-first search to find the minimum path between the source node and the destination node.
+        /// </summary>
+        private void ShortestPath()
+        {
+            for (int i = 0; i < NumVertices; i++)
+                Predecessors[i] = -1;
+            
+            EdgesInPath.Clear();
+            Queue.Clear();
+            Predecessors[SourceNode] = SourceNode;
+            Queue.Enqueue(SourceNode);
+
+            // todo: this is quadratic. change that?
+            // cache info?
+            while (Queue.Count > 0)
+            {
+                var currentNode = Queue.Dequeue();
+                
+                for (var vertex = 0; vertex < NumVertices; vertex++)
+                {
+                    if (vertex == currentNode) continue; // no self edges
+                    if (Predecessors[vertex] != -1) continue; // already found predecessor
+                    if (!Graph.AdjacentVertices(vertex, currentNode)) continue; // no edge between vertex and currentNode
+                    Predecessors[vertex] = currentNode;
+                    if (vertex == DestinationNode) goto foundIt;
+                    Queue.Enqueue(vertex);
+                }
+            }
+
+            throw new Exception("No path found between source and destination nodes???");
+            foundIt:
+            for (var node = DestinationNode; node != SourceNode; node = Predecessors[node])
+            {
+                var edge = Graph.Edges(Predecessors[node], node);
+                EdgesInPath.Add(edge.Index);
             }
         }
         
@@ -138,7 +195,7 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         public override void UpdateCustomConstraint(BooleanSolver b, ushort pIndex, bool adding)
         {
-            var edgeProp = Graph.SATVariableToEdge[pIndex];
+            EdgeProposition edgeProp = Graph.SATVariableToEdge[pIndex];
             bool previouslyConnected = Graph.AreConnected(SourceNode, DestinationNode);
             if (adding)
             {
@@ -220,4 +277,12 @@ namespace CatSAT.SAT
         }
         #endregion
     }
+    
+    // while not connected
+        // i like connecting two previously unconnected components
+        // i don't like removing edges
+    // while connected
+        // keep the shortest path
+        // don't care about any edges not on the path
+        // if remove edge on path, rebuild spanning tree. yikes.
 }

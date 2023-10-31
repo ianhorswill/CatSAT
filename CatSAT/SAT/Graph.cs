@@ -15,6 +15,11 @@ namespace CatSAT.SAT
         /// The list of vertices in this graph.
         /// </summary>
         public int[] Vertices;
+        
+        /// <summary>
+        /// The number of vertices in the graph.
+        /// </summary>
+        public int NumVertices;
 
         /// <summary>
         /// The function that returns the proposition that the edge between two vertices exists. The integers are
@@ -26,6 +31,11 @@ namespace CatSAT.SAT
         /// The table that maps a SAT variable index (ushort) to the edge proposition.
         /// </summary>
         public Dictionary<ushort, EdgeProposition> SATVariableToEdge = new Dictionary<ushort, EdgeProposition>();
+        
+        /// <summary>
+        /// The table that maps an edge proposition to the SAT variable index (ushort).
+        /// </summary>
+        public Dictionary<EdgeProposition, ushort> EdgeToSATVariable = new Dictionary<EdgeProposition, ushort>();
 
         /// <summary>
         /// The current union-find partition of the graph.
@@ -57,10 +67,12 @@ namespace CatSAT.SAT
         /// </summary>
         /// <param name="p">The problem corresponding to the graph.</param>
         /// <param name="numVertices">The number of vertices in the graph.</param>
+        /// <param name="initialDensity">The initial density of true/false assignments.</param>
         public Graph(Problem p, int numVertices, float initialDensity = 0.5f)
         {
             Problem = p;
             Vertices = new int[numVertices];
+            NumVertices = numVertices;
             for (int i = 0; i < numVertices; i++)
                 Vertices[i] = i;
             Partition = new UnionFind(numVertices);
@@ -72,6 +84,7 @@ namespace CatSAT.SAT
                     EdgeProposition edgeProposition = Edges(i, j);
                     edgeProposition.InitialProbability = initialDensity;
                     SATVariableToEdge.Add(edgeProposition.Index, edgeProposition);
+                    EdgeToSATVariable.Add(edgeProposition, edgeProposition.Index);
                 }
             }
         }
@@ -173,6 +186,16 @@ namespace CatSAT.SAT
             Console.WriteLine($"Disconnected {n} and {m}");
             RebuildSpanningTree();
         }
+        
+        // todo: write function that takes two vertices and returns whether they are adjacent to one another RIGHT NOW!!!
+        // todo: ian will be VERY MAD if you do not
+        /// <summary>
+        /// Returns whether or not two vertices are adjacent to each other (i.e., share an edge).
+        /// </summary>
+        /// <param name="n">The first vertex.</param>
+        /// <param name="m">The second vertex.</param>
+        /// <returns>True if the edge (n, m) exists, false otherwise.</returns>
+        public bool AdjacentVertices(int n, int m) => Solver.Propositions[EdgeToSATVariable[Edges(n, m)]];
         
         /// <summary>
         /// Rebuilds the spanning tree with the current edge propositions which are true. Called after removing an edge.
@@ -364,3 +387,14 @@ namespace CatSAT.SAT
         // every other node either has in degree = out degree = 1 or isn't connected to the path
     }
 }
+
+// goal for end of fall quarter
+// can graph connected be generalized to graph has n connected components => graph not connected constraint
+// distance between nodes constraint seems difficult
+// next week: think ab imaginarium type story
+// graph has cycle constraint
+// 10 different constraints to put on verbs in imaginarium
+
+// fall: more or less finish catsat
+// winter: application (imaginarium or game)
+// spring: writing + defense ?
