@@ -203,6 +203,7 @@ namespace CatSAT.SAT
                 if (!previouslyConnected && Graph.AreConnected(SourceNode, DestinationNode) &&
                     b.UnsatisfiedClauses.Contains(Index))
                 {
+                    // we have connected the two nodes via some path
                     b.UnsatisfiedClauses.Remove(Index);
                 }
             }

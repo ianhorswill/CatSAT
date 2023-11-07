@@ -120,7 +120,7 @@ namespace CatSAT.SAT
             }
             else
             {
-                var previousComponentCount = Graph.Partition.ConnectedComponentCount;
+                int previousComponentCount = Graph.Partition.ConnectedComponentCount;
                 Graph.Disconnect(edgeProp.SourceVertex, edgeProp.DestinationVertex);
                 if (Graph.Partition.ConnectedComponentCount > 1 && previousComponentCount == 1)
                     b.UnsatisfiedClauses.Add(Index);
@@ -153,37 +153,37 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         public override bool MaxFalseLiterals(int falseLiterals)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public override bool MaxTrueLiterals(int trueLiterals)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public override int ThreatCountDeltaDecreasing(ushort count)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public override int ThreatCountDeltaIncreasing(ushort count)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public override void UpdateTrueNegativeAndFalsePositive(BooleanSolver b)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public override void UpdateTruePositiveAndFalseNegative(BooleanSolver b)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
         #endregion
     }

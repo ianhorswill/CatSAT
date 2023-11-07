@@ -79,6 +79,7 @@
     <Compile Include="SAT\EdgeProposition.cs" />
     <Compile Include="SAT\Graph.cs" />
     <Compile Include="SAT\GraphConnectedConstraint.cs" />
+    <Compile Include="SAT\NConnectedComponentsConstraint.cs" />
     <Compile Include="SAT\NodesConnectedConstraint.cs" />
     <Compile Include="SAT\PseudoBooleanConstraint.cs" />
     <Compile Include="SAT\Clause.cs" />
