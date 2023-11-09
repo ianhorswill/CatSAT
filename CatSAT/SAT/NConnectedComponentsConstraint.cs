@@ -49,7 +49,7 @@ namespace CatSAT.SAT
         {
             Graph = graph;
             TargetNumComponents = n;
-            SpanningForest = new SpanningForest(graph);
+            SpanningForest = graph.Partition;
             _currentNumComponents = SpanningForest.ConnectedComponentCount;
             foreach (var edge in graph.SATVariableToEdge.Values)
             {

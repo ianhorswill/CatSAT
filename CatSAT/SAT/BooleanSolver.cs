@@ -200,7 +200,6 @@ namespace CatSAT
                     flipChoice = targetClause.GreedyFlip(this);
                 LastFlip[targetClauseIndex] = flipChoice;
                 var oldSatisfactionCount = UnsatisfiedClauses.Size;
-                Console.WriteLine($"Flipping {flipChoice}"); // todo: remove
                 Flip(flipChoice);
                 //do NOT update noise level if it's a Pseudo Boolean Constraint (i.e. not normal)
                 if (targetClause.IsNormalDisjunction)
@@ -331,6 +330,7 @@ namespace CatSAT
         /// <param name="pIndex">Index of the variable/proposition to flip</param>
         private void Flip(ushort pIndex)
         {
+            // Console.WriteLine($"Flipping {Problem.SATVariables[pIndex].Proposition.Name}"); // todo: remove
             var prop = Problem.SATVariables[pIndex];
             Debug.Assert(!prop.IsPredetermined, "The prop is predetermined, can't flip it.");
             var currentlyTrue = Propositions[pIndex];
