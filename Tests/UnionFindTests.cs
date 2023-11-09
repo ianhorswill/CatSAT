@@ -23,6 +23,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 
+using CatSAT;
 using CatSAT.SAT;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -34,14 +35,18 @@ namespace Tests
         [TestMethod]
         public void OneNodeTest()
         {
-            var partition = new UnionFind(1);
+            var p = new Problem();
+            var graph = new Graph(p, 1);
+            var partition = new SpanningForest(graph);
             Assert.IsTrue(partition.ConnectedComponentCount == 1);
         }
 
         [TestMethod]
         public void TwoNodesTest()
         {
-            var partition = new UnionFind(2);
+            var p = new Problem();
+            var graph = new Graph(p, 2);
+            var partition = new SpanningForest(graph);
             partition.Union(0, 1);
             Assert.IsTrue(partition.ConnectedComponentCount == 1);
         }
@@ -49,7 +54,9 @@ namespace Tests
         [TestMethod]
         public void TenNodesTest()
         {
-            var partition = new UnionFind(10);
+            var p = new Problem();
+            var graph = new Graph(p, 10);
+            var partition = new SpanningForest(graph);
             partition.Union(0, 1);
             partition.Union(0, 2);
             partition.Union(0, 3);

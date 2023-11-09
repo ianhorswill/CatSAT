@@ -40,7 +40,7 @@ namespace CatSAT.SAT
         /// <summary>
         /// The current union-find partition of the graph.
         /// </summary>
-        public UnionFind Partition;
+        public SpanningForest Partition;
         
         /// <summary>
         /// The current spanning tree in the graph. Consists of the SAT variable numbers.
@@ -75,7 +75,7 @@ namespace CatSAT.SAT
             NumVertices = numVertices;
             for (int i = 0; i < numVertices; i++)
                 Vertices[i] = i;
-            Partition = new UnionFind(numVertices);
+            Partition = new SpanningForest(this);
             Edges = SymmetricPredicateOfType<int, EdgeProposition>("Edges");
             for (int i = 0; i < numVertices; i++)
             {
@@ -269,124 +269,12 @@ namespace CatSAT.SAT
             _spanningTreeBuilt = false;
         }
     }
-    
-    /// <summary>
-    /// The Union-Find data structure. Currently only works for integer-valued vertices.
-    /// </summary>
-    public class UnionFind
-    {
-        /// <summary>
-        /// The number of connected components in this partition.
-        /// </summary>
-        public int ConnectedComponentCount;
-        
-        /// <summary>
-        /// The number of vertices in this union-find data structure.
-        /// </summary>
-        private readonly int verticesCount;
-
-        /// <summary>
-        /// The list of representatives and ranks for this union-find data structure, indexed by vertex number.
-        /// </summary>
-        private readonly (int representative, int rank)[] representativesAndRanks;
-
-        /// <summary>
-        /// The union-find constructor.
-        /// </summary>
-        /// <param name="count">The number of vertices.</param>
-        public UnionFind(int count)
-        {
-            ConnectedComponentCount = count;
-            verticesCount = count;
-            representativesAndRanks = new (int representative, int rank)[verticesCount];
-            for (int i = 0; i < verticesCount; i++)
-            {
-                representativesAndRanks[i].representative = i;
-                representativesAndRanks[i].rank = 0;
-            }
-        }
-
-        /// <summary>
-        /// Merges two vertices to have the same representative. Vertex n merges into vertex m. Uses union by rank.
-        /// </summary>
-        /// <param name="n">The vertex to be merged with m.</param>
-        /// <param name="m">The vertex with the representative that will become the representative for n.</param>
-        public void Union(int n, int m)
-        {
-            int nRepresentative = Find(n);
-            int mRepresentative = Find(m);
-            
-            if (nRepresentative == mRepresentative) return;
-
-            if (representativesAndRanks[nRepresentative].rank < representativesAndRanks[mRepresentative].rank)
-            {
-                representativesAndRanks[nRepresentative].representative = mRepresentative;
-            }
-            else if (representativesAndRanks[nRepresentative].rank > representativesAndRanks[mRepresentative].rank)
-            {
-                representativesAndRanks[mRepresentative].representative = nRepresentative;
-            }
-            else
-            {
-                representativesAndRanks[mRepresentative].representative = nRepresentative;
-                representativesAndRanks[nRepresentative].rank++;
-            }
-            
-            ConnectedComponentCount--;
-        }
-        
-        /// <summary>
-        /// Finds the representative of the specified vertex. Uses path compression.
-        /// </summary>
-        /// <param name="n">The vertex for which we return the representative.</param>
-        /// <returns>The vertex's representative.</returns>
-        public int Find(int n)
-        {
-            return representativesAndRanks[n].representative == n ? n : Find(representativesAndRanks[n].representative);
-        }
-        
-        /// <summary>
-        /// Returns whether two vertices are in the same equivalence class.
-        /// </summary>
-        /// <param name="n">The first vertex.</param>
-        /// <param name="m">The second vertex.</param>
-        /// <returns>True if the vertices are in the same equivalence class, false otherwise.</returns>
-        public bool SameClass(int n, int m) => Find(n) == Find(m);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="n"></param>
-        /// <param name="m"></param>
-        /// <param name="edge"></param>
-        /// <returns></returns>
-        public bool WouldConnect(int n, int m, EdgeProposition edge)
-        {
-            var nRep = Find(n);
-            var mRep = Find(m);
-            var sourceRep = Find(edge.SourceVertex);
-            var destRep = Find(edge.DestinationVertex);
-            return (nRep == sourceRep && mRep == destRep) || (nRep == destRep && mRep == sourceRep);
-        }
-
-        /// <summary>
-        /// Resets the union-find data structure. All nodes become their own representatives and all ranks become 0.
-        /// </summary>
-        public void Clear()
-        {
-            for (int i = 0; i < representativesAndRanks.Length; i++)
-            {
-                representativesAndRanks[i] = (i, 0);
-            }
-            ConnectedComponentCount = verticesCount;
-        }
-
-        // todo: for directed graphs, keep track of in and out degrees of vertices
-        // this is used to ensure a path between two nodes in the graph
-        // source has out degree 1, in degree 0; destination has in degree 1, out degree 0
-        // every other node either has in degree = out degree = 1 or isn't connected to the path
-    }
 }
+
+// todo: for directed graphs, keep track of in and out degrees of vertices
+// this is used to ensure a path between two nodes in the graph
+// source has out degree 1, in degree 0; destination has in degree 1, out degree 0
+// every other node either has in degree = out degree = 1 or isn't connected to the path
 
 // goal for end of fall quarter
 // can graph connected be generalized to graph has n connected components => graph not connected constraint

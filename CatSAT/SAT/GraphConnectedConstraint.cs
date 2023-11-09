@@ -4,6 +4,7 @@ using System.Text;
 
 namespace CatSAT.SAT
 {
+    // todo: refactor this with new SpanningForest structure
     // todo: look into making it so that edges not in spanning tree (red ones) wouldn't get considered by greedy flip
     /// <summary>
     /// A class that represents a constraint on the graph. For now, the constraint is that the graph must be connected.

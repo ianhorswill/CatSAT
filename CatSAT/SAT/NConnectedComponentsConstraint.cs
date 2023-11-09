@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace CatSAT.SAT
@@ -23,8 +22,8 @@ namespace CatSAT.SAT
         /// <summary>
         /// The spanning forest of the graph.
         /// </summary>
-        private UnionFind SpanningForest => Graph.Partition;
-        
+        private SpanningForest SpanningForest;
+
         /// <summary>
         /// The current number of connected components in the graph.
         /// </summary>
@@ -45,17 +44,19 @@ namespace CatSAT.SAT
         /// </summary>
         /// <param name="graph">The graph corresponding to this constraint.</param>
         /// <param name="n">The number of connected components this graph must have according to the constraint.</param>
-        public NConnectedComponentsConstraint(Graph graph, int n) : base(false, (ushort)short.MaxValue, graph.EdgeVariables, 1)
+        public NConnectedComponentsConstraint(Graph graph, int n) : base(false, (ushort)short.MaxValue,
+            graph.EdgeVariables, 1)
         {
             Graph = graph;
             TargetNumComponents = n;
+            SpanningForest = new SpanningForest(graph);
             _currentNumComponents = SpanningForest.ConnectedComponentCount;
             foreach (var edge in graph.SATVariableToEdge.Values)
             {
                 graph.Problem.SATVariables[edge.Index].CustomConstraints.Add(this);
             }
         }
-        
+
         /// <inheritdoc />
         public override int CustomFlipRisk(ushort index, bool adding)
         {
@@ -65,24 +66,43 @@ namespace CatSAT.SAT
             return adding ? AddingRisk(edge, difference) : RemovingRisk(edge, difference);
         }
 
+        /// <summary>
+        /// Returns the associated cost with adding this edge to the graph.
+        /// </summary>
+        /// <param name="edge">The edge proposition to be flipped to true.</param>
+        /// <param name="difference">The difference between the current number of connected components and the target
+        /// number of connected components in the graph.</param>
+        /// <returns>The cost of adding this edge. Positive cost is unfavorable, negative cost is favorable.</returns>
         private int AddingRisk(EdgeProposition edge, int difference)
         {
-            return difference switch
+            // curr = target or curr < target
+            if (difference == 0 || difference < 0)
             {
-                0 => Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex) ? 0 : UnfavorableRisk,
-                1 => Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex) ? FavorableRisk : 0,
-                _ => 0
-            };
+                return Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex) ? 0 : UnfavorableRisk;
+            }
+
+            // curr > target
+            return Graph.AreConnected(edge.SourceVertex, edge.DestinationVertex) ? FavorableRisk : 0;
         }
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="edge"></param>
+        /// <param name="difference"></param>
+        /// <returns></returns>
         private int RemovingRisk(EdgeProposition edge, int difference)
         {
-            return difference switch
+            // curr = target or curr > target
+            if (difference == 0 || difference > 0)
             {
-                0 => Graph.AreConnected()
+                return SpanningForest.MightDisconnect(edge) ? UnfavorableRisk : 0;
             }
+
+            // curr < target
+            return SpanningForest.MightDisconnect(edge) ? FavorableRisk : 0;
         }
-        
+
         /// <inheritdoc />
         public override void UpdateCustomConstraint(BooleanSolver b, ushort pIndex, bool adding)
         {
@@ -110,7 +130,7 @@ namespace CatSAT.SAT
 
         /// <inheritdoc />
         internal override bool EquivalentTo(Constraint c) => false;
-        
+
         /// <inheritdoc />
         internal override void Decompile(Problem p, StringBuilder b)
         {
@@ -124,13 +144,14 @@ namespace CatSAT.SAT
         }
 
         #region Counting methods
+
         /// <inheritdoc />
         public override bool IsSatisfied(ushort satisfiedDisjuncts)
         {
             Graph.EnsureSpanningTreeBuilt();
             return Graph.Partition.ConnectedComponentCount == TargetNumComponents;
         }
-        
+
         /// <inheritdoc />
         public override bool MaxFalseLiterals(int falseLiterals)
         {
@@ -166,6 +187,7 @@ namespace CatSAT.SAT
         {
             throw new NotImplementedException();
         }
+
         #endregion
     }
 }

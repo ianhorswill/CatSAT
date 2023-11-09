@@ -119,6 +119,7 @@
     <Compile Include="NonBoolean\Variable.cs" />
     <Compile Include="NonBoolean\VariableProblemExtensions.cs" />
     <Compile Include="NonBoolean\VariableType.cs" />
+    <Compile Include="SAT\SpanningForest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\Settings.settings">

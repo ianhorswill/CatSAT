@@ -32,7 +32,7 @@ namespace CatSAT.SAT
         /// <summary>
         /// The spanning forest of the graph.
         /// </summary>
-        private UnionFind SpanningForest => Graph.Partition;
+        private SpanningForest SpanningForest => Graph.Partition;
 
         /// <summary>
         /// The number of vertices in the graph.
