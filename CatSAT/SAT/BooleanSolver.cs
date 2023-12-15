@@ -62,6 +62,7 @@ namespace CatSAT
         /// </summary>
         public Solution Solution;
 
+        // todo: maybe call this TruthValues instead?
         /// <summary>
         /// States of the different propositions of the Program, indexed by proposition number.
         /// IMPORTANT: this is an alias of solution.Propositions.

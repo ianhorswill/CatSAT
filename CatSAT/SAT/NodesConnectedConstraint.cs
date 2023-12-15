@@ -27,12 +27,12 @@ namespace CatSAT.SAT
         /// <summary>
         /// The queue used for BFS.
         /// </summary>
-        private Queue<int> Queue;
+        private Queue<int> _queue;
 
         /// <summary>
         /// The spanning forest of the graph.
         /// </summary>
-        private SpanningForest SpanningForest => Graph.Partition;
+        private SpanningForest SpanningForest => Graph.SpanningForest;
 
         /// <summary>
         /// The number of vertices in the graph.
@@ -42,7 +42,7 @@ namespace CatSAT.SAT
         /// <summary>
         /// The edges in the path between the source node and the destination node.
         /// </summary>
-        private HashSet<ushort> EdgesInPath;
+        private HashSet<ushort> _edgesInPath;
         
         /// <summary>
         /// The default risk associated with removing an edge.
@@ -75,9 +75,9 @@ namespace CatSAT.SAT
             Graph = graph;
             SourceNode = sourceNode;
             DestinationNode = destinationNode;
-            Queue = new Queue<int>(NumVertices);
+            _queue = new Queue<int>(NumVertices);
             Predecessors = new int[NumVertices];
-            EdgesInPath = new HashSet<ushort>(NumVertices - 1);
+            _edgesInPath = new HashSet<ushort>(NumVertices - 1);
             foreach (var edge in graph.SATVariableToEdge.Values)
             {
                 graph.Problem.SATVariables[edge.Index].CustomConstraints.Add(this);
@@ -92,16 +92,16 @@ namespace CatSAT.SAT
             for (int i = 0; i < NumVertices; i++)
                 Predecessors[i] = -1;
             
-            EdgesInPath.Clear();
-            Queue.Clear();
+            _edgesInPath.Clear();
+            _queue.Clear();
             Predecessors[SourceNode] = SourceNode;
-            Queue.Enqueue(SourceNode);
+            _queue.Enqueue(SourceNode);
 
             // todo: this is quadratic. change that?
             // cache info?
-            while (Queue.Count > 0)
+            while (_queue.Count > 0)
             {
-                var currentNode = Queue.Dequeue();
+                var currentNode = _queue.Dequeue();
                 
                 for (var vertex = 0; vertex < NumVertices; vertex++)
                 {
@@ -110,7 +110,7 @@ namespace CatSAT.SAT
                     if (!Graph.AdjacentVertices(vertex, currentNode)) continue; // no edge between vertex and currentNode
                     Predecessors[vertex] = currentNode;
                     if (vertex == DestinationNode) goto foundIt;
-                    Queue.Enqueue(vertex);
+                    _queue.Enqueue(vertex);
                 }
             }
 
@@ -119,7 +119,7 @@ namespace CatSAT.SAT
             for (var node = DestinationNode; node != SourceNode; node = Predecessors[node])
             {
                 var edge = Graph.Edges(Predecessors[node], node);
-                EdgesInPath.Add(edge.Index);
+                _edgesInPath.Add(edge.Index);
             }
         }
         
@@ -149,7 +149,7 @@ namespace CatSAT.SAT
         /// </summary>
         /// <param name="edge">The edge proposition to be flipped to false.</param>
         /// <returns>The cost of removing this edge. Positive cost is unfavorable, negative cost is favorable.</returns>
-        private int RemovingRisk(EdgeProposition edge) => Graph.SpanningTree.Contains(edge.Index) ? EdgeRemovalRisk : 0;
+        private int RemovingRisk(EdgeProposition edge) => SpanningForest.Contains(edge.Index) ? EdgeRemovalRisk : 0;
         
         /// <summary>
         /// Find the edge (proposition) to flip that will lead to the lowest cost.
@@ -199,7 +199,7 @@ namespace CatSAT.SAT
             bool previouslyConnected = Graph.AreConnected(SourceNode, DestinationNode);
             if (adding)
             {
-                Graph.Connect(edgeProp.SourceVertex, edgeProp.DestinationVertex);
+                Graph.ConnectInSpanningTree(edgeProp.SourceVertex, edgeProp.DestinationVertex);
                 if (!previouslyConnected && Graph.AreConnected(SourceNode, DestinationNode) &&
                     b.UnsatisfiedClauses.Contains(Index))
                 {

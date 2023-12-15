@@ -48,7 +48,7 @@ namespace Tests
             var graph = new Graph(p, 20);
             p.AddCustomConstraint(new GraphConnectedConstraint(graph));
             p.Solve();
-            Assert.IsTrue(graph.IsSpanningTree());
+            Assert.IsTrue(graph.SpanningForest.IsSpanningTree());
         }
         
         [TestMethod]
@@ -106,7 +106,7 @@ namespace Tests
         public void TwoConnectedComponentsTest()
         {
             var p = new Problem();
-            var graph = new Graph(p, 5);
+            var graph = new Graph(p, 4, 1);
             p.AddCustomConstraint(new NConnectedComponentsConstraint(graph, 2));
             graph.WriteDot(p.Solve(), "test_two_connected_components.dot");
         }

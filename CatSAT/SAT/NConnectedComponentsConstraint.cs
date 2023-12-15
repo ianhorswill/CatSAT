@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 
 namespace CatSAT.SAT
@@ -22,7 +23,7 @@ namespace CatSAT.SAT
         /// <summary>
         /// The spanning forest of the graph.
         /// </summary>
-        private SpanningForest SpanningForest;
+        private SpanningForest SpanningForest => Graph.SpanningForest;
 
         /// <summary>
         /// The current number of connected components in the graph.
@@ -49,7 +50,6 @@ namespace CatSAT.SAT
         {
             Graph = graph;
             TargetNumComponents = n;
-            SpanningForest = graph.Partition;
             _currentNumComponents = SpanningForest.ConnectedComponentCount;
             foreach (var edge in graph.SATVariableToEdge.Values)
             {
@@ -107,9 +107,11 @@ namespace CatSAT.SAT
         public override void UpdateCustomConstraint(BooleanSolver b, ushort pIndex, bool adding)
         {
             EdgeProposition edgeProp = Graph.SATVariableToEdge[pIndex];
+            SpanningForest.PrintEdges(); // todo: remove
+            Console.WriteLine($"{(adding ? "adding" : "removing")} {edgeProp}");
             if (adding)
             {
-                Graph.Connect(edgeProp.SourceVertex, edgeProp.DestinationVertex);
+                Graph.ConnectInSpanningTree(edgeProp.SourceVertex, edgeProp.DestinationVertex);
                 _currentNumComponents = SpanningForest.ConnectedComponentCount;
                 if (_currentNumComponents == TargetNumComponents && b.UnsatisfiedClauses.Contains(Index))
                 {
@@ -149,7 +151,7 @@ namespace CatSAT.SAT
         public override bool IsSatisfied(ushort satisfiedDisjuncts)
         {
             Graph.EnsureSpanningTreeBuilt();
-            return Graph.Partition.ConnectedComponentCount == TargetNumComponents;
+            return SpanningForest.ConnectedComponentCount == TargetNumComponents;
         }
 
         /// <inheritdoc />

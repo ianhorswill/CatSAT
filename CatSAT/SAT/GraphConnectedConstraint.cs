@@ -16,9 +16,9 @@ namespace CatSAT.SAT
         public Graph Graph;
 
         /// <summary>
-        /// The spanning tree of the graph.
+        /// The spanning forest of the graph.
         /// </summary>
-        private HashSet<ushort> SpanningTree => Graph.SpanningTree;
+        private SpanningForest SpanningForest => Graph.SpanningForest;
         
         /// <summary>
         /// The risk associated with removing an edge which is in the spanning tree.
@@ -46,7 +46,7 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         public override int CustomFlipRisk(ushort index, bool adding)
         {
-            var componentCount = Graph.Partition.ConnectedComponentCount;
+            var componentCount = SpanningForest.ConnectedComponentCount;
             if (componentCount == 1 && adding) return 0;
             var edge = Graph.SATVariableToEdge[index];
             return adding ? AddingRisk(edge) : RemovingRisk(edge);
@@ -65,7 +65,7 @@ namespace CatSAT.SAT
         /// </summary>
         /// <param name="edge">The edge proposition to be flipped to false.</param>
         /// <returns>The cost of removing this edge. Positive cost is unfavorable, negative cost is favorable.</returns>
-        private int RemovingRisk(EdgeProposition edge) => SpanningTree.Contains(edge.Index) ? EdgeRemovalRisk : 0;
+        private int RemovingRisk(EdgeProposition edge) => SpanningForest.Contains(edge.Index) ? EdgeRemovalRisk : 0;
         
         /// <summary>
         /// Find the edge (proposition) to flip that will lead to the lowest cost.
@@ -114,15 +114,15 @@ namespace CatSAT.SAT
             var edgeProp = Graph.SATVariableToEdge[pIndex];
             if (adding)
             {
-                Graph.Connect(edgeProp.SourceVertex, edgeProp.DestinationVertex);
-                if (Graph.Partition.ConnectedComponentCount == 1 && b.UnsatisfiedClauses.Contains(Index))
+                Graph.ConnectInSpanningTree(edgeProp.SourceVertex, edgeProp.DestinationVertex);
+                if (SpanningForest.ConnectedComponentCount == 1 && b.UnsatisfiedClauses.Contains(Index))
                     b.UnsatisfiedClauses.Remove(Index);
             }
             else
             {
-                int previousComponentCount = Graph.Partition.ConnectedComponentCount;
+                int previousComponentCount = SpanningForest.ConnectedComponentCount;
                 Graph.Disconnect(edgeProp.SourceVertex, edgeProp.DestinationVertex);
-                if (Graph.Partition.ConnectedComponentCount > 1 && previousComponentCount == 1)
+                if (SpanningForest.ConnectedComponentCount > 1 && previousComponentCount == 1)
                     b.UnsatisfiedClauses.Add(Index);
             }
         }
@@ -147,7 +147,7 @@ namespace CatSAT.SAT
         public override bool IsSatisfied(ushort satisfiedDisjuncts)
         {
             Graph.EnsureSpanningTreeBuilt();
-            return Graph.Partition.ConnectedComponentCount == 1;
+            return SpanningForest.ConnectedComponentCount == 1;
         }
 
         /// <inheritdoc />

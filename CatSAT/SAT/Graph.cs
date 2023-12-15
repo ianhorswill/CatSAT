@@ -40,12 +40,13 @@ namespace CatSAT.SAT
         /// <summary>
         /// The current union-find partition of the graph.
         /// </summary>
-        public SpanningForest Partition;
+        public SpanningForest SpanningForest;
         
-        /// <summary>
-        /// The current spanning tree in the graph. Consists of the SAT variable numbers.
-        /// </summary>
-        public HashSet<ushort> SpanningTree = new HashSet<ushort>();
+        // todo: remove
+        // /// <summary>
+        // /// The current spanning tree in the graph. Consists of the SAT variable numbers.
+        // /// </summary>
+        // public HashSet<ushort> SpanningTree = new HashSet<ushort>();
 
         /// <summary>
         /// The problem corresponding to this graph.
@@ -56,7 +57,7 @@ namespace CatSAT.SAT
         /// The BooleanSolver for the problem corresponding to this graph.
         /// </summary>
         private BooleanSolver Solver => Problem.BooleanSolver;
-
+        
         /// <summary>
         /// True if the spanning tree has been built, false otherwise.
         /// </summary>
@@ -75,7 +76,7 @@ namespace CatSAT.SAT
             NumVertices = numVertices;
             for (int i = 0; i < numVertices; i++)
                 Vertices[i] = i;
-            Partition = new SpanningForest(this);
+            SpanningForest = new SpanningForest(this);
             Edges = SymmetricPredicateOfType<int, EdgeProposition>("Edges");
             for (int i = 0; i < numVertices; i++)
             {
@@ -154,23 +155,17 @@ namespace CatSAT.SAT
         /// <param name="n">The first vertex.</param>
         /// <param name="m">The second vertex.</param>
         /// <returns>True if the two vertices are connected, false otherwise.</returns>
-        public bool AreConnected(int n, int m) => Partition.SameClass(n, m);
-
+        public bool AreConnected(int n, int m) => SpanningForest.SameClass(n, m);
+        
         /// <summary>
         /// Adds the edge (n, m) to the spanning tree. 
         /// </summary>
         /// <param name="n">The first vertex in the edge.</param>
         /// <param name="m">The second vertex in the edge.</param>
-        public void Connect(int n, int m)
+        public void ConnectInSpanningTree(int n, int m)
         {
-            int nRepresentative = Partition.Find(n);
-            int mRepresentative = Partition.Find(m);
-
-            if (nRepresentative == mRepresentative) return;
-            Partition.Union(nRepresentative, mRepresentative);
-            // Partition.Union(n, m); // todo: is this correct instead of above statement?
-            SpanningTree.Add(Edges(n, m).Index);
-            Console.WriteLine($"Connected {n} and {m}");
+            bool edgeAdded = SpanningForest.Union(n, m);
+            if (edgeAdded) Console.WriteLine($"Connected {n} and {m}");
         }
 
         /// <summary>
@@ -180,15 +175,13 @@ namespace CatSAT.SAT
         /// <param name="m">The second vertex.</param>
         public void Disconnect(int n, int m)
         {
-            if (!SpanningTree.Contains(Edges(n, m).Index)) return;
-            SpanningTree.Clear();
+            if (!SpanningForest.Contains(Edges(n, m).Index)) return;
+            SpanningForest.Clear();
             _spanningTreeBuilt = false; // todo: remove this later for cleanup
             Console.WriteLine($"Disconnected {n} and {m}");
             RebuildSpanningTree();
         }
         
-        // todo: write function that takes two vertices and returns whether they are adjacent to one another RIGHT NOW!!!
-        // todo: ian will be VERY MAD if you do not
         /// <summary>
         /// Returns whether or not two vertices are adjacent to each other (i.e., share an edge).
         /// </summary>
@@ -202,12 +195,12 @@ namespace CatSAT.SAT
         /// </summary>
         private void RebuildSpanningTree()
         {
-            Partition.Clear();
+            SpanningForest.Clear();
             // todo: down the road, keep a list/hashset of all the edges that are true, and only iterate over those
             foreach (EdgeProposition edgeProposition in SATVariableToEdge.Values.Where(edgeProposition =>
                          Solver.Propositions[edgeProposition.Index]))
             {
-                Connect(edgeProposition.SourceVertex, edgeProposition.DestinationVertex);
+                ConnectInSpanningTree(edgeProposition.SourceVertex, edgeProposition.DestinationVertex);
             }
             _spanningTreeBuilt = true;
         }
@@ -237,23 +230,7 @@ namespace CatSAT.SAT
         /// </summary>
         /// <param name="index">The index corresponding to the edge.</param>
         /// <returns>The color of the edge as a string.</returns>
-        private string EdgeColor(ushort index) => SpanningTree.Contains(index) ? "green" : "red";
-
-        /// <summary>
-        /// Determines whether the spanning tree has been correctly constructed.
-        /// </summary>
-        /// <returns>True if the spanning tree contains all the vertices in the graph, false otherwise.</returns>
-        public bool IsSpanningTree()
-        {
-            HashSet<int> visited = new HashSet<int>();
-            foreach (ushort index in SpanningTree)
-            {
-                visited.Add(SATVariableToEdge[index].SourceVertex);
-                visited.Add(SATVariableToEdge[index].DestinationVertex);
-            }
-            Console.WriteLine(string.Join(", ", visited));
-            return visited.Count == Vertices.Length;
-        }
+        private string EdgeColor(ushort index) => SpanningForest.Contains(index) ? "green" : "red";
 
         /// <summary>
         /// 
@@ -264,6 +241,9 @@ namespace CatSAT.SAT
             RebuildSpanningTree();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Reset()
         {
             _spanningTreeBuilt = false;
