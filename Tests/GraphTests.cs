@@ -37,7 +37,8 @@ namespace Tests
         {
             var p = new Problem();
             var graph = new Graph(p, 20);
-            p.AddCustomConstraint(new GraphConnectedConstraint(graph));
+            // p.AddCustomConstraint(new GraphConnectedConstraint(graph));
+            graph.Connected();
             graph.WriteDot(p.Solve(), "test.dot");
         }
 
@@ -91,6 +92,18 @@ namespace Tests
             p.AddCustomConstraint(new NodesConnectedConstraint(graph, 0, 1));
             graph.Density(0.05f, 0.2f);
             graph.WriteDot(p.Solve(), "test.dot");
+        }
+
+        [TestMethod]
+        public void GameGraphTest()
+        {
+            var p = new Problem();
+            var graph = new Graph(p, 10, 0);
+            // todo: why does changing the order of the constraints make one of them not work?
+            p.AddCustomConstraint(new NodesConnectedConstraint(graph, 0, 1));
+            p.AddCustomConstraint(new GraphConnectedConstraint(graph));
+            graph.Density(0.2f, 0.4f);
+            graph.WriteDot(p.Solve(), "test_game_graph.dot");
         }
 
         [TestMethod]

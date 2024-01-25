@@ -248,6 +248,33 @@ namespace CatSAT.SAT
         {
             _spanningTreeBuilt = false;
         }
+
+        /// <summary>
+        /// Adds a graph connected constraint to the problem.
+        /// </summary>
+        public void Connected()
+        {
+            Problem.AddCustomConstraint(new GraphConnectedConstraint(this));
+        }
+
+        /// <summary>
+        /// Adds a constraint that the two specified nodes must be connected in the graph.
+        /// </summary>
+        /// <param name="sourceNode">The source node.</param>
+        /// <param name="destinationNode">The destination node.</param>
+        public void NodesConnected(int sourceNode, int destinationNode)
+        {
+            Problem.AddCustomConstraint(new NodesConnectedConstraint(this, sourceNode, destinationNode));
+        }
+        
+        /// <summary>
+        /// Adds a constraint that the graph must have exactly n connected components.
+        /// </summary>
+        /// <param name="n">The number of connected components.</param>
+        public void NConnectedComponents(int n)
+        {
+            Problem.AddCustomConstraint(new NConnectedComponentsConstraint(this, n));
+        }
     }
 }
 

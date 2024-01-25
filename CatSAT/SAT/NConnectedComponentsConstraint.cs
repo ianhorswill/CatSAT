@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 
 namespace CatSAT.SAT
@@ -26,11 +25,6 @@ namespace CatSAT.SAT
         private SpanningForest SpanningForest => Graph.SpanningForest;
 
         /// <summary>
-        /// The current number of connected components in the graph.
-        /// </summary>
-        private int _currentNumComponents;
-
-        /// <summary>
         /// The risk associated with adding/removing a favorable edge.
         /// </summary>
         private const int FavorableRisk = -1;
@@ -50,7 +44,6 @@ namespace CatSAT.SAT
         {
             Graph = graph;
             TargetNumComponents = n;
-            _currentNumComponents = SpanningForest.ConnectedComponentCount;
             foreach (var edge in graph.SATVariableToEdge.Values)
             {
                 graph.Problem.SATVariables[edge.Index].CustomConstraints.Add(this);
@@ -60,8 +53,7 @@ namespace CatSAT.SAT
         /// <inheritdoc />
         public override int CustomFlipRisk(ushort index, bool adding)
         {
-            _currentNumComponents = SpanningForest.ConnectedComponentCount;
-            int difference = _currentNumComponents - TargetNumComponents;
+            int difference = SpanningForest.ConnectedComponentCount - TargetNumComponents;
             var edge = Graph.SATVariableToEdge[index];
             return adding ? AddingRisk(edge, difference) : RemovingRisk(edge, difference);
         }
@@ -112,18 +104,16 @@ namespace CatSAT.SAT
             if (adding)
             {
                 Graph.ConnectInSpanningTree(edgeProp.SourceVertex, edgeProp.DestinationVertex);
-                _currentNumComponents = SpanningForest.ConnectedComponentCount;
-                if (_currentNumComponents == TargetNumComponents && b.UnsatisfiedClauses.Contains(Index))
+                if (SpanningForest.ConnectedComponentCount == TargetNumComponents && b.UnsatisfiedClauses.Contains(Index))
                 {
                     b.UnsatisfiedClauses.Remove(Index);
                 }
             }
             else
             {
-                int previousComponentCount = _currentNumComponents;
+                int previousComponentCount = SpanningForest.ConnectedComponentCount;
                 Graph.Disconnect(edgeProp.SourceVertex, edgeProp.DestinationVertex);
-                _currentNumComponents = SpanningForest.ConnectedComponentCount;
-                if (_currentNumComponents != TargetNumComponents && previousComponentCount == TargetNumComponents)
+                if (SpanningForest.ConnectedComponentCount != TargetNumComponents && previousComponentCount == TargetNumComponents)
                 {
                     b.UnsatisfiedClauses.Add(Index);
                 }
